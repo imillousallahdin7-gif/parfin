@@ -372,7 +372,9 @@ async function decodeImageForCanvas(
   }
 }
 
-export async function compressImageFile(file: File, maxDim = 800, maxBytes = 380000): Promise<string> {
+let storageUnavailable = false;
+
+export async function compressImageFile(file: File, maxDim = 650, maxBytes = 90000): Promise<string> {
   const source = await decodeImageForCanvas(file);
   const renderScaled = (targetDim: number, quality: number): string => {
     const scale = Math.min(1, targetDim / Math.max(source.width, source.height));
@@ -392,19 +394,19 @@ export async function compressImageFile(file: File, maxDim = 800, maxBytes = 380
   };
 
   try {
-    let quality = 0.8;
+    let quality = 0.74;
     let dataUrl = renderScaled(maxDim, quality);
 
-    while (dataUrl.length > maxBytes && quality > 0.35) {
-      quality -= 0.1;
+    while (dataUrl.length > maxBytes && quality > 0.42) {
+      quality -= 0.08;
       dataUrl = renderScaled(maxDim, quality);
     }
 
     if (dataUrl.length > maxBytes) {
-      dataUrl = renderScaled(600, 0.7);
+      dataUrl = renderScaled(520, 0.65);
     }
     if (dataUrl.length > maxBytes) {
-      dataUrl = renderScaled(440, 0.58);
+      dataUrl = renderScaled(420, 0.55);
     }
 
     if (dataUrl.length > 590000) {
@@ -423,13 +425,17 @@ export async function uploadAdminImage(
 ): Promise<{ imageUrl?: string; imageData: string }> {
   const compressedDataUrl = await compressImageFile(file);
 
+  if (storageUnavailable) {
+    return { imageData: compressedDataUrl };
+  }
+
   try {
     const [{ storage }, { ref, uploadString, getDownloadURL }] = await Promise.all([
       import('./firebase'),
       import('firebase/storage'),
     ]);
-    storage.maxUploadRetryTime = 2500;
-    storage.maxOperationRetryTime = 2500;
+    storage.maxUploadRetryTime = 1200;
+    storage.maxOperationRetryTime = 1200;
 
     const storageRef = ref(storage, `${folder}/${docId}-${Date.now()}.webp`);
     const uploadPromise = (async () => {
@@ -438,13 +444,14 @@ export async function uploadAdminImage(
     })();
 
     const timeoutPromise = new Promise<never>((_, reject) => {
-      window.setTimeout(() => reject(new Error('Storage upload timeout')), 2500);
+      window.setTimeout(() => reject(new Error('Storage upload timeout')), 1200);
     });
 
     const downloadUrl = await Promise.race([uploadPromise, timeoutPromise]);
     return { imageUrl: downloadUrl, imageData: compressedDataUrl };
   } catch {
-    // Immediate fallback to compressed Base64 (< 380KB) stored directly in Firestore
+    storageUnavailable = true;
+    // Fast immediate fallback: <90KB WebP stored directly in Firestore
     return { imageData: compressedDataUrl };
   }
 }
@@ -538,20 +545,28 @@ export async function saveAdminProduct(
   if (product.images !== undefined) payload.images = product.images.slice(0, 5);
 
   try {
-    const existingSnap = await getDoc(ref);
-    if (existingSnap.exists()) {
-      const existingData = existingSnap.data();
-      const updatePayload: Record<string, unknown> = { ...payload };
-      if (!existingData.createdAt) {
-        updatePayload.createdAt = serverTimestamp();
+    const isExistingEdit = Boolean(product.id?.trim());
+    if (isExistingEdit) {
+      const existingSnap = await getDoc(ref);
+      if (existingSnap.exists()) {
+        const existingData = existingSnap.data();
+        const updatePayload: Record<string, unknown> = { ...payload };
+        if (!existingData.createdAt) {
+          updatePayload.createdAt = serverTimestamp();
+        }
+        if (product.imageUrl === '' && existingData.imageUrl) {
+          updatePayload.imageUrl = deleteField();
+        }
+        if (product.imageData === '' && existingData.imageData) {
+          updatePayload.imageData = deleteField();
+        }
+        await updateDoc(ref, updatePayload);
+      } else {
+        await setDoc(ref, {
+          ...payload,
+          createdAt: serverTimestamp(),
+        });
       }
-      if (product.imageUrl === '' && existingData.imageUrl) {
-        updatePayload.imageUrl = deleteField();
-      }
-      if (product.imageData === '' && existingData.imageData) {
-        updatePayload.imageData = deleteField();
-      }
-      await updateDoc(ref, updatePayload);
     } else {
       await setDoc(ref, {
         ...payload,

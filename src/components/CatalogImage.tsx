@@ -21,17 +21,19 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
   className = '',
   aspectClass = 'aspect-[4/5]',
 }) => {
-  const [activeBaseSrc, setActiveBaseSrc] = useState(src || fallbackSrc || '');
-  const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(!(src || fallbackSrc));
+  const initialSrc = src || fallbackSrc || '';
+  const [activeBaseSrc, setActiveBaseSrc] = useState(initialSrc);
+  const [loaded, setLoaded] = useState(initialSrc.startsWith('data:'));
+  const [failed, setFailed] = useState(!initialSrc);
   const [retryCount, setRetryCount] = useState(0);
   const [cacheBust, setCacheBust] = useState('');
   const retryTimerRef = useRef<number | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const initial = src || fallbackSrc || '';
     setActiveBaseSrc(initial);
-    setLoaded(false);
+    setLoaded(initial.startsWith('data:'));
     setFailed(!initial);
     setRetryCount(0);
     setCacheBust('');
@@ -42,12 +44,19 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
   }, [src, fallbackSrc]);
 
   useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, [activeBaseSrc, cacheBust]);
+
+  useEffect(() => {
     if (!activeBaseSrc) return;
 
     const handleRecover = () => {
       if (failed && document.visibilityState !== 'hidden') {
         setFailed(false);
-        setLoaded(false);
+        setLoaded(activeBaseSrc.startsWith('data:'));
         setRetryCount(0);
         setCacheBust(`r=${Date.now()}`);
       }
@@ -67,7 +76,7 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
   const handleError = () => {
     if (fallbackSrc && activeBaseSrc !== fallbackSrc) {
       setActiveBaseSrc(fallbackSrc);
-      setLoaded(false);
+      setLoaded(fallbackSrc.startsWith('data:'));
       setFailed(false);
       setRetryCount(0);
       setCacheBust('');
@@ -95,9 +104,12 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
     return `${activeBaseSrc}${sep}${cacheBust}`;
   })();
 
+  const isDataUrl = resolvedSrc.startsWith('data:');
+  const showImage = isDataUrl || loaded;
+
   return (
     <div className={`relative w-full ${aspectClass} overflow-hidden bg-[#F3EFE8] ${className}`}>
-      {!loaded && !failed && (
+      {!showImage && !failed && (
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-[#F3EFE8] animate-pulse"
@@ -106,15 +118,16 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
 
       {!failed && resolvedSrc ? (
         <img
+          ref={imgRef}
           src={resolvedSrc}
           alt={alt}
-          loading={eager ? 'eager' : 'lazy'}
-          decoding={eager ? 'sync' : 'async'}
+          loading={eager || isDataUrl ? 'eager' : 'lazy'}
+          decoding={eager || isDataUrl ? 'sync' : 'async'}
           referrerPolicy="no-referrer"
           onLoad={() => setLoaded(true)}
           onError={handleError}
-          className={`w-full h-full object-cover transition-opacity duration-500 ${
-            loaded ? 'opacity-100' : 'opacity-0'
+          className={`w-full h-full object-cover transition-opacity duration-150 ${
+            showImage ? 'opacity-100' : 'opacity-0'
           }`}
         />
       ) : (

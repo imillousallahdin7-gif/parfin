@@ -249,7 +249,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
               <ProductCard
                 key={product.id}
                 product={product}
-                eager={index < 4}
+                eager={index < 8}
                 onOpenDetail={onOpenDetail}
                 onOrderNow={onOrderNow}
               />

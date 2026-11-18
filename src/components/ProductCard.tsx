@@ -27,7 +27,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const title = product.name?.fr || 'Création';
   const description = product.description?.fr || '';
-  const imageSrc = product.imageUrl || product.imageData || product.images?.[0];
+  const imageSrc =
+    (product.imageUrl?.startsWith('/') ? product.imageUrl : undefined) ||
+    product.imageData ||
+    product.imageUrl ||
+    product.images?.[0];
 
   return (
     <article

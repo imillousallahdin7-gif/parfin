@@ -16,7 +16,10 @@ export const PackCard: React.FC<PackCardProps> = ({
 }) => {
   const title = pack.name?.fr || 'Pack';
   const description = pack.description?.fr || '';
-  const imageSrc = pack.imageUrl || pack.imageData;
+  const imageSrc =
+    (pack.imageUrl?.startsWith('/') ? pack.imageUrl : undefined) ||
+    pack.imageData ||
+    pack.imageUrl;
 
   return (
     <article className="group relative flex flex-col h-full bg-white rounded-2xl border border-[#E5DFD5] overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:border-[#C5A059]/60">

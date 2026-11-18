@@ -20,8 +20,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const gallery = useMemo(() => {
     if (!product) return [];
     const list: string[] = [];
-    if (product.imageUrl) list.push(product.imageUrl);
-    if (product.imageData && !list.includes(product.imageData)) list.push(product.imageData);
+    const primary =
+      (product.imageUrl?.startsWith('/') ? product.imageUrl : undefined) ||
+      product.imageData ||
+      product.imageUrl;
+    if (primary) list.push(primary);
     if (Array.isArray(product.images)) {
       for (const img of product.images) {
         if (img && !list.includes(img)) list.push(img);

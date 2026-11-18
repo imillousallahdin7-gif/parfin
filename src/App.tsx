@@ -79,22 +79,30 @@ export default function App() {
       const snapshot = await getPublicCatalog({
         forceRefresh,
         onBackgroundUpdate: (fresh) => {
-          if (!liveReceivedRef.current.products) setProducts(fresh.products);
-          if (!liveReceivedRef.current.packs) setPacks(fresh.packs);
+          if (!liveReceivedRef.current.products && fresh.products.length > 0) {
+            setProducts(fresh.products);
+          }
+          if (!liveReceivedRef.current.packs && fresh.packs.length > 0) {
+            setPacks(fresh.packs);
+          }
           if (!liveReceivedRef.current.settings) setSettings(fresh.settings);
         },
       });
-      if (!liveReceivedRef.current.products) setProducts(snapshot.products);
-      if (!liveReceivedRef.current.packs) setPacks(snapshot.packs);
+      if (!liveReceivedRef.current.products && snapshot.products.length > 0) {
+        setProducts(snapshot.products);
+        setLoading(false);
+      }
+      if (!liveReceivedRef.current.packs && snapshot.packs.length > 0) {
+        setPacks(snapshot.packs);
+      }
       if (!liveReceivedRef.current.settings) setSettings(snapshot.settings);
     } catch (err) {
       if (!liveReceivedRef.current.products) {
         setCatalogError(
           err instanceof Error ? err.message : 'Impossible de charger le catalogue.'
         );
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -110,9 +118,14 @@ export default function App() {
     let active = true;
     let unsubscribe: (() => void) | undefined;
 
+    const safetyTimer = window.setTimeout(() => {
+      if (active) setLoading(false);
+    }, 6000);
+
     subscribePublicCatalog({
       onProducts: (liveProducts) => {
         if (!active) return;
+        window.clearTimeout(safetyTimer);
         liveReceivedRef.current.products = true;
         setProducts(liveProducts);
         setCatalogError(null);
@@ -122,12 +135,17 @@ export default function App() {
         if (!active) return;
         liveReceivedRef.current.packs = true;
         setPacks(livePacks);
-        setLoading(false);
       },
       onSettings: (liveSettings) => {
         if (!active) return;
         liveReceivedRef.current.settings = true;
         setSettings(liveSettings);
+      },
+      onError: () => {
+        if (active) {
+          window.clearTimeout(safetyTimer);
+          setLoading(false);
+        }
       },
     })
       .then((unsub) => {
@@ -138,11 +156,15 @@ export default function App() {
         }
       })
       .catch(() => {
-        // Fallback silently to static catalog.json if real-time listener is blocked
+        if (active) {
+          window.clearTimeout(safetyTimer);
+          setLoading(false);
+        }
       });
 
     return () => {
       active = false;
+      window.clearTimeout(safetyTimer);
       if (unsubscribe) unsubscribe();
     };
   }, [isPublicView]);

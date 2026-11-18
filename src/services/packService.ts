@@ -72,20 +72,28 @@ export async function saveAdminPack(
   }
 
   try {
-    const existingSnap = await getDoc(ref);
-    if (existingSnap.exists()) {
-      const existingData = existingSnap.data();
-      const updatePayload: Record<string, unknown> = { ...payload };
-      if (!existingData.createdAt) {
-        updatePayload.createdAt = serverTimestamp();
+    const isExistingEdit = Boolean(pack.id?.trim());
+    if (isExistingEdit) {
+      const existingSnap = await getDoc(ref);
+      if (existingSnap.exists()) {
+        const existingData = existingSnap.data();
+        const updatePayload: Record<string, unknown> = { ...payload };
+        if (!existingData.createdAt) {
+          updatePayload.createdAt = serverTimestamp();
+        }
+        if (pack.imageUrl === '' && existingData.imageUrl) {
+          updatePayload.imageUrl = deleteField();
+        }
+        if (pack.imageData === '' && existingData.imageData) {
+          updatePayload.imageData = deleteField();
+        }
+        await updateDoc(ref, updatePayload);
+      } else {
+        await setDoc(ref, {
+          ...payload,
+          createdAt: serverTimestamp(),
+        });
       }
-      if (pack.imageUrl === '' && existingData.imageUrl) {
-        updatePayload.imageUrl = deleteField();
-      }
-      if (pack.imageData === '' && existingData.imageData) {
-        updatePayload.imageData = deleteField();
-      }
-      await updateDoc(ref, updatePayload);
     } else {
       await setDoc(ref, {
         ...payload,
