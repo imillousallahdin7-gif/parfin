@@ -101,49 +101,74 @@ export const Footer: React.FC<FooterProps> = ({
             </h3>
             <ul className="space-y-2.5 text-[#FAF8F5]/80">
               <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('shop')}
+                <a
+                  href="/shop"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onNavigate('shop');
+                    }
+                  }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
                   Boutique complète
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('packs-women')}
+                <a
+                  href="/packs-women"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onNavigate('packs-women');
+                    }
+                  }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
                   Packs Femme
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('packs-men')}
+                <a
+                  href="/packs-men"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onNavigate('packs-men');
+                    }
+                  }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
                   Packs Homme
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('home', 'story')}
+                <a
+                  href="/#story"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onNavigate('home', 'story');
+                    }
+                  }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
                   Notre histoire
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('home', 'location')}
+                <a
+                  href="/#location"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onNavigate('home', 'location');
+                    }
+                  }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
                   Notre Magasin
-                </button>
+                </a>
               </li>
             </ul>
           </div>

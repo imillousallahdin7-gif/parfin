@@ -10,6 +10,7 @@ import {
 } from './types/catalog';
 import { getPublicCatalog, subscribePublicCatalog } from './services/catalogService';
 import { loadCart, saveCart } from './services/cartService';
+import { updateDocumentSeo } from './utils/seo';
 import { Header } from './components/Header';
 import { NavigationOverlay } from './components/NavigationOverlay';
 import { Hero } from './components/Hero';
@@ -190,6 +191,16 @@ export default function App() {
     saveCart(cartItems);
   }, [cartItems]);
 
+  useEffect(() => {
+    updateDocumentSeo({
+      route,
+      selectedCategory,
+      detailProduct,
+      products,
+      packs,
+    });
+  }, [route, selectedCategory, detailProduct, products, packs]);
+
   const handleSelectCategory = useCallback((cat: string) => {
     setSelectedCategory(cat);
     try {
@@ -207,9 +218,27 @@ export default function App() {
 
   const handleNavigate = useCallback((nextRoute: AppRoute, sectionId?: string) => {
     setRoute(nextRoute);
-    const nextHash = nextRoute === 'home' ? (sectionId ? `#${sectionId}` : '') : `#${nextRoute}`;
-    if (window.location.hash !== nextHash) {
-      window.location.hash = nextHash;
+    try {
+      if (nextRoute === 'admin') {
+        if (window.location.hash !== '#admin') {
+          window.location.hash = '#admin';
+        }
+      } else {
+        const nextPath =
+          nextRoute === 'home'
+            ? sectionId
+              ? `/#${sectionId}`
+              : '/'
+            : `/${nextRoute}`;
+        if (`${window.location.pathname}${window.location.hash}` !== nextPath) {
+          window.history.pushState({}, '', nextPath);
+        }
+      }
+    } catch {
+      const nextHash = nextRoute === 'home' ? (sectionId ? `#${sectionId}` : '') : `#${nextRoute}`;
+      if (window.location.hash !== nextHash) {
+        window.location.hash = nextHash;
+      }
     }
 
     if (nextRoute === 'home' && sectionId) {

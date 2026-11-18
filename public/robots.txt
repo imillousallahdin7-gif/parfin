@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /packs-women
+Allow: /packs-men
+Disallow: /admin
+Disallow: /#admin
+Disallow: /api/
+
+Sitemap: https://parfumerie-elkhalifi.vercel.app/sitemap.xml

@@ -120,24 +120,29 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </button>
 
-            {/* Zone 2: Clean Single-Line Navigation Links */}
+            {/* Zone 2: Clean Single-Line Navigation Links (crawlable anchors + SPA navigation) */}
             <nav className="flex items-center gap-5 lg:gap-7" aria-label="Navigation principale">
               {[
-                { label: 'Boutique', action: () => onNavigate('shop') },
-                { label: 'Nos Packs', action: () => onNavigate('packs-women') },
-                { label: 'Notre histoire', action: () => onNavigate('home', 'story') },
-                { label: 'Notre Magasin', action: () => onNavigate('home', 'location') },
-                { label: 'Contact', action: () => onNavigate('home', 'contact') },
+                { label: 'Boutique', href: '/shop', action: () => onNavigate('shop') },
+                { label: 'Nos Packs', href: '/packs-women', action: () => onNavigate('packs-women') },
+                { label: 'Notre histoire', href: '/#story', action: () => onNavigate('home', 'story') },
+                { label: 'Notre Magasin', href: '/#location', action: () => onNavigate('home', 'location') },
+                { label: 'Contact', href: '/#contact', action: () => onNavigate('home', 'contact') },
               ].map((item) => (
-                <button
+                <a
                   key={item.label}
-                  type="button"
-                  onClick={item.action}
+                  href={item.href}
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      item.action();
+                    }
+                  }}
                   className="group relative py-2 text-xs uppercase tracking-[0.1em] text-[#FAF8F5]/85 hover:text-[#DFC48B] transition-colors whitespace-nowrap shrink-0"
                 >
                   {item.label}
                   <span className="absolute left-0 bottom-1 w-full h-px bg-[#C5A059] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
-                </button>
+                </a>
               ))}
             </nav>
 

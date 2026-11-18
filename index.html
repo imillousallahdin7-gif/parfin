@@ -3,16 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>PARFUMERIE EL KHALIFI — Parfumerie &amp; Cosmétiques</title>
+    <title>PARFUMERIE EL KHALIFI — Parfums &amp; Cosmétiques Tanger</title>
     <meta
       name="description"
-      content="PARFUMERIE EL KHALIFI à Tanger : parfumerie française, arabe et de niche, et sélection authentique de cosmétiques &amp; soins beauté livrés dans tout le Maroc via WhatsApp."
+      content="PARFUMERIE EL KHALIFI à Tanger : parfums originaux, décants, soins visage et maquillage authentiques livrés dans tout le Maroc via WhatsApp."
     />
     <meta
       name="keywords"
-      content="parfumerie Tanger, cosmétiques Maroc, soins visage Tanger, haute parfumerie, décants parfums Maroc, maquillage luxe Tanger, Parfumerie El Khalifi"
+      content="Parfumerie El Khalifi, بارفومري الخليفي, parfumerie Tanger, cosmétiques Tanger, parfums originaux Maroc, décants parfums Maroc, soins visage Tanger, maquillage Maroc, parfums arabes Tanger, parfums de niche Maroc"
     />
+    <meta name="author" content="PARFUMERIE EL KHALIFI" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="geo.region" content="MA-01" />
+    <meta name="geo.placename" content="Tanger, Maroc" />
+    <meta name="geo.position" content="35.7595;-5.8340" />
+    <meta name="ICBM" content="35.7595, -5.8340" />
     <link rel="canonical" href="https://parfumerie-elkhalifi.vercel.app/" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#0B0A08" />
 
     <!-- Favicon & Icons -->
@@ -24,21 +34,36 @@
     <meta property="og:locale" content="fr_MA" />
     <meta property="og:site_name" content="PARFUMERIE EL KHALIFI" />
     <meta property="og:url" content="https://parfumerie-elkhalifi.vercel.app/" />
-    <meta property="og:title" content="PARFUMERIE EL KHALIFI — Parfumerie &amp; Cosmétiques" />
+    <meta property="og:title" content="PARFUMERIE EL KHALIFI — Parfums &amp; Cosmétiques Tanger" />
     <meta
       property="og:description"
-      content="Parfumerie &amp; Cosmétiques à Tanger. Parfums originaux, décants sur mesure et soins beauté livrés partout au Maroc."
+      content="Parfums originaux, décants de précision, soins visage et maquillage authentiques à Tanger. Commande WhatsApp &amp; livraison dans tout le Maroc."
     />
-    <meta property="og:image" content="https://parfumerie-elkhalifi.vercel.app/logo.png" />
+    <meta
+      property="og:image"
+      content="https://parfumerie-elkhalifi.vercel.app/assets/hero/hero-desktop.webp"
+    />
+    <meta property="og:image:type" content="image/webp" />
+    <meta
+      property="og:image:alt"
+      content="PARFUMERIE EL KHALIFI — Parfums d'exception et cosmétiques de prestige à Tanger"
+    />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="PARFUMERIE EL KHALIFI — Parfumerie &amp; Cosmétiques" />
+    <meta name="twitter:title" content="PARFUMERIE EL KHALIFI — Parfums &amp; Cosmétiques Tanger" />
     <meta
       name="twitter:description"
-      content="Parfumerie &amp; Cosmétiques à Tanger. Parfums authentiques, décants et soins cosmétiques livrés dans tout le Maroc."
+      content="Parfums originaux, décants, soins visage et maquillage authentiques à Tanger. Livraison dans tout le Maroc."
     />
-    <meta name="twitter:image" content="https://parfumerie-elkhalifi.vercel.app/logo.png" />
+    <meta
+      name="twitter:image"
+      content="https://parfumerie-elkhalifi.vercel.app/assets/hero/hero-desktop.webp"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="PARFUMERIE EL KHALIFI — Parfumerie &amp; Cosmétiques à Tanger"
+    />
 
     <!-- Preload Lightweight WebP Hero Assets -->
     <link
@@ -66,61 +91,156 @@
       rel="stylesheet"
     />
 
-    <!-- Schema.org LocalBusiness & Store -->
+    <!-- Schema.org Structured Data Graph -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": ["HealthAndBeautyBusiness", "Store"],
-        "name": "PARFUMERIE EL KHALIFI",
-        "alternateName": "بارفومري الخليفي",
-        "description": "Parfumerie & Cosmétiques à Tanger. Parfums originaux, décants sur mesure et soins cosmétiques livrés dans tout le Maroc.",
-        "url": "https://parfumerie-elkhalifi.vercel.app/",
-        "logo": "https://parfumerie-elkhalifi.vercel.app/logo.png",
-        "image": "https://parfumerie-elkhalifi.vercel.app/logo.png",
-        "telephone": "+212610640666",
-        "email": "Taghzout.saif@hotmail.com",
-        "priceRange": "MAD",
-        "currenciesAccepted": "MAD",
-        "address": [
+        "@graph": [
           {
-            "@type": "PostalAddress",
-            "streetAddress": "2 Florencia St",
-            "addressLocality": "Tanger",
-            "addressRegion": "Tanger-Tétouan-Al Hoceïma",
-            "postalCode": "90060",
-            "addressCountry": "MA"
+            "@type": "WebSite",
+            "@id": "https://parfumerie-elkhalifi.vercel.app/#website",
+            "url": "https://parfumerie-elkhalifi.vercel.app/",
+            "name": "PARFUMERIE EL KHALIFI",
+            "alternateName": ["بارفومري الخليفي", "Parfumerie El Khalifi Tanger"],
+            "inLanguage": "fr-MA",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://parfumerie-elkhalifi.vercel.app/?category={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
           },
           {
-            "@type": "PostalAddress",
-            "streetAddress": "2 شارع فلورنسيا، طنجة 90060، المغرب",
-            "addressLocality": "طنجة",
-            "addressRegion": "Tanger-Tétouan-Al Hoceïma",
-            "postalCode": "90060",
-            "addressCountry": "MA"
-          }
-        ],
-        "areaServed": {
-          "@type": "Country",
-          "name": "Maroc"
-        },
-        "openingHoursSpecification": [
+            "@type": ["HealthAndBeautyBusiness", "Store"],
+            "@id": "https://parfumerie-elkhalifi.vercel.app/#store",
+            "name": "PARFUMERIE EL KHALIFI",
+            "alternateName": "بارفومري الخليفي",
+            "description": "Parfumerie & Cosmétiques à Tanger : parfums français, arabes et de niche 100 % originaux, décants sur mesure, soins visage, soins corps et maquillage livrés dans tout le Maroc.",
+            "url": "https://parfumerie-elkhalifi.vercel.app/",
+            "logo": "https://parfumerie-elkhalifi.vercel.app/logo.png",
+            "image": [
+              "https://parfumerie-elkhalifi.vercel.app/assets/hero/hero-desktop.webp",
+              "https://parfumerie-elkhalifi.vercel.app/logo.png"
+            ],
+            "telephone": "+212610640666",
+            "email": "Taghzout.saif@hotmail.com",
+            "priceRange": "$$",
+            "currenciesAccepted": "MAD",
+            "paymentAccepted": "Cash on Delivery",
+            "address": [
+              {
+                "@type": "PostalAddress",
+                "streetAddress": "2 Florencia St",
+                "addressLocality": "Tanger",
+                "addressRegion": "Tanger-Tétouan-Al Hoceïma",
+                "postalCode": "90060",
+                "addressCountry": "MA"
+              },
+              {
+                "@type": "PostalAddress",
+                "streetAddress": "2 شارع فلورنسيا، طنجة 90060، المغرب",
+                "addressLocality": "طنجة",
+                "addressRegion": "Tanger-Tétouan-Al Hoceïma",
+                "postalCode": "90060",
+                "addressCountry": "MA"
+              }
+            ],
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 35.7595,
+              "longitude": -5.8340
+            },
+            "areaServed": {
+              "@type": "Country",
+              "name": "Maroc"
+            },
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Catalogue Parfums & Cosmétiques",
+              "itemListElement": [
+                { "@type": "OfferCatalog", "name": "Parfums Français, Arabes & de Niche" },
+                { "@type": "OfferCatalog", "name": "Décants de Parfums Authentiques" },
+                { "@type": "OfferCatalog", "name": "Cosmétiques, Soins Visage & Soins Corps" },
+                { "@type": "OfferCatalog", "name": "Maquillage & Packs Cadeaux Femme et Homme" }
+              ]
+            },
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                "opens": "10:00",
+                "closes": "21:00"
+              }
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+212610640666",
+              "contactType": "customer service",
+              "areaServed": "MA",
+              "availableLanguage": ["French", "Arabic"]
+            },
+            "hasMap": "https://www.google.com/maps/search/?api=1&query=2+Florencia+St+Tangier+90060+Maroc",
+            "sameAs": [
+              "https://www.instagram.com/parfumereaelkhlifi",
+              "https://www.tiktok.com/@khaledelkhlifi"
+            ]
+          },
           {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            "opens": "10:00",
-            "closes": "21:00"
+            "@type": "FAQPage",
+            "@id": "https://parfumerie-elkhalifi.vercel.app/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Où se trouve la boutique PARFUMERIE EL KHALIFI à Tanger ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Notre boutique PARFUMERIE EL KHALIFI vous accueille au 2 Florencia St, Tanger 90060, Maroc, du lundi au samedi de 10h00 à 21h00."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Les parfums et cosmétiques proposés sont-ils authentiques ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Oui, tous nos parfums français, arabes et de niche, nos décants, ainsi que nos soins visage, soins corps et produits de maquillage sont 100 % originaux et sélectionnés avec traçabilité."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Livrez-vous partout au Maroc ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Oui, nous assurons une livraison rapide à Tanger (20 DH) et partout au Maroc notamment à Casablanca, Rabat, Marrakech, Fès et Agadir (35 DH), avec commande directe via WhatsApp."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Comment commander sur PARFUMERIE EL KHALIFI ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Sélectionnez vos parfums, décants, soins cosmétiques ou packs Femme/Homme sur le site et validez votre commande en un clic via WhatsApp au +212 6 10 64 06 66."
+                }
+              }
+            ]
           }
-        ],
-        "hasMap": "https://www.google.com/maps/search/?api=1&query=2+Florencia+St+Tangier+90060+Maroc",
-        "sameAs": [
-          "https://www.instagram.com/parfumereaelkhlifi",
-          "https://www.tiktok.com/@khaledelkhlifi"
         ]
       }
     </script>
   </head>
   <body class="bg-[#FAF8F5] text-[#111111] antialiased selection:bg-[#C5A059] selection:text-[#0A0A0A]">
     <div id="root"></div>
+    <noscript>
+      <main style="max-width: 720px; margin: 40px auto; padding: 24px; font-family: sans-serif;">
+        <h1>PARFUMERIE EL KHALIFI — Parfums &amp; Cosmétiques à Tanger</h1>
+        <p>
+          Boutique de parfums originaux (Française, Arabe, Niche), décants et soins cosmétiques
+          (Soins Visage, Soins Corps, Maquillage, Packs Femme &amp; Homme) au 2 Florencia St, Tanger
+          90060, Maroc. Livraison dans tout le Maroc via WhatsApp : +212 6 10 64 06 66.
+        </p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
