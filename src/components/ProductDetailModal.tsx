@@ -39,7 +39,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     return [
       {
         id: 'default',
-        label: product.sizeLabel || 'Flacon complet',
+        label: product.sizeLabel || 'Format standard',
         price: product.price,
         inStock: product.inStock,
       },
@@ -258,11 +258,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               {/* Full Multi-line Description */}
               <div className="mt-7 pt-5 border-t border-[#DDD3BE]">
                 <p className="text-xs uppercase tracking-[0.14em] text-[#8F6E2E] mb-2.5">
-                  Notes &amp; Caractère
+                  Détails &amp; Caractère
                 </p>
                 <p className="text-sm text-[#0B0A08]/85 leading-relaxed whitespace-pre-line">
                   {product.description?.fr ||
-                    'Une création d’exception sélectionnée pour son sillage raffiné et sa tenue remarquable. Disponible en flacon scellé ou en décant de précision.'}
+                    'Une sélection authentique choisie avec soin pour sa qualité et son raffinement — parfums, décants et soins cosmétiques d’exception.'}
                 </p>
               </div>
             </div>

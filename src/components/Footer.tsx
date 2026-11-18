@@ -88,8 +88,8 @@ export const Footer: React.FC<FooterProps> = ({
               La Maison
             </h3>
             <p className="text-[#FAF8F5]/75 leading-relaxed mb-3">
-              Haute parfumerie française, orientale et de niche. Flacons scellés et décants de
-              précision préparés à Tanger.
+              Maison de parfumerie et cosmétiques à Tanger : parfums authentiques, décants sur
+              mesure, soins beauté et maquillage de prestige livrés au Maroc.
             </p>
             <p className="text-xs text-[#A8A29A]">{STORE_IDENTITY.addressFr}</p>
             <p className="text-xs text-[#A8A29A] mt-1">{STORE_IDENTITY.openingHoursFr}</p>

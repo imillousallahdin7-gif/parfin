@@ -377,7 +377,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       sizes:
         p.sizes && p.sizes.length > 0
           ? p.sizes
-          : [{ id: 'default', label: p.sizeLabel || 'Flacon complet', price: p.price, inStock: p.inStock }],
+          : [{ id: 'default', label: p.sizeLabel || 'Format standard', price: p.price, inStock: p.inStock }],
       imageUrl: p.imageUrl,
       imageData: p.imageData,
     });
@@ -428,7 +428,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
         description: { fr: productForm.descFr.trim(), ar: '' },
         category: productForm.category,
         price: basePrice,
-        sizeLabel: productForm.sizes[0]?.label || 'Flacon complet',
+        sizeLabel: productForm.sizes[0]?.label || 'Format standard',
         sizes: productForm.sizes,
         inStock: productForm.inStock,
         imageUrl: productForm.imageUrl,
@@ -759,7 +759,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   لا توجد منتجات مسجلة بعد
                 </p>
                 <p className="text-sm text-[#8C857B] mb-6">
-                  أضف أول عطر أو تقسيم لعرضه في المتجر مباشرة.
+                  أضف أول عطر أو منتج تجميل (كوسمتيك) لعرضه في المتجر مباشرة.
                 </p>
                 <button
                   type="button"
@@ -1130,7 +1130,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   required
                   value={productForm.nameFr}
                   onChange={(e) => setProductForm((f) => ({ ...f, nameFr: e.target.value }))}
-                  placeholder="Ex. Baccarat Rouge 540"
+                  placeholder="Ex. Sérum Éclat / Baccarat Rouge 540"
                   className="w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
                 />
               </div>
@@ -1178,7 +1178,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   dir="ltr"
                   value={productForm.descFr}
                   onChange={(e) => setProductForm((f) => ({ ...f, descFr: e.target.value }))}
-                  placeholder="Description olfactive en français..."
+                  placeholder="Description en français (notes, bienfaits, utilisation)..."
                   className="w-full p-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
                 />
               </div>
@@ -1196,8 +1196,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           ...f.sizes,
                           {
                             id: `s_${Date.now()}`,
-                            label: 'Flacon complet',
-                            price: 900,
+                            label: '50 ml / Unité',
+                            price: 250,
                             inStock: true,
                           },
                         ],
@@ -1227,7 +1227,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                             sizes: f.sizes.map((s, i) => (i === idx ? { ...s, label: val } : s)),
                           }));
                         }}
-                        placeholder="Ex. 10 ml"
+                        placeholder="Ex. 50 ml / 10 ml / Unité"
                         className="col-span-5 min-h-[38px] px-2.5 bg-[#FDFCFA] border border-[#DDD3BE] text-xs"
                       />
                       <input

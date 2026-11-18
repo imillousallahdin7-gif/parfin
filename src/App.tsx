@@ -251,7 +251,7 @@ export default function App() {
       product.sizes?.find((s) => s.inStock) ||
       product.sizes?.[0] || {
         id: 'default',
-        label: product.sizeLabel || 'Flacon complet',
+        label: product.sizeLabel || 'Format standard',
         price: product.price,
         inStock: product.inStock,
       };

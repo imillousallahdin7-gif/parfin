@@ -17,16 +17,16 @@ export const PacksTopBanners: React.FC<PacksTopBannersProps> = ({ packs, onNavig
       title: '1. Sélection Femme',
       count: womenCount,
       cta: 'Voir les packs femme',
-      image: '/assets/packs/pack-women.webp',
-      alt: 'Sélection Packs Parfum Femme PARFUMERIE EL KHALIFI',
+      image: '/src/assets/images/pack_women_beauty_fragrance_1795011233362.jpg',
+      alt: 'Sélection Packs Parfums & Cosmétiques Femme PARFUMERIE EL KHALIFI',
     },
     {
       route: 'packs-men' as AppRoute,
       title: '2. Sélection Homme',
       count: menCount,
       cta: 'Voir les packs homme',
-      image: '/assets/packs/pack-men.webp',
-      alt: 'Sélection Packs Parfum Homme PARFUMERIE EL KHALIFI',
+      image: '/src/assets/images/pack_men_grooming_fragrance_1795011233569.jpg',
+      alt: 'Sélection Packs Parfums & Soins Homme PARFUMERIE EL KHALIFI',
     },
   ];
 

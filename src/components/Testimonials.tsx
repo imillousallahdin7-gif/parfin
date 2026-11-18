@@ -3,37 +3,37 @@ import React from 'react';
 const TESTIMONIALS = [
   {
     quote:
-      "J'ai commandé trois décants de 10 ml avant de choisir mon flacon pour un mariage. Emballage soigné, vaporisateurs en verre épais et tenue irréprochable toute la soirée.",
+      "J'ai commandé un sérum éclat visage et deux décants 10 ml pour tester avant mon mariage. Produits 100 % authentiques, emballage soigné et tenue irréprochable.",
     author: 'Yasmine B.',
     city: 'Casablanca',
   },
   {
     quote:
-      "Service irréprochable sur WhatsApp pour orienter mon choix vers un oud boisé non entêtant. Livraison reçue le lendemain matin avec facture claire.",
+      "Conseil sur mesure via WhatsApp pour ma routine cosmétique quotidienne et un parfum boisé léger. Colis reçu le lendemain matin avec facture claire.",
     author: 'Karim E.',
     city: 'Rabat',
   },
   {
     quote:
-      "La fidélité des jus est exactement la même qu'en boutique parisienne. Les formats 5 ml sont parfaits pour voyager tout en gardant sa signature olfactive.",
+      "Mes crèmes hydratantes et mes parfums favoris proviennent désormais d'une seule adresse fiable. La qualité et la traçabilité des produits sont exemplaires.",
     author: 'Nadia T.',
     city: 'Marrakech',
   },
   {
     quote:
-      "Passage à la boutique à Tanger rue Florencia : accueil chaleureux, conseils précis sur les accords ambrés et livraison express à domicile à 20 DH.",
+      "Passage à la boutique à Tanger rue Florencia : accueil chaleureux, conseils précieux entre soins visage et accords ambrés, et livraison express à domicile.",
     author: 'Mehdi A.',
     city: 'Tanger',
   },
   {
     quote:
-      "Mon mari a reçu un pack homme en cadeau. La présentation sobre noir et or fait immédiatement son effet et les fragrances tiennent jusqu'au lendemain.",
+      "Mon mari a reçu un pack homme parfum et soin visage en cadeau. La présentation noir et or fait immédiatement son effet et les produits sont impeccables.",
     author: 'Houda Z.',
     city: 'Fès',
   },
   {
     quote:
-      "Commande passée en deux minutes via WhatsApp, confirmation immédiate et colis reçu à Agadir sans aucun souci. Une adresse de confiance.",
+      "Commande mixte maquillage et eau de parfum passée en deux minutes via WhatsApp, confirmation immédiate et réception à Agadir sans aucun souci.",
     author: 'Amine R.',
     city: 'Agadir',
   },

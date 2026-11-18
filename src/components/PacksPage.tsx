@@ -35,8 +35,8 @@ export const PacksPage: React.FC<PacksPageProps> = ({
             </h1>
             <p className="mt-1.5 text-sm text-[#6B655E]">
               {isWomen
-                ? 'Assortiments élégants de créations féminines et décants précieux.'
-                : 'Compositions boisées, ambrées et sélections signature pour homme.'}
+                ? 'Assortiments élégants de parfums, soins visage et essentiels cosmétiques pour femme.'
+                : 'Compositions boisées, soins visage et rituels quotidiens sélectionnés pour homme.'}
             </p>
           </div>
 
@@ -97,8 +97,8 @@ export const PacksPage: React.FC<PacksPageProps> = ({
               Nouvelle sélection bientôt disponible
             </h2>
             <p className="text-sm text-[#6B655E] mb-6">
-              Aucun pack actif dans cette sélection pour le moment. Découvrez nos flacons et décants
-              à l&apos;unité dans la boutique.
+              Aucun pack actif dans cette sélection pour le moment. Découvrez nos parfums et soins
+              cosmétiques à l&apos;unité dans la boutique.
             </p>
             <button
               type="button"

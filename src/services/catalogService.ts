@@ -18,6 +18,16 @@ interface CacheEnvelope {
   settings: StoreSettings;
 }
 
+const LEGACY_ANNOUNCEMENT_FR = 'PARFUMERIE EL KHALIFI — FLACONS ET DÉCANTS VIA WHATSAPP';
+
+function upgradeLegacyAnnouncementFr(raw: unknown, fallback: string): string {
+  if (typeof raw !== 'string' || !raw.trim()) return fallback;
+  if (raw.trim() === LEGACY_ANNOUNCEMENT_FR) {
+    return DEFAULT_STORE_SETTINGS.announcementFr;
+  }
+  return raw;
+}
+
 let inFlightFetch: Promise<CatalogSnapshot> | null = null;
 
 export function toTimestampMs(val: unknown): number | undefined {
@@ -116,6 +126,10 @@ async function fetchNetworkCatalog(): Promise<CatalogSnapshot> {
       settings: {
         ...DEFAULT_STORE_SETTINGS,
         ...data.settings,
+        announcementFr: upgradeLegacyAnnouncementFr(
+          data.settings?.announcementFr,
+          DEFAULT_STORE_SETTINGS.announcementFr
+        ),
         customCategories: Array.isArray(data.settings?.customCategories)
           ? data.settings.customCategories
           : [],
@@ -144,7 +158,14 @@ export async function getPublicCatalog(options?: {
       generatedAt: new Date(cached.timestamp).toISOString(),
       products: cached.products,
       packs: cached.packs,
-      settings: { ...DEFAULT_STORE_SETTINGS, ...cached.settings },
+      settings: {
+        ...DEFAULT_STORE_SETTINGS,
+        ...cached.settings,
+        announcementFr: upgradeLegacyAnnouncementFr(
+          cached.settings?.announcementFr,
+          DEFAULT_STORE_SETTINGS.announcementFr
+        ),
+      },
     };
 
     if (age <= FRESH_TTL_MS) {
@@ -317,10 +338,10 @@ export async function subscribePublicCatalog(
             typeof data.storeName === 'string' && data.storeName
               ? data.storeName
               : latestSettings.storeName,
-          announcementFr:
-            typeof data.announcementFr === 'string' && data.announcementFr
-              ? data.announcementFr
-              : latestSettings.announcementFr,
+          announcementFr: upgradeLegacyAnnouncementFr(
+            data.announcementFr,
+            latestSettings.announcementFr
+          ),
           announcementAr:
             typeof data.announcementAr === 'string'
               ? data.announcementAr
@@ -554,7 +575,7 @@ export async function saveAdminProduct(
   const safeSizes =
     sanitizedSizes.length > 0
       ? sanitizedSizes
-      : [{ id: 'default', label: 'Flacon complet', price: Math.min(1000000, Math.max(0, Number(product.price) || 0)), inStock: Boolean(product.inStock) }];
+      : [{ id: 'default', label: 'Format standard', price: Math.min(1000000, Math.max(0, Number(product.price) || 0)), inStock: Boolean(product.inStock) }];
 
   const payload: Record<string, unknown> = {
     name: {
@@ -567,7 +588,7 @@ export async function saveAdminProduct(
     },
     category: product.category.trim().slice(0, 64) || 'Niche',
     price: Math.min(1000000, Math.max(0, Number(product.price) || (safeSizes[0]?.price ?? 0))),
-    sizeLabel: (product.sizeLabel || safeSizes[0]?.label || 'Flacon complet').trim().slice(0, 40),
+    sizeLabel: (product.sizeLabel || safeSizes[0]?.label || 'Format standard').trim().slice(0, 40),
     sizes: safeSizes,
     inStock: Boolean(product.inStock),
     updatedAt: serverTimestamp(),
@@ -670,10 +691,7 @@ export async function subscribeAdminSettings(
         latest = {
           ...latest,
           storeName: typeof data.storeName === 'string' && data.storeName ? data.storeName : latest.storeName,
-          announcementFr:
-            typeof data.announcementFr === 'string' && data.announcementFr
-              ? data.announcementFr
-              : latest.announcementFr,
+          announcementFr: upgradeLegacyAnnouncementFr(data.announcementFr, latest.announcementFr),
           announcementAr:
             typeof data.announcementAr === 'string' ? data.announcementAr : latest.announcementAr,
           customCategories: Array.isArray(data.customCategories)

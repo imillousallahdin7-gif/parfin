@@ -1,24 +1,24 @@
 import React from 'react';
 
 const MARQUEE_ITEMS = [
-  'Oud Assam 1984',
+  'Haute Parfumerie',
+  'Cosmétiques & Soins',
   'Livraison dans tout le Maroc',
-  'Rose de Mai de Grasse',
-  'Ambre Gris Marin',
-  'Musc Impérial',
-  "Vétiver d'Haïti",
-  'Safran Rouge de Perse',
-  'Santal de Mysore',
-  "Encens Royal d'Oman",
-  'Iris Pallida de Florence',
-  "Fleur d'Oranger Sauvage",
+  'Sérums & Élixirs Visage',
+  'Oud Assam & Ambre Gris',
+  'Crèmes & Rituels Beauté',
+  'Décants 5 ml & 10 ml',
+  'Maquillage de Luxe',
+  'Rose de Mai & Santal',
+  'Soins Corps & Cheveux',
+  'Tanger · Maroc',
 ];
 
 export const Marquee: React.FC = () => {
   return (
     <div
       className="marquee-wrapper w-full bg-[#0A0A0A] border-y border-[#C5A059]/30 overflow-hidden py-3.5 select-none"
-      aria-label="Notes olfactives et services"
+      aria-label="Univers parfumerie, cosmétiques et services"
     >
       <div className="animate-marquee flex items-center">
         {[0, 1].map((dup) => (

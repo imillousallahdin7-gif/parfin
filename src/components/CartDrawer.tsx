@@ -159,7 +159,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               Votre panier est vide
             </h3>
             <p className="text-sm text-[#8C857B] mb-6">
-              Ajoutez vos flacons ou décants favoris pour préparer votre commande WhatsApp.
+              Ajoutez vos parfums ou soins cosmétiques favoris pour préparer votre commande WhatsApp.
             </p>
             <button
               type="button"

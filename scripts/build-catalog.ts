@@ -56,8 +56,8 @@ const CONFIG_PATH = path.join(ROOT, 'firebase-applet-config.json');
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsappNumber: '212610640666',
   storeName: 'PARFUMERIE EL KHALIFI',
-  announcementFr: 'PARFUMERIE EL KHALIFI — FLACONS ET DÉCANTS VIA WHATSAPP',
-  announcementAr: 'بارفومري الخليفي — قنينات وتقسيمات عبر واتساب',
+  announcementFr: 'PARFUMERIE EL KHALIFI — PARFUMS & COSMÉTIQUES VIA WHATSAPP',
+  announcementAr: 'بارفومري الخليفي — عطور ومستحضرات تجميل عبر واتساب',
   customCategories: [],
   deliveryFeeLocal: 20,
   deliveryFeeNational: 35,
@@ -269,14 +269,14 @@ async function main() {
         sizeLabel:
           typeof data.sizeLabel === 'string' && data.sizeLabel
             ? data.sizeLabel
-            : sizes[0]?.label || 'Flacon complet',
+            : sizes[0]?.label || 'Format standard',
         sizes:
           sizes.length > 0
             ? sizes
             : [
                 {
                   id: 'default',
-                  label: typeof data.sizeLabel === 'string' && data.sizeLabel ? data.sizeLabel : 'Flacon complet',
+                  label: typeof data.sizeLabel === 'string' && data.sizeLabel ? data.sizeLabel : 'Format standard',
                   price: typeof data.price === 'number' ? data.price : 0,
                   inStock: typeof data.inStock === 'boolean' ? data.inStock : true,
                 },

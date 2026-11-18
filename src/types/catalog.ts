@@ -74,8 +74,8 @@ export type AppRoute = 'home' | 'shop' | 'packs-women' | 'packs-men' | 'admin';
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   whatsappNumber: '212610640666',
   storeName: 'PARFUMERIE EL KHALIFI',
-  announcementFr: 'PARFUMERIE EL KHALIFI — FLACONS ET DÉCANTS VIA WHATSAPP',
-  announcementAr: 'بارفومري الخليفي — قنينات وتقسيمات عبر واتساب',
+  announcementFr: 'PARFUMERIE EL KHALIFI — PARFUMS & COSMÉTIQUES VIA WHATSAPP',
+  announcementAr: 'بارفومري الخليفي — عطور ومستحضرات تجميل عبر واتساب',
   customCategories: [],
   deliveryFeeLocal: 20,
   deliveryFeeNational: 35,
@@ -84,8 +84,8 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
 export const STORE_IDENTITY = {
   brand: 'PARFUMERIE EL KHALIFI',
   slug: 'parfumerie_elkhalifi',
-  taglineFr: 'Haute Parfumerie & Décants',
-  announcementFr: 'PARFUMERIE EL KHALIFI — FLACONS ET DÉCANTS VIA WHATSAPP',
+  taglineFr: 'Parfumerie & Cosmétiques de Luxe',
+  announcementFr: 'PARFUMERIE EL KHALIFI — PARFUMS & COSMÉTIQUES VIA WHATSAPP',
   canonicalUrl: 'https://parfumerie-elkhalifi.vercel.app/',
   email: 'Taghzout.saif@hotmail.com',
   whatsappDigits: '212610640666',
@@ -108,6 +108,10 @@ export const STORE_IDENTITY = {
 
 export const BASE_CATEGORIES = [
   'Tout',
+  'Cosmétiques',
+  'Soins Visage',
+  'Soins Corps',
+  'Maquillage',
   'Française',
   'Arabe',
   'Niche',

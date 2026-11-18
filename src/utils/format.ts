@@ -121,6 +121,6 @@ export function buildWhatsAppDirectUrl(whatsappNumber?: string, text?: string): 
   const number = sanitizeWhatsappNumber(whatsappNumber);
   const defaultMsg =
     text ||
-    'Bonjour PARFUMERIE EL KHALIFI, je souhaite obtenir des conseils sur votre collection de parfums et décants.';
+    'Bonjour PARFUMERIE EL KHALIFI, je souhaite obtenir des conseils sur votre sélection de parfums et produits cosmétiques.';
   return `https://wa.me/${number}?text=${encodeURIComponent(defaultMsg)}`;
 }

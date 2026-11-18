@@ -21,6 +21,9 @@ export const StoreLocation: React.FC<StoreLocationProps> = ({ whatsappNumber }) 
         <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-[0.04em] text-[#111111]">
           Visitez la Boutique à Tanger
         </h2>
+        <p className="mt-1.5 text-sm text-[#6B655E]">
+          Parfums originaux, soins cosmétiques et rituels beauté réunis au cœur de Tanger.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">

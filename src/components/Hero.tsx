@@ -20,21 +20,24 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
       aria-label="Accueil PARFUMERIE EL KHALIFI"
       className="relative min-h-[76vh] sm:min-h-[84vh] bg-[#0A0A0A] text-[#FAF8F5] overflow-hidden flex items-center"
     >
-      {/* Full-bleed responsive perfume photography (completely unobstructed) */}
+      {/* Full-bleed responsive perfume & cosmetics photography */}
       <picture className="absolute inset-0 w-full h-full pointer-events-none">
-        <source media="(min-width: 768px)" srcSet="/assets/hero/hero-desktop.webp" />
+        <source
+          media="(min-width: 768px)"
+          srcSet="/src/assets/images/hero_cosmetics_perfume_desktop_1795011231315.jpg"
+        />
         <img
-          src="/assets/hero/hero-mobile.webp"
-          alt="Flacons de haute parfumerie PARFUMERIE EL KHALIFI"
-          className="w-full h-full object-cover object-center sm:object-right opacity-80"
+          src="/src/assets/images/hero_cosmetics_perfume_mobile_1795011231875.jpg"
+          alt="Parfums d'exception et soins cosmétiques PARFUMERIE EL KHALIFI"
+          className="w-full h-full object-cover object-center sm:object-right opacity-85"
           fetchPriority="high"
         />
       </picture>
 
-      {/* Directional dark editorial scrim for crisp contrast on left text while preserving bottle highlights */}
+      {/* Directional dark editorial scrim for crisp contrast on left text while preserving product highlights */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/55 to-[#0A0A0A]/35 md:bg-gradient-to-r md:from-[#0A0A0A]/95 md:via-[#0A0A0A]/65 md:to-transparent pointer-events-none"
+        className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/55 to-[#0A0A0A]/35 md:bg-gradient-to-r md:from-[#0A0A0A]/95 md:via-[#0A0A0A]/60 md:to-transparent pointer-events-none"
       />
       {/* 4% SVG Fractal-Noise Grain strictly on Hero */}
       <div aria-hidden="true" className="absolute inset-0 hero-grain pointer-events-none" />
@@ -49,17 +52,17 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
           <div className="flex items-center gap-3 mb-5">
             <span className="h-px w-8 bg-[#C5A059]" aria-hidden="true" />
             <p className="text-[11px] uppercase tracking-[0.22em] text-[#DFC48B]">
-              Édition 2026 · Tanger
+              Parfums &amp; Cosmétiques · Tanger
             </p>
           </div>
 
           <h1 className="font-display text-4xl sm:text-5xl lg:text-[58px] leading-[1.08] font-semibold tracking-[-0.02em] text-[#FAF8F5] [text-wrap:balance]">
-            L&apos;élégance d&apos;un parfum, la signature de votre style
+            Parfums rares &amp; cosmétiques d&apos;exception
           </h1>
 
           <p className="mt-5 text-sm sm:text-base text-[#FAF8F5]/75 leading-relaxed max-w-md">
-            Flacons scellés d&apos;origine et décants de précision 5 ml &amp; 10 ml. Une sélection
-            française, orientale et de niche livrée partout au Maroc.
+            Flacons scellés, décants de précision et soins cosmétiques authentiques pour le visage,
+            le corps et votre rituel beauté — livrés partout au Maroc.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3.5">

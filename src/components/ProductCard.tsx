@@ -20,7 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     product.sizes?.find((s) => s.inStock) || product.sizes?.[0];
   const displayPrice = firstAvailableSize ? firstAvailableSize.price : product.price;
   const displaySize =
-    firstAvailableSize?.label || product.sizeLabel || 'Flacon complet';
+    firstAvailableSize?.label || product.sizeLabel || 'Format standard';
   const isOutOfStock =
     !product.inStock ||
     (product.sizes && product.sizes.length > 0 && product.sizes.every((s) => !s.inStock));
@@ -60,7 +60,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </h3>
 
         <p className="mt-1.5 text-xs sm:text-[13px] text-[#6B655E] leading-relaxed line-clamp-2 min-h-[2.5rem]">
-          {description || 'Extrait de parfum haute tenue, disponible en flacon et décant.'}
+          {description || 'Sélection authentique de haute parfumerie et soins cosmétiques.'}
         </p>
 
         <div className="mt-3 mb-4 flex items-center justify-between gap-2 pt-2.5 border-t border-[#E5DFD5]/80">

@@ -77,7 +77,7 @@ export const ShopView: React.FC<ShopViewProps> = ({
       <ProductGridSection
         id="shop-catalog"
         title="Boutique Complète"
-        subtitle="Explorez nos parfums français, orientaux, de niche et décants 5 ml / 10 ml"
+        subtitle="Explorez nos parfums français, orientaux, de niche, décants et notre gamme de cosmétiques & soins"
         products={sortedProducts}
         customCategories={customCategories}
         selectedCategory={selectedCategory}
@@ -93,7 +93,7 @@ export const ShopView: React.FC<ShopViewProps> = ({
         sortControl={
           <div className="shrink-0">
             <label htmlFor="shop-sort" className="sr-only">
-              Trier les parfums
+              Trier les produits
             </label>
             <select
               id="shop-sort"

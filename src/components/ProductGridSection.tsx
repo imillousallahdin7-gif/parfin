@@ -26,7 +26,7 @@ interface ProductGridSectionProps {
 export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
   id = 'collection',
   title = 'La Collection',
-  subtitle = 'Flacons originaux et décants préparés à la commande',
+  subtitle = 'Parfums originaux, décants sur mesure et soins cosmétiques authentiques',
   products,
   customCategories,
   selectedCategory,
@@ -94,7 +94,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pb-6 border-b border-[#E5DFD5]">
         <div>
           <p className="text-[11px] uppercase tracking-[0.18em] text-[#8A6D3B] mb-2">
-            Haute Parfumerie &amp; Décants
+            Parfums &amp; Cosmétiques
           </p>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-[0.04em] text-[#111111]">
             {title}
@@ -116,8 +116,8 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                 onSearchChange(e.target.value);
                 setVisibleCount(initialLimit);
               }}
-              placeholder="Rechercher un parfum, une note..."
-              aria-label="Rechercher un parfum"
+              placeholder="Rechercher un parfum, un soin, une note..."
+              aria-label="Rechercher un parfum ou un produit cosmétique"
               className="w-full min-h-[44px] pl-10 pr-10 rounded-xl bg-white border border-[#E5DFD5] text-sm text-[#111111] placeholder:text-[#6B655E] focus:border-[#C5A059] focus:outline-none transition-colors"
             />
             {searchQuery && (
@@ -219,8 +219,8 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
             Nouvelle collection bientôt disponible
           </h3>
           <p className="text-sm text-[#6B655E] max-w-md mx-auto leading-relaxed">
-            Notre sélection de flacons et décants est en cours de préparation. Contactez notre
-            conciergerie sur WhatsApp pour toute demande particulière.
+            Notre sélection de parfums et produits cosmétiques est en cours de préparation. Contactez
+            notre conciergerie sur WhatsApp pour toute demande particulière.
           </p>
         </div>
       ) : filteredProducts.length === 0 ? (
