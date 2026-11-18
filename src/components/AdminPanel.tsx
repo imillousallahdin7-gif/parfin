@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
-  ArrowLeft,
+  ArrowRight,
   CheckCircle2,
   Edit2,
   Lock,
@@ -50,10 +50,8 @@ const LOCKOUT_SECONDS = 60;
 interface ProductFormState {
   id?: string;
   nameFr: string;
-  nameAr: string;
   category: string;
   descFr: string;
-  descAr: string;
   inStock: boolean;
   sizes: ProductSize[];
   imageUrl?: string;
@@ -92,10 +90,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   const [productFormError, setProductFormError] = useState<string | null>(null);
   const [productForm, setProductForm] = useState<ProductFormState>({
     nameFr: '',
-    nameAr: '',
     category: 'Niche',
     descFr: '',
-    descAr: '',
     inStock: true,
     sizes: [{ id: 's1', label: '10 ml', price: 150, inStock: true }],
   });
@@ -207,7 +203,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
         }
       } catch (err) {
         if (active) {
-          setListenerError(err instanceof Error ? err.message : 'Erreur Firestore.');
+          setListenerError(
+            err instanceof Error ? err.message : 'حدث خطأ أثناء الاتصال بقاعدة البيانات.'
+          );
         }
       }
     })();
@@ -266,7 +264,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             `https://console.firebase.google.com/project/${firebaseProjectId}/authentication/providers`
           );
           setAuthError(
-            "La connexion Email/Mot de passe n'est pas encore activée dans votre console Firebase (Authentication → Sign-in method). Activez-la puis créez l'utilisateur, ou utilisez « Connexion rapide avec Google » ci-dessous."
+            'تسجيل الدخول بالبريد وكلمة المرور غير مفعّل بعد في Firebase (Authentication → Sign-in method). فعّله وأنشئ الحساب، أو استخدم «الدخول السريع عبر Google» بالأسفل.'
           );
           return;
         }
@@ -274,7 +272,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
         if (code === 'auth/too-many-requests') {
           setLockoutSecondsLeft(LOCKOUT_SECONDS);
           setAuthError(
-            `Trop de tentatives côté Firebase. Veuillez patienter ${LOCKOUT_SECONDS} secondes.`
+            `محاولات كثيرة جداً لدى Firebase. يرجى الانتظار ${LOCKOUT_SECONDS} ثانية.`
           );
           return;
         }
@@ -284,14 +282,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
         if (nextFails >= MAX_FAILED_ATTEMPTS) {
           setLockoutSecondsLeft(LOCKOUT_SECONDS);
           setAuthError(
-            `Trop de tentatives échouées. Compte verrouillé pendant ${LOCKOUT_SECONDS} secondes.`
+            `عدد المحاولات الخاطئة تجاوز الحد. تم قفل الدخول لمدة ${LOCKOUT_SECONDS} ثانية.`
           );
         } else {
           setAuthHelpUrl(
             `https://console.firebase.google.com/project/${firebaseProjectId}/authentication/users`
           );
           setAuthError(
-            `Identifiants invalides ou compte non créé dans Firebase Auth (${nextFails}/${MAX_FAILED_ATTEMPTS} tentatives).`
+            `كلمة المرور غير صحيحة أو الحساب غير مضاف في Firebase Auth (${nextFails}/${MAX_FAILED_ATTEMPTS} محاولات).`
           );
         }
       }
@@ -315,7 +313,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       setFailedAttempts(0);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : 'Erreur lors de la connexion Google.';
+        err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول عبر Google.';
       setAuthError(msg);
     } finally {
       setAuthLoading(false);
@@ -355,10 +353,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setProductFormError(null);
     setProductForm({
       nameFr: '',
-      nameAr: '',
       category: allCategories[0] || 'Niche',
       descFr: '',
-      descAr: '',
       inStock: true,
       sizes: [
         { id: 's_5ml', label: '5 ml', price: 90, inStock: true },
@@ -373,10 +369,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setProductForm({
       id: p.id,
       nameFr: p.name?.fr || '',
-      nameAr: p.name?.ar || '',
       category: p.category || 'Niche',
       descFr: p.description?.fr || '',
-      descAr: p.description?.ar || '',
       inStock: p.inStock,
       sizes:
         p.sizes && p.sizes.length > 0
@@ -403,7 +397,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       }));
     } catch (err) {
       setProductFormError(
-        err instanceof Error ? err.message : "Erreur lors du traitement de la photo."
+        err instanceof Error ? err.message : 'حدث خطأ أثناء معالجة الصورة.'
       );
     } finally {
       setUploadingImage(false);
@@ -415,11 +409,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setProductFormError(null);
 
     if (!productForm.nameFr.trim()) {
-      setProductFormError('Le nom en français est requis.');
+      setProductFormError('يرجى إدخال اسم المنتج باللغة الفرنسية.');
       return;
     }
     if (productForm.sizes.length === 0) {
-      setProductFormError('Ajoutez au moins un format ou décant.');
+      setProductFormError('يرجى إضافة حجم أو سعة واحدة على الأقل.');
       return;
     }
 
@@ -428,8 +422,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       const basePrice = productForm.sizes[0]?.price ?? 0;
       await saveAdminProduct({
         id: productForm.id,
-        name: { fr: productForm.nameFr.trim(), ar: productForm.nameAr.trim() },
-        description: { fr: productForm.descFr.trim(), ar: productForm.descAr.trim() },
+        name: { fr: productForm.nameFr.trim(), ar: '' },
+        description: { fr: productForm.descFr.trim(), ar: '' },
         category: productForm.category,
         price: basePrice,
         sizeLabel: productForm.sizes[0]?.label || 'Flacon complet',
@@ -441,12 +435,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       setProductModalOpen(false);
       markMutated(
         productForm.id
-          ? `Produit "${productForm.nameFr}" enregistré et mis à jour en direct.`
-          : `Produit "${productForm.nameFr}" enregistré et visible en direct.`
+          ? `تم حفظ وتحديث المنتج "${productForm.nameFr}" مباشرة في المتجر.`
+          : `تم حفظ المنتج "${productForm.nameFr}" ونشره مباشرة في المتجر.`
       );
     } catch (err) {
       setProductFormError(
-        err instanceof Error ? err.message : 'Erreur lors de la sauvegarde du produit.'
+        err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ المنتج.'
       );
     } finally {
       setSavingProduct(false);
@@ -458,11 +452,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setSavingProduct(true);
     try {
       await deleteAdminProduct(deleteTarget.id);
-      const deletedName = deleteTarget.name?.fr || 'Produit';
+      const deletedName = deleteTarget.name?.fr || 'المنتج';
       setDeleteTarget(null);
-      markMutated(`Produit "${deletedName}" supprimé.`);
+      markMutated(`تم حذف المنتج "${deletedName}".`);
     } catch (err) {
-      setListenerError(err instanceof Error ? err.message : 'Erreur lors de la suppression.');
+      setListenerError(err instanceof Error ? err.message : 'حدث خطأ أثناء الحذف.');
     } finally {
       setSavingProduct(false);
     }
@@ -473,9 +467,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setSavingSettings(true);
     try {
       await saveAdminSettings(settingsForm);
-      markMutated('Paramètres enregistrés dans Firestore.');
+      markMutated('تم حفظ الإعدادات بنجاح في قاعدة البيانات.');
     } catch (err) {
-      setListenerError(err instanceof Error ? err.message : 'Erreur de sauvegarde paramètres.');
+      setListenerError(err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ الإعدادات.');
     } finally {
       setSavingSettings(false);
     }
@@ -490,7 +484,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       const results = await runFiveStepSelfTest(userEmail);
       setSelfTestResults(results);
     } catch (err) {
-      setSelfTestError(err instanceof Error ? err.message : 'Échec du test Firestore.');
+      setSelfTestError(err instanceof Error ? err.message : 'فشل اختبار قاعدة البيانات.');
     } finally {
       setSelfTestRunning(false);
     }
@@ -499,12 +493,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   // Loading auth
   if (!authReady) {
     return (
-      <div className="min-h-screen bg-[#0B0A08] text-[#F6F1E7] flex items-center justify-center p-6">
+      <div
+        dir="rtl"
+        className="min-h-screen bg-[#0B0A08] text-[#F6F1E7] flex items-center justify-center p-6"
+      >
         <div className="text-center">
           <BrandLogo sizeClass="w-20 h-20 mb-4" glow />
-          <p className="text-xs uppercase tracking-[0.18em] text-[#E8D08C]">
-            Initialisation Curateur...
-          </p>
+          <p className="text-xs text-[#E8D08C]">جاري تهيئة لوحة التحكم...</p>
         </div>
       </div>
     );
@@ -513,35 +508,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   // Login Gate
   if (!userEmail) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F5] flex flex-col justify-between p-6">
+      <div
+        dir="rtl"
+        className="min-h-screen bg-[#0A0A0A] text-[#FAF8F5] flex flex-col justify-between p-6"
+      >
         <div>
           <button
             type="button"
             onClick={onBackHome}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[#DFC48B] hover:text-white min-h-[44px]"
+            className="inline-flex items-center gap-2 text-xs text-[#DFC48B] hover:text-white min-h-[44px]"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Retour à la boutique</span>
+            <ArrowRight className="w-4 h-4" />
+            <span>العودة إلى المتجر</span>
           </button>
         </div>
 
         <div className="max-w-md w-full mx-auto bg-[#141311] border border-[#C5A059]/35 rounded-2xl p-8">
           <div className="flex flex-col items-center text-center mb-8">
             <BrandLogo sizeClass="w-20 h-20 mb-4 border border-[#C5A059]/40" glow />
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#C5A059]">
-              Accès Curateur
-            </p>
-            <h1 className="font-brand text-xl text-[#FAF8F5] mt-1">{STORE_IDENTITY.brand}</h1>
+            <p className="text-xs text-[#C5A059]">دخول الإدارة</p>
+            <h1 className="font-brand text-xl text-[#FAF8F5] mt-1" dir="ltr">
+              {STORE_IDENTITY.brand}
+            </h1>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label htmlFor="admin-password" className="block text-xs uppercase tracking-[0.12em] text-[#DFC48B] mb-1.5">
-                Mot de passe
+              <label htmlFor="admin-password" className="block text-xs text-[#DFC48B] mb-1.5">
+                كلمة المرور
               </label>
               <input
                 id="admin-password"
                 type="password"
+                dir="ltr"
                 required
                 autoFocus
                 value={loginPassword}
@@ -553,7 +552,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             </div>
 
             {authError && (
-              <div className="p-3 bg-red-950/60 border border-red-500/40 text-xs text-red-200 space-y-2">
+              <div className="p-3 bg-red-950/60 border border-red-500/40 text-xs text-red-200 space-y-2 leading-relaxed">
                 <p>{authError}</p>
                 {authHelpUrl && (
                   <a
@@ -562,7 +561,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                     rel="noopener noreferrer"
                     className="inline-block underline text-[#E8D08C] hover:text-white"
                   >
-                    Ouvrir Firebase Authentication →
+                    فتح إعدادات Firebase Authentication ←
                   </a>
                 )}
               </div>
@@ -570,29 +569,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
             {lockoutSecondsLeft > 0 && (
               <div className="p-3 bg-[#C5A059]/15 border border-[#C5A059]/40 text-xs text-[#DFC48B] text-center tabular-nums">
-                Verrouillage de sécurité : {lockoutSecondsLeft}s restantes
+                حظر أمني مؤقت: متبقي {lockoutSecondsLeft} ثانية
               </div>
             )}
 
             <button
               type="submit"
               disabled={authLoading || lockoutSecondsLeft > 0}
-              className="w-full min-h-[48px] bg-[#C5A059] hover:bg-[#DFC48B] text-[#0A0A0A] text-xs uppercase tracking-[0.16em] font-semibold transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="w-full min-h-[48px] bg-[#C5A059] hover:bg-[#DFC48B] text-[#0A0A0A] text-xs font-semibold transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
               <span>
                 {lockoutSecondsLeft > 0
-                  ? `Bloqué (${lockoutSecondsLeft}s)`
+                  ? `محظور (${lockoutSecondsLeft} ث)`
                   : authLoading
-                  ? 'Vérification...'
-                  : 'Se connecter'}
+                  ? 'جاري التحقق...'
+                  : 'تسجيل الدخول'}
               </span>
             </button>
           </form>
 
-          <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-[#A8A29A]">
+          <div className="my-5 flex items-center gap-3 text-xs text-[#A8A29A]">
             <span className="h-px flex-1 bg-[#C5A059]/25" />
-            <span>ou</span>
+            <span>أو</span>
             <span className="h-px flex-1 bg-[#C5A059]/25" />
           </div>
 
@@ -600,21 +599,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={authLoading || lockoutSecondsLeft > 0}
-            className="w-full min-h-[46px] border border-[#C5A059]/45 text-[#DFC48B] hover:bg-[#C5A059]/10 text-xs uppercase tracking-[0.14em] font-medium transition-colors disabled:opacity-50"
+            className="w-full min-h-[46px] border border-[#C5A059]/45 text-[#DFC48B] hover:bg-[#C5A059]/10 text-xs font-medium transition-colors disabled:opacity-50"
           >
-            Connexion rapide avec Google
+            الدخول السريع عبر Google
           </button>
         </div>
 
         <p className="text-center text-xs text-[#A8A29A]">
-          Authentification sécurisée Firebase
+          حماية ومصادقة آمنة عبر Firebase
         </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F1E7] text-[#0B0A08]">
+    <div dir="rtl" className="min-h-screen bg-[#F6F1E7] text-[#0B0A08]">
       {/* Top Admin Header */}
       <header className="bg-[#0B0A08] text-[#F6F1E7] border-b border-[#C9A24D]/35 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
@@ -622,30 +621,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             <BrandLogo sizeClass="w-10 h-10" />
             <div>
               <p className="font-brand text-xs sm:text-sm text-[#E8D08C]">
-                {STORE_IDENTITY.brand} · Curateur
+                <span dir="ltr">{STORE_IDENTITY.brand}</span> · لوحة الإدارة
               </p>
-              <p className="text-[11px] text-[#8C857B]">{userEmail}</p>
+              <p className="text-[11px] text-[#8C857B]" dir="ltr">
+                {userEmail}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 border border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] text-[11px] uppercase tracking-[0.12em]">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 border border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] text-xs">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>En direct · Firestore</span>
+              <span>مباشر · متزامن</span>
             </span>
 
             <button
               type="button"
               onClick={onBackHome}
-              className="px-3.5 py-2.5 border border-[#C9A24D]/40 text-xs uppercase tracking-[0.12em] text-[#E8D08C] hover:bg-[#C9A24D]/15 min-h-[42px]"
+              className="px-3.5 py-2.5 border border-[#C9A24D]/40 text-xs text-[#E8D08C] hover:bg-[#C9A24D]/15 min-h-[42px]"
             >
-              Boutique
+              عرض المتجر
             </button>
 
             <button
               type="button"
               onClick={handleLogout}
-              aria-label="Se déconnecter"
+              aria-label="تسجيل الخروج"
+              title="تسجيل الخروج"
               className="w-10 h-10 border border-[#C9A24D]/40 flex items-center justify-center text-[#F6F1E7] hover:text-[#C9A24D]"
             >
               <LogOut className="w-4 h-4" />
@@ -656,7 +658,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
       {/* Toast */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-40 bg-[#0B0A08] text-[#E8D08C] border border-[#C9A24D] px-4 py-3 text-xs shadow-xl">
+        <div className="fixed bottom-5 left-5 z-40 bg-[#0B0A08] text-[#E8D08C] border border-[#C9A24D] px-4 py-3 text-xs shadow-xl">
           {toastMessage}
         </div>
       )}
@@ -664,7 +666,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {listenerError && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-xs text-red-800">
-            Erreur Firestore : {listenerError}
+            خطأ في قاعدة البيانات: {listenerError}
           </div>
         )}
 
@@ -673,64 +675,64 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           <button
             type="button"
             onClick={() => setActiveTab('products')}
-            className={`px-5 py-2.5 text-xs uppercase tracking-[0.14em] inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
               activeTab === 'products'
                 ? 'bg-[#0B0A08] text-[#E8D08C] border-[#0B0A08]'
                 : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
             }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Produits ({products.length})</span>
+            <span>المنتجات ({products.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('packs')}
-            className={`px-5 py-2.5 text-xs uppercase tracking-[0.14em] inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
               activeTab === 'packs'
                 ? 'bg-[#0B0A08] text-[#E8D08C] border-[#0B0A08]'
                 : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>Packs ({packs.length})</span>
+            <span>الباقات ({packs.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`px-5 py-2.5 text-xs uppercase tracking-[0.14em] inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
               activeTab === 'settings'
                 ? 'bg-[#0B0A08] text-[#E8D08C] border-[#0B0A08]'
                 : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
             }`}
           >
             <Settings className="w-4 h-4" />
-            <span>Paramètres &amp; Diagnostic</span>
+            <span>الإعدادات والفحص</span>
           </button>
         </div>
 
-        {/* TAB 1: PRODUITS */}
+        {/* TAB 1: المنتجات */}
         {activeTab === 'products' && (
           <div>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div className="flex flex-col sm:flex-row gap-3 flex-1">
                 <div className="relative flex-1 max-w-sm">
-                  <Search className="w-4 h-4 text-[#8C857B] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#8C857B] absolute right-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="search"
                     value={prodSearch}
                     onChange={(e) => setProdSearch(e.target.value)}
-                    placeholder="Filtrer par nom..."
-                    className="w-full min-h-[44px] pl-9 pr-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
+                    placeholder="ابحث بالاسم..."
+                    className="w-full min-h-[44px] pr-9 pl-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
                   />
                 </div>
                 <select
                   value={prodCategoryFilter}
                   onChange={(e) => setProdCategoryFilter(e.target.value)}
-                  className="min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-xs uppercase tracking-[0.1em]"
+                  className="min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-xs"
                 >
-                  <option value="Tout">Toutes catégories</option>
+                  <option value="Tout">جميع التصنيفات</option>
                   {allCategories.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -742,40 +744,40 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               <button
                 type="button"
                 onClick={openCreateProduct}
-                className="btn-primary-wipe px-5 py-2.5 text-xs uppercase tracking-[0.12em] inline-flex items-center justify-center gap-2 min-h-[44px]"
+                className="btn-primary-wipe px-5 py-2.5 text-xs font-medium inline-flex items-center justify-center gap-2 min-h-[44px]"
               >
                 <Plus className="w-4 h-4" />
-                <span>Nouveau Produit</span>
+                <span>إضافة منتج جديد</span>
               </button>
             </div>
 
             {filteredProducts.length === 0 ? (
               <div className="bg-[#FDFCFA] border border-[#DDD3BE] p-12 text-center">
                 <p className="font-display text-2xl text-[#0B0A08] mb-2">
-                  Aucun produit enregistré
+                  لا توجد منتجات مسجلة بعد
                 </p>
                 <p className="text-sm text-[#8C857B] mb-6">
-                  Ajoutez votre premier parfum ou décant pour alimenter le catalogue.
+                  أضف أول عطر أو تقسيم لعرضه في المتجر مباشرة.
                 </p>
                 <button
                   type="button"
                   onClick={openCreateProduct}
-                  className="btn-secondary-invert px-6 py-2.5 text-xs uppercase tracking-[0.12em]"
+                  className="btn-secondary-invert px-6 py-2.5 text-xs font-medium"
                 >
-                  Ajouter un produit
+                  إضافة منتج
                 </button>
               </div>
             ) : (
               <div className="bg-[#FDFCFA] border border-[#DDD3BE] overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-right border-collapse">
                   <thead>
-                    <tr className="border-b border-[#DDD3BE] bg-[#F6F1E7] text-[11px] uppercase tracking-[0.14em] text-[#8F6E2E]">
-                      <th className="py-3.5 px-4">Produit</th>
-                      <th className="py-3.5 px-4">Catégorie</th>
-                      <th className="py-3.5 px-4">Formats</th>
-                      <th className="py-3.5 px-4">Prix dès</th>
-                      <th className="py-3.5 px-4">Statut</th>
-                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    <tr className="border-b border-[#DDD3BE] bg-[#F6F1E7] text-xs text-[#8F6E2E]">
+                      <th className="py-3.5 px-4">المنتج</th>
+                      <th className="py-3.5 px-4">التصنيف</th>
+                      <th className="py-3.5 px-4">الأحجام</th>
+                      <th className="py-3.5 px-4">السعر ابتداءً من</th>
+                      <th className="py-3.5 px-4">الحالة</th>
+                      <th className="py-3.5 px-4 text-left">الإجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#DDD3BE] text-sm">
@@ -801,41 +803,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                                 </div>
                               )}
                               <div>
-                                <p className="font-medium text-[#0B0A08]">{product.name?.fr}</p>
-                                {product.name?.ar && (
-                                  <p className="text-xs text-[#8C857B]" dir="rtl">
-                                    {product.name.ar}
-                                  </p>
-                                )}
+                                <p className="font-medium text-[#0B0A08]" dir="ltr">
+                                  {product.name?.fr}
+                                </p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-xs uppercase tracking-[0.08em] text-[#8C857B]">
+                          <td className="py-3 px-4 text-xs text-[#8C857B]" dir="ltr">
                             {product.category}
                           </td>
-                          <td className="py-3 px-4 text-xs text-[#0B0A08]/80">
+                          <td className="py-3 px-4 text-xs text-[#0B0A08]/80" dir="ltr">
                             {product.sizes?.map((s) => s.label).join(' · ') || product.sizeLabel}
                           </td>
-                          <td className="py-3 px-4 font-semibold tabular-nums">
+                          <td className="py-3 px-4 font-semibold tabular-nums" dir="ltr">
                             {formatMAD(minPrice)}
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold ${
+                              className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                                 product.inStock
                                   ? 'bg-[#EAE4DC] text-[#0B0A08]'
                                   : 'bg-[#0B0A08] text-[#C9A24D]'
                               }`}
                             >
-                              {product.inStock ? 'En stock' : 'Épuisé'}
+                              {product.inStock ? 'متوفر' : 'نفد المخزون'}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className="py-3 px-4 text-left">
                             <div className="inline-flex items-center gap-1.5">
                               <button
                                 type="button"
                                 onClick={() => openEditProduct(product)}
-                                aria-label={`Modifier ${product.name?.fr}`}
+                                aria-label={`تعديل ${product.name?.fr}`}
+                                title="تعديل"
                                 className="w-9 h-9 border border-[#DDD3BE] hover:border-[#C9A24D] inline-flex items-center justify-center"
                               >
                                 <Edit2 className="w-4 h-4" />
@@ -843,7 +843,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                               <button
                                 type="button"
                                 onClick={() => setDeleteTarget(product)}
-                                aria-label={`Supprimer ${product.name?.fr}`}
+                                aria-label={`حذف ${product.name?.fr}`}
+                                title="حذف"
                                 className="w-9 h-9 border border-[#DDD3BE] hover:border-red-600 text-red-700 inline-flex items-center justify-center"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -860,10 +861,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           </div>
         )}
 
-        {/* TAB 2: PACKS */}
+        {/* TAB 2: الباقات */}
         {activeTab === 'packs' && <PacksAdminSection packs={packs} onMutated={markMutated} />}
 
-        {/* TAB 3: PARAMÈTRES & DIAGNOSTIC */}
+        {/* TAB 3: الإعدادات والفحص */}
         {activeTab === 'settings' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <form
@@ -871,14 +872,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               className="lg:col-span-7 bg-[#FDFCFA] border border-[#DDD3BE] p-6 sm:p-8 space-y-5"
             >
               <h2 className="font-display text-2xl font-semibold text-[#0B0A08] pb-3 border-b border-[#DDD3BE]">
-                Paramètres de la Boutique
+                إعدادات المتجر
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">Numéro WhatsApp</label>
+                  <label className="block text-xs font-medium mb-1.5">رقم الواتساب</label>
                   <input
                     type="text"
+                    dir="ltr"
                     value={settingsForm.whatsappNumber}
                     onChange={(e) =>
                       setSettingsForm((s) => ({ ...s, whatsappNumber: e.target.value }))
@@ -888,9 +890,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">Nom de la boutique</label>
+                  <label className="block text-xs font-medium mb-1.5">اسم المتجر</label>
                   <input
                     type="text"
+                    dir="ltr"
                     value={settingsForm.storeName}
                     onChange={(e) =>
                       setSettingsForm((s) => ({ ...s, storeName: e.target.value }))
@@ -902,10 +905,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
               <div>
                 <label className="block text-xs font-medium mb-1.5">
-                  Bandeau d&apos;annonce (FR)
+                  شريط الإعلان في أعلى المتجر (بالفرنسية)
                 </label>
                 <input
                   type="text"
+                  dir="ltr"
                   value={settingsForm.announcementFr}
                   onChange={(e) =>
                     setSettingsForm((s) => ({ ...s, announcementFr: e.target.value }))
@@ -915,10 +919,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1.5">Catégories personnalisées</label>
+                <label className="block text-xs font-medium mb-1.5">تصنيفات مخصصة (بالفرنسية)</label>
                 <div className="flex gap-2 mb-3">
                   <input
                     type="text"
+                    dir="ltr"
                     value={newCustomCategory}
                     onChange={(e) => setNewCustomCategory(e.target.value)}
                     placeholder="Ex. Oud Rare, Extrait..."
@@ -937,9 +942,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                       }
                       setNewCustomCategory('');
                     }}
-                    className="px-4 min-h-[44px] border border-[#0B0A08] text-xs uppercase tracking-[0.12em] hover:bg-[#0B0A08] hover:text-[#F6F1E7]"
+                    className="px-4 min-h-[44px] border border-[#0B0A08] text-xs font-medium hover:bg-[#0B0A08] hover:text-[#F6F1E7]"
                   >
-                    Ajouter
+                    إضافة
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -948,7 +953,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                       key={cat}
                       className="inline-flex items-center gap-2 px-3 py-1 bg-[#F6F1E7] border border-[#DDD3BE] text-xs"
                     >
-                      <span>{cat}</span>
+                      <span dir="ltr">{cat}</span>
                       <button
                         type="button"
                         onClick={() =>
@@ -957,7 +962,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                             customCategories: s.customCategories.filter((c) => c !== cat),
                           }))
                         }
-                        aria-label={`Retirer ${cat}`}
+                        aria-label={`حذف ${cat}`}
                         className="text-[#8C857B] hover:text-red-700"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -970,9 +975,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               <button
                 type="submit"
                 disabled={savingSettings}
-                className="btn-primary-wipe px-6 py-3 text-xs uppercase tracking-[0.14em] min-h-[44px]"
+                className="btn-primary-wipe px-6 py-3 text-xs font-medium min-h-[44px]"
               >
-                {savingSettings ? 'Enregistrement...' : 'Enregistrer les paramètres'}
+                {savingSettings ? 'جاري الحفظ...' : 'حفظ الإعدادات'}
               </button>
             </form>
 
@@ -981,39 +986,38 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               <div>
                 <h2 className="font-display text-2xl font-semibold text-[#0B0A08] pb-3 border-b border-[#DDD3BE] flex items-center gap-2">
                   <Activity className="w-5 h-5 text-[#8F6E2E]" />
-                  <span>Diagnostic Firestore</span>
+                  <span>فحص قاعدة البيانات (Firestore)</span>
                 </h2>
 
                 <div className="mt-5 p-4 bg-[#F6F1E7] border border-[#DDD3BE]">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-[#8F6E2E] mb-1">
-                    État de connexion au démarrage
-                  </p>
+                  <p className="text-xs text-[#8F6E2E] mb-1">حالة الاتصال عند التشغيل</p>
                   {healthResult ? (
                     <p
-                      className={`text-sm font-medium ${
+                      dir="ltr"
+                      className={`text-sm font-medium text-right ${
                         healthResult.ok ? 'text-[#0B0A08]' : 'text-red-700'
                       }`}
                     >
                       {healthResult.message}
                     </p>
                   ) : (
-                    <p className="text-sm text-[#8C857B]">Vérification en cours...</p>
+                    <p className="text-sm text-[#8C857B]">جاري الفحص...</p>
                   )}
                 </div>
 
                 <div className="mt-6">
-                  <p className="text-xs uppercase tracking-[0.12em] text-[#8C857B] mb-3">
-                    Auto-test complet (5 étapes sur _health)
+                  <p className="text-xs text-[#8C857B] mb-3">
+                    اختبار تلقائي شامل (5 مراحل على مجموعة _health)
                   </p>
                   <button
                     type="button"
                     disabled={selfTestRunning}
                     onClick={handleRunSelfTest}
-                    className="btn-secondary-invert w-full min-h-[44px] text-xs uppercase tracking-[0.14em]"
+                    className="btn-secondary-invert w-full min-h-[44px] text-xs font-medium"
                   >
                     {selfTestRunning
-                      ? 'Exécution du test...'
-                      : 'Lancer le test CREATE → READ → UPDATE → DELETE → CONFIRM GONE'}
+                      ? 'جاري تنفيذ الاختبار...'
+                      : 'تشغيل اختبار القراءة والكتابة والحذف'}
                   </button>
 
                   {selfTestError && (
@@ -1029,9 +1033,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           key={step.step}
                           className="p-2.5 border border-[#DDD3BE] bg-[#F6F1E7] flex items-center justify-between text-xs"
                         >
-                          <span className="font-mono font-semibold">{step.step}</span>
-                          <span className={step.ok ? 'text-emerald-800' : 'text-red-700'}>
-                            {step.ok ? 'OK' : 'ÉCHEC'} · {step.detail}
+                          <span className="font-mono font-semibold" dir="ltr">
+                            {step.step}
+                          </span>
+                          <span className={step.ok ? 'text-emerald-800' : 'text-red-700'} dir="ltr">
+                            {step.ok ? 'نجاح' : 'فشل'} · {step.detail}
                           </span>
                         </li>
                       ))}
@@ -1040,8 +1046,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#DDD3BE] text-xs text-[#8C857B]">
-                Synchronisation automatique : chaque ajout ou modification est enregistré immédiatement dans Firestore et visible en direct pour vos visiteurs.
+              <div className="pt-4 border-t border-[#DDD3BE] text-xs text-[#8C857B] leading-relaxed">
+                مزامنة فورية: كل منتج أو تعديل تضيفه يُحفظ مباشرة في قاعدة البيانات ويظهر للزوار في
+                نفس اللحظة.
               </div>
             </div>
           </div>
@@ -1058,11 +1065,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           <div className="bg-[#FDFCFA] border border-[#DDD3BE] rounded-2xl w-full max-w-2xl max-h-[92dvh] overflow-y-auto p-6">
             <div className="flex items-center justify-between pb-4 border-b border-[#DDD3BE]">
               <h3 className="font-display text-2xl font-semibold">
-                {productForm.id ? 'Modifier le Produit' : 'Nouveau Produit'}
+                {productForm.id ? 'تعديل المنتج' : 'إضافة منتج جديد'}
               </h3>
               <button
                 type="button"
                 onClick={() => setProductModalOpen(false)}
+                aria-label="إغلاق"
                 className="w-9 h-9 rounded-full border border-[#DDD3BE] flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
@@ -1070,33 +1078,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             </div>
 
             <form onSubmit={handleSaveProduct} className="mt-5 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1">Nom (FR) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={productForm.nameFr}
-                    onChange={(e) => setProductForm((f) => ({ ...f, nameFr: e.target.value }))}
-                    className="w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Nom (AR)</label>
-                  <input
-                    type="text"
-                    dir="rtl"
-                    value={productForm.nameAr}
-                    onChange={(e) => setProductForm((f) => ({ ...f, nameAr: e.target.value }))}
-                    className="w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  اسم المنتج (بالفرنسية فقط) *
+                </label>
+                <input
+                  type="text"
+                  dir="ltr"
+                  required
+                  value={productForm.nameFr}
+                  onChange={(e) => setProductForm((f) => ({ ...f, nameFr: e.target.value }))}
+                  placeholder="Ex. Baccarat Rouge 540"
+                  className="w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                 <div>
-                  <label className="block text-xs font-medium mb-1">Catégorie *</label>
+                  <label className="block text-xs font-medium mb-1">التصنيف *</label>
                   <select
+                    dir="ltr"
                     value={productForm.category}
                     onChange={(e) => setProductForm((f) => ({ ...f, category: e.target.value }))}
                     className="w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
@@ -1116,36 +1117,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                     onChange={(e) => setProductForm((f) => ({ ...f, inStock: e.target.checked }))}
                     className="accent-[#0B0A08] w-4 h-4"
                   />
-                  <span>Produit disponible en stock</span>
+                  <span>المنتج متوفر في المخزون</span>
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1">Description (FR)</label>
-                  <textarea
-                    rows={3}
-                    value={productForm.descFr}
-                    onChange={(e) => setProductForm((f) => ({ ...f, descFr: e.target.value }))}
-                    className="w-full p-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Description (AR)</label>
-                  <textarea
-                    rows={3}
-                    dir="rtl"
-                    value={productForm.descAr}
-                    onChange={(e) => setProductForm((f) => ({ ...f, descAr: e.target.value }))}
-                    className="w-full p-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  وصف المنتج (بالفرنسية فقط)
+                </label>
+                <textarea
+                  rows={3}
+                  dir="ltr"
+                  value={productForm.descFr}
+                  onChange={(e) => setProductForm((f) => ({ ...f, descFr: e.target.value }))}
+                  placeholder="Description olfactive en français..."
+                  className="w-full p-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
+                />
               </div>
 
               {/* Dynamic Multi-Size / Decant Rows */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-medium">Formats &amp; Décants *</label>
+                  <label className="text-xs font-medium">الأحجام والأسعار (بالدرهم) *</label>
                   <button
                     type="button"
                     onClick={() =>
@@ -1162,9 +1155,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                         ],
                       }))
                     }
-                    className="text-xs uppercase tracking-[0.1em] text-[#8F6E2E] hover:text-[#0B0A08]"
+                    className="text-xs font-medium text-[#8F6E2E] hover:text-[#0B0A08]"
                   >
-                    + Ajouter un format
+                    + إضافة حجم جديد
                   </button>
                 </div>
 
@@ -1176,6 +1169,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                     >
                       <input
                         type="text"
+                        dir="ltr"
                         required
                         value={size.label}
                         onChange={(e) => {
@@ -1190,6 +1184,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                       />
                       <input
                         type="number"
+                        dir="ltr"
                         min="0"
                         required
                         value={size.price}
@@ -1200,7 +1195,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                             sizes: f.sizes.map((s, i) => (i === idx ? { ...s, price: val } : s)),
                           }));
                         }}
-                        placeholder="Prix DH"
+                        placeholder="السعر DH"
                         className="col-span-3 min-h-[38px] px-2.5 bg-[#FDFCFA] border border-[#DDD3BE] text-xs tabular-nums"
                       />
                       <label className="col-span-3 flex items-center gap-1.5 text-[11px] cursor-pointer">
@@ -1218,7 +1213,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           }}
                           className="accent-[#0B0A08]"
                         />
-                        <span>Stock</span>
+                        <span>متوفر</span>
                       </label>
                       <button
                         type="button"
@@ -1229,7 +1224,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                             sizes: f.sizes.filter((_, i) => i !== idx),
                           }))
                         }
-                        aria-label="Retirer ce format"
+                        aria-label="حذف هذا الحجم"
                         className="col-span-1 flex items-center justify-center text-[#8C857B] hover:text-red-700 disabled:opacity-30"
                       >
                         <X className="w-4 h-4" />
@@ -1241,11 +1236,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
               {/* Image Upload */}
               <div>
-                <label className="block text-xs font-medium mb-1.5">Photo du Produit</label>
+                <label className="block text-xs font-medium mb-1.5">صورة المنتج</label>
                 <div className="flex flex-wrap items-center gap-4">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#0B0A08] text-xs uppercase tracking-[0.12em] cursor-pointer hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors">
+                  <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#0B0A08] text-xs font-medium cursor-pointer hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors">
                     <Upload className="w-4 h-4" />
-                    <span>{uploadingImage ? 'Traitement...' : 'Importer une photo'}</span>
+                    <span>{uploadingImage ? 'جاري معالجة الصورة...' : 'اختيار صورة'}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -1258,19 +1253,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                     <div className="flex items-center gap-3">
                       <img
                         src={productForm.imageUrl || productForm.imageData}
-                        alt="Aperçu produit"
+                        alt="معاينة الصورة"
                         className="w-14 h-16 object-cover border border-[#DDD3BE]"
                       />
                       <div className="space-y-1">
-                        <p className="text-[11px] font-medium text-emerald-800">Photo prête</p>
+                        <p className="text-[11px] font-medium text-emerald-800">الصورة جاهزة</p>
                         <button
                           type="button"
                           onClick={() =>
                             setProductForm((prev) => ({ ...prev, imageUrl: '', imageData: '' }))
                           }
-                          className="text-[11px] uppercase tracking-[0.08em] text-red-700 hover:underline"
+                          className="text-[11px] text-red-700 hover:underline"
                         >
-                          Retirer
+                          إزالة
                         </button>
                       </div>
                     </div>
@@ -1288,16 +1283,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 <button
                   type="button"
                   onClick={() => setProductModalOpen(false)}
-                  className="px-5 py-2.5 border border-[#DDD3BE] text-xs uppercase tracking-[0.12em]"
+                  className="px-5 py-2.5 border border-[#DDD3BE] text-xs font-medium"
                 >
-                  Annuler
+                  إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={savingProduct || uploadingImage}
-                  className="btn-primary-wipe px-6 py-2.5 text-xs uppercase tracking-[0.12em] disabled:opacity-50"
+                  className="btn-primary-wipe px-6 py-2.5 text-xs font-medium disabled:opacity-50"
                 >
-                  {savingProduct ? 'Enregistrement...' : 'Enregistrer'}
+                  {savingProduct ? 'جاري الحفظ...' : 'حفظ المنتج'}
                 </button>
               </div>
             </form>
@@ -1313,31 +1308,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           className="fixed inset-0 z-50 bg-[#0B0A08]/80 flex items-center justify-center p-4"
         >
           <div className="bg-[#FDFCFA] border border-[#DDD3BE] rounded-2xl w-full max-w-md p-6">
-            <h3 className="font-display text-xl font-semibold mb-2">Supprimer ce produit ?</h3>
+            <h3 className="font-display text-xl font-semibold mb-2">هل تريد حذف هذا المنتج؟</h3>
             <p className="text-sm text-[#8C857B] mb-6">
-              Confirmez-vous la suppression définitive de « {deleteTarget.name?.fr} » ?
+              هل تؤكد الحذف النهائي للمنتج « <span dir="ltr">{deleteTarget.name?.fr}</span> »؟
             </p>
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 border border-[#DDD3BE] text-xs uppercase tracking-[0.12em]"
+                className="px-4 py-2 border border-[#DDD3BE] text-xs font-medium"
               >
-                Annuler
+                إلغاء
               </button>
               <button
                 type="button"
                 disabled={savingProduct}
                 onClick={handleConfirmDeleteProduct}
-                className="px-5 py-2 bg-red-700 text-white text-xs uppercase tracking-[0.12em]"
+                className="px-5 py-2 bg-red-700 text-white text-xs font-medium hover:bg-red-800"
               >
-                {savingProduct ? 'Suppression...' : 'Supprimer'}
+                {savingProduct ? 'جاري الحذف...' : 'تأكيد الحذف'}
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };
