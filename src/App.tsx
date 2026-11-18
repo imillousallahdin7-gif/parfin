@@ -8,7 +8,7 @@ import {
   ProductSize,
   StoreSettings,
 } from './types/catalog';
-import { getPublicCatalog } from './services/catalogService';
+import { getPublicCatalog, subscribePublicCatalog } from './services/catalogService';
 import { loadCart, saveCart } from './services/cartService';
 import { Header } from './components/Header';
 import { NavigationOverlay } from './components/NavigationOverlay';
@@ -66,6 +66,12 @@ export default function App() {
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const [directOrderItem, setDirectOrderItem] = useState<CartItem | null>(null);
 
+  const liveReceivedRef = React.useRef({
+    products: false,
+    packs: false,
+    settings: false,
+  });
+
   const loadCatalog = useCallback(async (forceRefresh = false) => {
     setLoading(true);
     setCatalogError(null);
@@ -73,18 +79,20 @@ export default function App() {
       const snapshot = await getPublicCatalog({
         forceRefresh,
         onBackgroundUpdate: (fresh) => {
-          setProducts(fresh.products);
-          setPacks(fresh.packs);
-          setSettings(fresh.settings);
+          if (!liveReceivedRef.current.products) setProducts(fresh.products);
+          if (!liveReceivedRef.current.packs) setPacks(fresh.packs);
+          if (!liveReceivedRef.current.settings) setSettings(fresh.settings);
         },
       });
-      setProducts(snapshot.products);
-      setPacks(snapshot.packs);
-      setSettings(snapshot.settings);
+      if (!liveReceivedRef.current.products) setProducts(snapshot.products);
+      if (!liveReceivedRef.current.packs) setPacks(snapshot.packs);
+      if (!liveReceivedRef.current.settings) setSettings(snapshot.settings);
     } catch (err) {
-      setCatalogError(
-        err instanceof Error ? err.message : 'Impossible de charger le catalogue.'
-      );
+      if (!liveReceivedRef.current.products) {
+        setCatalogError(
+          err instanceof Error ? err.message : 'Impossible de charger le catalogue.'
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -93,6 +101,51 @@ export default function App() {
   useEffect(() => {
     loadCatalog(false);
   }, [loadCatalog]);
+
+  const isPublicView = route !== 'admin';
+
+  // Real-time synchronous Firestore sync for visitors whenever viewing the public storefront
+  useEffect(() => {
+    if (!isPublicView) return;
+    let active = true;
+    let unsubscribe: (() => void) | undefined;
+
+    subscribePublicCatalog({
+      onProducts: (liveProducts) => {
+        if (!active) return;
+        liveReceivedRef.current.products = true;
+        setProducts(liveProducts);
+        setCatalogError(null);
+        setLoading(false);
+      },
+      onPacks: (livePacks) => {
+        if (!active) return;
+        liveReceivedRef.current.packs = true;
+        setPacks(livePacks);
+        setLoading(false);
+      },
+      onSettings: (liveSettings) => {
+        if (!active) return;
+        liveReceivedRef.current.settings = true;
+        setSettings(liveSettings);
+      },
+    })
+      .then((unsub) => {
+        if (active) {
+          unsubscribe = unsub;
+        } else {
+          unsub();
+        }
+      })
+      .catch(() => {
+        // Fallback silently to static catalog.json if real-time listener is blocked
+      });
+
+    return () => {
+      active = false;
+      if (unsubscribe) unsubscribe();
+    };
+  }, [isPublicView]);
 
   useEffect(() => {
     const onHashOrPop = () => {

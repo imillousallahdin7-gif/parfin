@@ -523,7 +523,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       const res = await uploadAdminImage(file, 'products', productForm.id || `prod_${Date.now()}`);
       setProductForm((prev) => ({
         ...prev,
-        imageUrl: res.imageUrl,
+        imageUrl: res.imageUrl ?? '',
         imageData: res.imageData,
       }));
     } catch (err) {

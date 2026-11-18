@@ -173,42 +173,210 @@ export function clearCatalogCache(): void {
   }
 }
 
+export async function subscribePublicCatalog(
+  callbacks: {
+    onProducts: (products: Product[]) => void;
+    onPacks: (packs: Pack[]) => void;
+    onSettings: (settings: StoreSettings) => void;
+    onError?: (err: Error) => void;
+  }
+): Promise<() => void> {
+  const [{ db }, { collection, doc, onSnapshot, orderBy, query }] = await Promise.all([
+    import('./firebase'),
+    import('firebase/firestore'),
+  ]);
+
+  let latestSettings: StoreSettings = { ...DEFAULT_STORE_SETTINGS };
+  let currentProducts: Product[] = [];
+  let currentPacks: Pack[] = [];
+  let gotProducts = false;
+  let gotPacks = false;
+
+  const syncCache = () => {
+    if (!gotProducts || !gotPacks) return;
+    if (currentProducts.length === 0 && currentPacks.length === 0) {
+      clearCatalogCache();
+      return;
+    }
+    writeCache({
+      version: `live-${Date.now()}`,
+      generatedAt: new Date().toISOString(),
+      products: currentProducts,
+      packs: currentPacks,
+      settings: latestSettings,
+    });
+  };
+
+  const unsubProducts = onSnapshot(
+    query(collection(db, 'products'), orderBy('createdAt', 'desc')),
+    (snapshot) => {
+      currentProducts = snapshot.docs.map((d) => {
+        const data = d.data() as Record<string, unknown>;
+        return {
+          id: d.id,
+          name: (data.name as Product['name']) || { fr: '', ar: '' },
+          description: (data.description as Product['description']) || { fr: '', ar: '' },
+          category: String(data.category || 'Niche'),
+          price: Number(data.price || 0),
+          sizeLabel: typeof data.sizeLabel === 'string' ? data.sizeLabel : undefined,
+          sizes: Array.isArray(data.sizes) ? (data.sizes as Product['sizes']) : [],
+          inStock: typeof data.inStock === 'boolean' ? data.inStock : true,
+          imageData: typeof data.imageData === 'string' && data.imageData ? data.imageData : undefined,
+          imageUrl: typeof data.imageUrl === 'string' && data.imageUrl ? data.imageUrl : undefined,
+          images: Array.isArray(data.images) ? (data.images as string[]) : undefined,
+        };
+      });
+      gotProducts = true;
+      callbacks.onProducts(currentProducts);
+      syncCache();
+    },
+    (error) => {
+      if (callbacks.onError) {
+        callbacks.onError(error instanceof Error ? error : new Error(String(error)));
+      }
+    }
+  );
+
+  const unsubPacks = onSnapshot(
+    query(collection(db, 'packs'), orderBy('createdAt', 'desc')),
+    (snapshot) => {
+      currentPacks = snapshot.docs.map((d) => {
+        const data = d.data() as Record<string, unknown>;
+        return {
+          id: d.id,
+          category: data.category === 'men' ? 'men' : 'women',
+          name: (data.name as Pack['name']) || { fr: '', ar: '' },
+          description: (data.description as Pack['description']) || { fr: '', ar: '' },
+          price: Number(data.price || 0),
+          active: typeof data.active === 'boolean' ? data.active : true,
+          imageData: typeof data.imageData === 'string' && data.imageData ? data.imageData : undefined,
+          imageUrl: typeof data.imageUrl === 'string' && data.imageUrl ? data.imageUrl : undefined,
+        };
+      });
+      gotPacks = true;
+      callbacks.onPacks(currentPacks);
+      syncCache();
+    },
+    (error) => {
+      if (callbacks.onError) {
+        callbacks.onError(error instanceof Error ? error : new Error(String(error)));
+      }
+    }
+  );
+
+  const unsubWa = onSnapshot(
+    doc(db, 'settings', 'whatsapp'),
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        latestSettings = {
+          ...latestSettings,
+          whatsappNumber:
+            typeof data.number === 'string' && data.number ? data.number : latestSettings.whatsappNumber,
+        };
+        callbacks.onSettings(latestSettings);
+        syncCache();
+      }
+    },
+    () => {
+      // Keep default/cached settings if transient read fails
+    }
+  );
+
+  const unsubGeneral = onSnapshot(
+    doc(db, 'settings', 'general'),
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        latestSettings = {
+          ...latestSettings,
+          storeName:
+            typeof data.storeName === 'string' && data.storeName
+              ? data.storeName
+              : latestSettings.storeName,
+          announcementFr:
+            typeof data.announcementFr === 'string' && data.announcementFr
+              ? data.announcementFr
+              : latestSettings.announcementFr,
+          announcementAr:
+            typeof data.announcementAr === 'string'
+              ? data.announcementAr
+              : latestSettings.announcementAr,
+          customCategories: Array.isArray(data.customCategories)
+            ? data.customCategories.filter((c): c is string => typeof c === 'string')
+            : latestSettings.customCategories,
+          deliveryFeeLocal:
+            typeof data.deliveryFeeLocal === 'number'
+              ? data.deliveryFeeLocal
+              : latestSettings.deliveryFeeLocal,
+          deliveryFeeNational:
+            typeof data.deliveryFeeNational === 'number'
+              ? data.deliveryFeeNational
+              : latestSettings.deliveryFeeNational,
+        };
+        callbacks.onSettings(latestSettings);
+        syncCache();
+      }
+    },
+    () => {
+      // Keep default/cached settings if transient read fails
+    }
+  );
+
+  return () => {
+    unsubProducts();
+    unsubPacks();
+    unsubWa();
+    unsubGeneral();
+  };
+}
+
 // ============================================================================
 // ADMIN-ONLY FIRESTORE METHODS (Dynamically imports ./firebase)
 // ============================================================================
 
 export async function compressImageFile(file: File, maxDim = 900, maxBytes = 550000): Promise<string> {
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas non disponible.');
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  let quality = 0.82;
-  let dataUrl = canvas.toDataURL('image/webp', quality);
-  if (!dataUrl.startsWith('data:image/webp')) {
-    dataUrl = canvas.toDataURL('image/jpeg', quality);
-  }
-
-  while (dataUrl.length > maxBytes && quality > 0.35) {
-    quality -= 0.1;
-    dataUrl = canvas.toDataURL('image/webp', quality);
-    if (!dataUrl.startsWith('data:image/webp')) {
-      dataUrl = canvas.toDataURL('image/jpeg', quality);
+  const renderScaled = (targetDim: number, quality: number): string => {
+    const scale = Math.min(1, targetDim / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas non disponible.');
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    let out = canvas.toDataURL('image/webp', quality);
+    if (!out.startsWith('data:image/webp')) {
+      out = canvas.toDataURL('image/jpeg', quality);
     }
-  }
+    return out;
+  };
 
-  if (dataUrl.length > 590000) {
-    throw new Error('Image trop volumineuse après compression (max 600 Ko).');
+  try {
+    let quality = 0.82;
+    let dataUrl = renderScaled(maxDim, quality);
+
+    while (dataUrl.length > maxBytes && quality > 0.35) {
+      quality -= 0.1;
+      dataUrl = renderScaled(maxDim, quality);
+    }
+
+    if (dataUrl.length > maxBytes) {
+      dataUrl = renderScaled(640, 0.72);
+    }
+    if (dataUrl.length > maxBytes) {
+      dataUrl = renderScaled(480, 0.6);
+    }
+
+    if (dataUrl.length > 590000) {
+      throw new Error('Image trop volumineuse après compression (max 600 Ko).');
+    }
+    return dataUrl;
+  } finally {
+    bitmap.close();
   }
-  return dataUrl;
 }
 
 export async function uploadAdminImage(
@@ -275,22 +443,30 @@ export async function subscribeAdminProducts(
 export async function saveAdminProduct(
   product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }
 ): Promise<string> {
-  const [{ db, handleFirestoreError, OperationType }, { doc, getDoc, serverTimestamp, setDoc, updateDoc }] =
-    await Promise.all([import('./firebase'), import('firebase/firestore')]);
+  const [
+    { db, handleFirestoreError, OperationType },
+    { deleteField, doc, getDoc, serverTimestamp, setDoc, updateDoc },
+  ] = await Promise.all([import('./firebase'), import('firebase/firestore')]);
 
-  const id = product.id?.trim() || `prod_${Date.now()}`;
+  const rawId = product.id?.trim().replace(/[^a-zA-Z0-9_-]/g, '_') || `prod_${Date.now()}`;
+  const id = rawId.slice(0, 128);
   const ref = doc(db, 'products', id);
 
   const sanitizedSizes = (product.sizes || []).slice(0, 20).map((s, idx) => ({
-    id: s.id || `size_${idx + 1}`,
+    id: (s.id || `size_${idx + 1}`).trim().replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64) || `size_${idx + 1}`,
     label: s.label.trim().slice(0, 40) || '10 ml',
-    price: Math.max(0, Number(s.price) || 0),
+    price: Math.min(1000000, Math.max(0, Number(s.price) || 0)),
     inStock: Boolean(s.inStock),
   }));
 
+  const safeSizes =
+    sanitizedSizes.length > 0
+      ? sanitizedSizes
+      : [{ id: 'default', label: 'Flacon complet', price: Math.min(1000000, Math.max(0, Number(product.price) || 0)), inStock: Boolean(product.inStock) }];
+
   const payload: Record<string, unknown> = {
     name: {
-      fr: product.name.fr.trim().slice(0, 160),
+      fr: product.name.fr.trim().slice(0, 160) || 'Création',
       ar: (product.name.ar || '').trim().slice(0, 160),
     },
     description: {
@@ -298,31 +474,40 @@ export async function saveAdminProduct(
       ar: (product.description.ar || '').trim().slice(0, 2000),
     },
     category: product.category.trim().slice(0, 64) || 'Niche',
-    price: Math.max(0, Number(product.price) || (sanitizedSizes[0]?.price ?? 0)),
-    sizeLabel: (product.sizeLabel || sanitizedSizes[0]?.label || 'Flacon complet').slice(0, 40),
-    sizes: sanitizedSizes,
+    price: Math.min(1000000, Math.max(0, Number(product.price) || (safeSizes[0]?.price ?? 0))),
+    sizeLabel: (product.sizeLabel || safeSizes[0]?.label || 'Flacon complet').trim().slice(0, 40),
+    sizes: safeSizes,
     inStock: Boolean(product.inStock),
     updatedAt: serverTimestamp(),
   };
 
-  if (product.imageData !== undefined) payload.imageData = product.imageData.slice(0, 600000);
-  if (product.imageUrl !== undefined) payload.imageUrl = product.imageUrl.slice(0, 2048);
+  if (product.imageData !== undefined && product.imageData !== '') {
+    payload.imageData = product.imageData.slice(0, 600000);
+  }
+  if (product.imageUrl !== undefined && product.imageUrl !== '') {
+    payload.imageUrl = product.imageUrl.slice(0, 2048);
+  }
   if (product.images !== undefined) payload.images = product.images.slice(0, 5);
 
   try {
     const existingSnap = await getDoc(ref);
     if (existingSnap.exists()) {
       const existingData = existingSnap.data();
-      await updateDoc(ref, {
-        ...payload,
-        createdAt: existingData.createdAt || serverTimestamp(),
-      });
+      const updatePayload: Record<string, unknown> = { ...payload };
+      if (!existingData.createdAt) {
+        updatePayload.createdAt = serverTimestamp();
+      }
+      if (product.imageUrl === '' && existingData.imageUrl) {
+        updatePayload.imageUrl = deleteField();
+      }
+      await updateDoc(ref, updatePayload);
     } else {
       await setDoc(ref, {
         ...payload,
         createdAt: serverTimestamp(),
       });
     }
+    clearCatalogCache();
     return id;
   } catch (error) {
     return handleFirestoreError(error, OperationType.WRITE, `products/${id}`);
@@ -336,6 +521,7 @@ export async function deleteAdminProduct(id: string): Promise<void> {
   ]);
   try {
     await deleteDoc(doc(db, 'products', id));
+    clearCatalogCache();
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, `products/${id}`);
   }
@@ -421,12 +607,23 @@ export async function saveAdminSettings(settings: StoreSettings): Promise<void> 
     import('firebase/firestore'),
   ]);
 
+  const cleanedNumber = settings.whatsappNumber.replace(/[^\d+\s]/g, '').trim().slice(0, 32);
+  const safeNumber = cleanedNumber.length >= 8 ? cleanedNumber : '212610640666';
+
+  const parsedLocal = Number(settings.deliveryFeeLocal);
+  const safeLocalFee = Number.isFinite(parsedLocal) ? Math.min(1000, Math.max(0, parsedLocal)) : 20;
+
+  const parsedNational = Number(settings.deliveryFeeNational);
+  const safeNationalFee = Number.isFinite(parsedNational)
+    ? Math.min(1000, Math.max(0, parsedNational))
+    : 35;
+
   try {
     await Promise.all([
       setDoc(
         doc(db, 'settings', 'whatsapp'),
         {
-          number: settings.whatsappNumber.replace(/[^\d+\s]/g, '').slice(0, 32) || '212610640666',
+          number: safeNumber,
           updatedAt: serverTimestamp(),
         },
         { merge: true }
@@ -442,13 +639,14 @@ export async function saveAdminSettings(settings: StoreSettings): Promise<void> 
             .map((c) => c.trim().slice(0, 64))
             .filter(Boolean)
             .slice(0, 20),
-          deliveryFeeLocal: Math.max(0, Number(settings.deliveryFeeLocal) || 20),
-          deliveryFeeNational: Math.max(0, Number(settings.deliveryFeeNational) || 35),
+          deliveryFeeLocal: safeLocalFee,
+          deliveryFeeNational: safeNationalFee,
           updatedAt: serverTimestamp(),
         },
         { merge: true }
       ),
     ]);
+    clearCatalogCache();
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, 'settings');
   }

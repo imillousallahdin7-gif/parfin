@@ -83,7 +83,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
       const res = await uploadAdminImage(file, 'packs', form.id || `pack_${Date.now()}`);
       setForm((prev) => ({
         ...prev,
-        imageUrl: res.imageUrl,
+        imageUrl: res.imageUrl ?? '',
         imageData: res.imageData,
       }));
     } catch (err) {
