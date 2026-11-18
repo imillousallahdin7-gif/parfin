@@ -112,6 +112,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="rounded-xl overflow-hidden border border-[#DDD3BE]">
                 <CatalogImage
                   src={activeImage}
+                  fallbackSrc={product.imageData}
                   alt={title}
                   title={title}
                   eager

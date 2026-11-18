@@ -76,6 +76,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
     setError(null);
     setUploading(true);
@@ -121,7 +122,11 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
         imageData: form.imageData,
       });
       setModalOpen(false);
-      onMutated(form.id ? 'Pack mis à jour dans Firestore.' : 'Nouveau pack créé dans Firestore.');
+      onMutated(
+        form.id
+          ? 'Pack enregistré et mis à jour en direct.'
+          : 'Nouveau pack enregistré et visible en direct.'
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde.');
     } finally {
@@ -420,11 +425,22 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                     />
                   </label>
                   {(form.imageUrl || form.imageData) && (
-                    <img
-                      src={form.imageUrl || form.imageData}
-                      alt="Aperçu"
-                      className="w-12 h-14 object-cover border border-[#DDD3BE]"
-                    />
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={form.imageUrl || form.imageData}
+                        alt="Aperçu"
+                        className="w-12 h-14 object-cover border border-[#DDD3BE]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((prev) => ({ ...prev, imageUrl: '', imageData: '' }))
+                        }
+                        className="text-[11px] uppercase tracking-[0.08em] text-red-700 hover:underline"
+                      >
+                        Retirer
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

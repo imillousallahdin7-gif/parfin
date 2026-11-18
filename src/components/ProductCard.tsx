@@ -37,6 +37,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="relative">
         <CatalogImage
           src={imageSrc}
+          fallbackSrc={product.imageData}
           alt={title}
           title={title}
           eager={eager}

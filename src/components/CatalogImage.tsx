@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface CatalogImageProps {
   src?: string;
+  fallbackSrc?: string;
   alt: string;
   title: string;
   eager?: boolean;
@@ -13,31 +14,35 @@ const RETRY_DELAYS = [1500, 4000, 9000];
 
 export const CatalogImage: React.FC<CatalogImageProps> = ({
   src,
+  fallbackSrc,
   alt,
   title,
   eager = false,
   className = '',
   aspectClass = 'aspect-[4/5]',
 }) => {
+  const [activeBaseSrc, setActiveBaseSrc] = useState(src || fallbackSrc || '');
   const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(!src);
+  const [failed, setFailed] = useState(!(src || fallbackSrc));
   const [retryCount, setRetryCount] = useState(0);
   const [cacheBust, setCacheBust] = useState('');
   const retryTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const initial = src || fallbackSrc || '';
+    setActiveBaseSrc(initial);
     setLoaded(false);
-    setFailed(!src);
+    setFailed(!initial);
     setRetryCount(0);
     setCacheBust('');
     if (retryTimerRef.current) {
       window.clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
     }
-  }, [src]);
+  }, [src, fallbackSrc]);
 
   useEffect(() => {
-    if (!src) return;
+    if (!activeBaseSrc) return;
 
     const handleRecover = () => {
       if (failed && document.visibilityState !== 'hidden') {
@@ -57,10 +62,18 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
         window.clearTimeout(retryTimerRef.current);
       }
     };
-  }, [src, failed]);
+  }, [activeBaseSrc, failed]);
 
   const handleError = () => {
-    if (!src) {
+    if (fallbackSrc && activeBaseSrc !== fallbackSrc) {
+      setActiveBaseSrc(fallbackSrc);
+      setLoaded(false);
+      setFailed(false);
+      setRetryCount(0);
+      setCacheBust('');
+      return;
+    }
+    if (!activeBaseSrc) {
       setFailed(true);
       return;
     }
@@ -76,10 +89,10 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
   };
 
   const resolvedSrc = (() => {
-    if (!src) return '';
-    if (!cacheBust || src.startsWith('data:')) return src;
-    const sep = src.includes('?') ? '&' : '?';
-    return `${src}${sep}${cacheBust}`;
+    if (!activeBaseSrc) return '';
+    if (!cacheBust || activeBaseSrc.startsWith('data:')) return activeBaseSrc;
+    const sep = activeBaseSrc.includes('?') ? '&' : '?';
+    return `${activeBaseSrc}${sep}${cacheBust}`;
   })();
 
   return (

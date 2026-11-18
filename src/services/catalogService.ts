@@ -335,18 +335,55 @@ export async function subscribePublicCatalog(
 // ADMIN-ONLY FIRESTORE METHODS (Dynamically imports ./firebase)
 // ============================================================================
 
-export async function compressImageFile(file: File, maxDim = 900, maxBytes = 550000): Promise<string> {
-  const bitmap = await createImageBitmap(file);
+async function decodeImageForCanvas(
+  file: File
+): Promise<{ width: number; height: number; draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void; release: () => void }> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file);
+      return {
+        width: bitmap.width,
+        height: bitmap.height,
+        draw: (ctx, w, h) => ctx.drawImage(bitmap, 0, 0, w, h),
+        release: () => bitmap.close(),
+      };
+    } catch {
+      // Fallback to HTMLImageElement for formats where createImageBitmap fails
+    }
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("Impossible de lire ce fichier image."));
+      el.src = objectUrl;
+    });
+    return {
+      width: img.naturalWidth || img.width,
+      height: img.naturalHeight || img.height,
+      draw: (ctx, w, h) => ctx.drawImage(img, 0, 0, w, h),
+      release: () => URL.revokeObjectURL(objectUrl),
+    };
+  } catch (err) {
+    URL.revokeObjectURL(objectUrl);
+    throw err;
+  }
+}
+
+export async function compressImageFile(file: File, maxDim = 800, maxBytes = 380000): Promise<string> {
+  const source = await decodeImageForCanvas(file);
   const renderScaled = (targetDim: number, quality: number): string => {
-    const scale = Math.min(1, targetDim / Math.max(bitmap.width, bitmap.height));
-    const width = Math.max(1, Math.round(bitmap.width * scale));
-    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const scale = Math.min(1, targetDim / Math.max(source.width, source.height));
+    const width = Math.max(1, Math.round(source.width * scale));
+    const height = Math.max(1, Math.round(source.height * scale));
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas non disponible.');
-    ctx.drawImage(bitmap, 0, 0, width, height);
+    source.draw(ctx, width, height);
     let out = canvas.toDataURL('image/webp', quality);
     if (!out.startsWith('data:image/webp')) {
       out = canvas.toDataURL('image/jpeg', quality);
@@ -355,7 +392,7 @@ export async function compressImageFile(file: File, maxDim = 900, maxBytes = 550
   };
 
   try {
-    let quality = 0.82;
+    let quality = 0.8;
     let dataUrl = renderScaled(maxDim, quality);
 
     while (dataUrl.length > maxBytes && quality > 0.35) {
@@ -364,10 +401,10 @@ export async function compressImageFile(file: File, maxDim = 900, maxBytes = 550
     }
 
     if (dataUrl.length > maxBytes) {
-      dataUrl = renderScaled(640, 0.72);
+      dataUrl = renderScaled(600, 0.7);
     }
     if (dataUrl.length > maxBytes) {
-      dataUrl = renderScaled(480, 0.6);
+      dataUrl = renderScaled(440, 0.58);
     }
 
     if (dataUrl.length > 590000) {
@@ -375,7 +412,7 @@ export async function compressImageFile(file: File, maxDim = 900, maxBytes = 550
     }
     return dataUrl;
   } finally {
-    bitmap.close();
+    source.release();
   }
 }
 
@@ -383,7 +420,7 @@ export async function uploadAdminImage(
   file: File,
   folder: 'products' | 'packs',
   docId: string
-): Promise<{ imageUrl?: string; imageData?: string }> {
+): Promise<{ imageUrl?: string; imageData: string }> {
   const compressedDataUrl = await compressImageFile(file);
 
   try {
@@ -391,12 +428,23 @@ export async function uploadAdminImage(
       import('./firebase'),
       import('firebase/storage'),
     ]);
+    storage.maxUploadRetryTime = 2500;
+    storage.maxOperationRetryTime = 2500;
+
     const storageRef = ref(storage, `${folder}/${docId}-${Date.now()}.webp`);
-    await uploadString(storageRef, compressedDataUrl, 'data_url');
-    const downloadUrl = await getDownloadURL(storageRef);
+    const uploadPromise = (async () => {
+      await uploadString(storageRef, compressedDataUrl, 'data_url');
+      return getDownloadURL(storageRef);
+    })();
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      window.setTimeout(() => reject(new Error('Storage upload timeout')), 2500);
+    });
+
+    const downloadUrl = await Promise.race([uploadPromise, timeoutPromise]);
     return { imageUrl: downloadUrl, imageData: compressedDataUrl };
   } catch {
-    // Fallback to compressed Base64 (< 600KB) if Storage is unavailable or blocked
+    // Immediate fallback to compressed Base64 (< 380KB) stored directly in Firestore
     return { imageData: compressedDataUrl };
   }
 }
@@ -499,6 +547,9 @@ export async function saveAdminProduct(
       }
       if (product.imageUrl === '' && existingData.imageUrl) {
         updatePayload.imageUrl = deleteField();
+      }
+      if (product.imageData === '' && existingData.imageData) {
+        updatePayload.imageData = deleteField();
       }
       await updateDoc(ref, updatePayload);
     } else {

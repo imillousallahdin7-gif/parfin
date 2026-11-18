@@ -23,6 +23,7 @@ export const PackCard: React.FC<PackCardProps> = ({
       <div className="relative">
         <CatalogImage
           src={imageSrc}
+          fallbackSrc={pack.imageData}
           alt={title}
           title={title}
           eager={eager}

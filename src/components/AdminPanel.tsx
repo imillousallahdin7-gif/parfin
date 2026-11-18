@@ -1,16 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
-  AlertTriangle,
   ArrowLeft,
   CheckCircle2,
   Edit2,
-  KeyRound,
   Lock,
   LogOut,
   Package,
   Plus,
-  Rocket,
   Search,
   Settings,
   Sparkles,
@@ -47,7 +44,6 @@ interface AdminPanelProps {
   onBackHome: () => void;
 }
 
-const PUBLISH_KEY_SESSION_STORAGE = 'parfumerie_elkhalifi_publish_key';
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 60;
 
@@ -82,16 +78,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
   const [listenerError, setListenerError] = useState<string | null>(null);
 
-  // Publishing state
-  const [unpublishedChanges, setUnpublishedChanges] = useState(false);
-  const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [publishKeyInput, setPublishKeyInput] = useState('');
-  const [publishing, setPublishing] = useState(false);
-  const [publishStatus, setPublishStatus] = useState<string | null>(null);
-  const [publishError, setPublishError] = useState<string | null>(null);
-  const [publishCooldown, setPublishCooldown] = useState(0);
-  const [autoPublishSeconds, setAutoPublishSeconds] = useState<number | null>(null);
-  const autoPublishTimerRef = useRef<number | null>(null);
+  // Feedback toast state
   const toastTimerRef = useRef<number | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -140,24 +127,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     }, 1000);
     return () => window.clearInterval(t);
   }, [lockoutSecondsLeft]);
-
-  // Publish cooldown countdown
-  useEffect(() => {
-    if (publishCooldown <= 0) return;
-    const t = window.setInterval(() => {
-      setPublishCooldown((s) => (s <= 1 ? 0 : s - 1));
-    }, 1000);
-    return () => window.clearInterval(t);
-  }, [publishCooldown]);
-
-  // Auto-publish 2-minute countdown ticker
-  useEffect(() => {
-    if (autoPublishSeconds === null || autoPublishSeconds <= 0) return;
-    const t = window.setInterval(() => {
-      setAutoPublishSeconds((s) => (s !== null && s > 1 ? s - 1 : 0));
-    }, 1000);
-    return () => window.clearInterval(t);
-  }, [autoPublishSeconds]);
 
   // Subscribe to Firebase Auth state dynamically
   useEffect(() => {
@@ -257,86 +226,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     toastTimerRef.current = window.setTimeout(() => setToastMessage(null), 3500);
   }, []);
 
-  const triggerPublishRequest = useCallback(async (key: string) => {
-    setPublishing(true);
-    setPublishError(null);
-    setPublishStatus(null);
-    if (autoPublishTimerRef.current) {
-      window.clearTimeout(autoPublishTimerRef.current);
-      autoPublishTimerRef.current = null;
-    }
-    setAutoPublishSeconds(null);
-
-    try {
-      const res = await fetch('/api/publish', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-publish-key': key,
-        },
-      });
-      const body = (await res.json().catch(() => ({}))) as {
-        message?: string;
-        error?: string;
-        retryAfterSeconds?: number;
-      };
-
-      if (res.status === 429) {
-        const waitSec = body.retryAfterSeconds || 120;
-        setPublishCooldown(waitSec);
-        setPublishError(body.error || `Patientez ${waitSec}s avant de republier.`);
-        return;
-      }
-
-      if (res.status === 401) {
-        try {
-          window.sessionStorage.removeItem(PUBLISH_KEY_SESSION_STORAGE);
-        } catch {}
-        setPublishError(body.error || 'Clé de publication invalide.');
-        setPublishModalOpen(true);
-        return;
-      }
-
-      if (!res.ok) {
-        setPublishError(body.error || `Erreur serveur (${res.status}).`);
-        return;
-      }
-
-      setUnpublishedChanges(false);
-      setPublishCooldown(120);
-      setPublishStatus(body.message || 'Publication lancée. Visible sur le site dans 1 à 2 minutes.');
-      setPublishModalOpen(false);
-    } catch (err) {
-      setPublishError(err instanceof Error ? err.message : 'Erreur réseau lors de la publication.');
-    } finally {
-      setPublishing(false);
-    }
-  }, []);
-
   const markMutated = useCallback(
     (message: string) => {
-      setUnpublishedChanges(true);
       showToast(message);
-
-      let storedKey = '';
-      try {
-        storedKey = window.sessionStorage.getItem(PUBLISH_KEY_SESSION_STORAGE) || '';
-      } catch {}
-
-      if (storedKey) {
-        if (autoPublishTimerRef.current) window.clearTimeout(autoPublishTimerRef.current);
-        setAutoPublishSeconds(120);
-        autoPublishTimerRef.current = window.setTimeout(() => {
-          triggerPublishRequest(storedKey);
-        }, 120000);
-      }
     },
-    [showToast, triggerPublishRequest]
+    [showToast]
   );
 
   useEffect(() => {
     return () => {
-      if (autoPublishTimerRef.current) window.clearTimeout(autoPublishTimerRef.current);
       if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
     };
   }, []);
@@ -432,30 +330,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     await signOut(auth);
   };
 
-  const handlePublishClick = () => {
-    let storedKey = '';
-    try {
-      storedKey = window.sessionStorage.getItem(PUBLISH_KEY_SESSION_STORAGE) || '';
-    } catch {}
-    if (storedKey) {
-      triggerPublishRequest(storedKey);
-    } else {
-      setPublishKeyInput('');
-      setPublishError(null);
-      setPublishModalOpen(true);
-    }
-  };
-
-  const handlePublishModalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const key = publishKeyInput.trim();
-    if (!key) return;
-    try {
-      window.sessionStorage.setItem(PUBLISH_KEY_SESSION_STORAGE, key);
-    } catch {}
-    triggerPublishRequest(key);
-  };
-
   // Product helpers
   const allCategories = useMemo(() => {
     const list: string[] = BASE_CATEGORIES.filter((c) => c !== 'Tout');
@@ -516,6 +390,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
   const handleProductImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
     setProductFormError(null);
     setUploadingImage(true);
@@ -528,7 +403,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       }));
     } catch (err) {
       setProductFormError(
-        err instanceof Error ? err.message : "Erreur lors de la compression de l'image."
+        err instanceof Error ? err.message : "Erreur lors du traitement de la photo."
       );
     } finally {
       setUploadingImage(false);
@@ -566,8 +441,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       setProductModalOpen(false);
       markMutated(
         productForm.id
-          ? `Produit "${productForm.nameFr}" mis à jour.`
-          : `Produit "${productForm.nameFr}" créé.`
+          ? `Produit "${productForm.nameFr}" enregistré et mis à jour en direct.`
+          : `Produit "${productForm.nameFr}" enregistré et visible en direct.`
       );
     } catch (err) {
       setProductFormError(
@@ -754,21 +629,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handlePublishClick}
-              disabled={publishing || publishCooldown > 0}
-              className="px-4 py-2.5 bg-[#C9A24D] hover:bg-[#E8D08C] text-[#0B0A08] text-xs uppercase tracking-[0.12em] font-semibold inline-flex items-center gap-2 min-h-[42px] disabled:opacity-60 transition-colors"
-            >
-              <Rocket className="w-4 h-4" />
-              <span>
-                {publishing
-                  ? 'Publication...'
-                  : publishCooldown > 0
-                  ? `Publier (${publishCooldown}s)`
-                  : 'Publier les modifications'}
-              </span>
-            </button>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 border border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] text-[11px] uppercase tracking-[0.12em]">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>En direct · Firestore</span>
+            </span>
 
             <button
               type="button"
@@ -788,37 +652,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             </button>
           </div>
         </div>
-
-        {/* Unpublished Changes / Publish Feedback Banner */}
-        {(unpublishedChanges || publishStatus || publishError || autoPublishSeconds !== null) && (
-          <div className="border-t border-[#C9A24D]/25 bg-[#15120D] px-4 py-2.5">
-            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
-              {unpublishedChanges && (
-                <span className="inline-flex items-center gap-2 text-[#E8D08C]">
-                  <AlertTriangle className="w-4 h-4 text-[#C9A24D]" />
-                  <span>
-                    Modifications non publiées
-                    {autoPublishSeconds !== null && autoPublishSeconds > 0
-                      ? ` · Publication automatique dans ${autoPublishSeconds}s`
-                      : ''}
-                  </span>
-                </span>
-              )}
-              {publishStatus && (
-                <span className="inline-flex items-center gap-2 text-[#25D366]">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{publishStatus}</span>
-                </span>
-              )}
-              {publishError && (
-                <span className="inline-flex items-center gap-2 text-red-400">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>{publishError}</span>
-                </span>
-              )}
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Toast */}
@@ -1207,15 +1040,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#DDD3BE]">
-                <button
-                  type="button"
-                  onClick={() => setPublishModalOpen(true)}
-                  className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-[#8F6E2E] hover:text-[#0B0A08]"
-                >
-                  <KeyRound className="w-4 h-4" />
-                  <span>Configurer la clé de publication (session)</span>
-                </button>
+              <div className="pt-4 border-t border-[#DDD3BE] text-xs text-[#8C857B]">
+                Synchronisation automatique : chaque ajout ou modification est enregistré immédiatement dans Firestore et visible en direct pour vos visiteurs.
               </div>
             </div>
           </div>
@@ -1416,10 +1242,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               {/* Image Upload */}
               <div>
                 <label className="block text-xs font-medium mb-1.5">Photo du Produit</label>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#0B0A08] text-xs uppercase tracking-[0.12em] cursor-pointer hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors">
                     <Upload className="w-4 h-4" />
-                    <span>{uploadingImage ? 'Compression...' : 'Importer une photo'}</span>
+                    <span>{uploadingImage ? 'Traitement...' : 'Importer une photo'}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -1429,11 +1255,25 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                     />
                   </label>
                   {(productForm.imageUrl || productForm.imageData) && (
-                    <img
-                      src={productForm.imageUrl || productForm.imageData}
-                      alt="Aperçu produit"
-                      className="w-14 h-16 object-cover border border-[#DDD3BE]"
-                    />
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={productForm.imageUrl || productForm.imageData}
+                        alt="Aperçu produit"
+                        className="w-14 h-16 object-cover border border-[#DDD3BE]"
+                      />
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-medium text-emerald-800">Photo prête</p>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setProductForm((prev) => ({ ...prev, imageUrl: '', imageData: '' }))
+                          }
+                          className="text-[11px] uppercase tracking-[0.08em] text-red-700 hover:underline"
+                        >
+                          Retirer
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1498,62 +1338,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
         </div>
       )}
 
-      {/* Publish Key Prompt Modal */}
-      {publishModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 bg-[#0B0A08]/80 flex items-center justify-center p-4"
-        >
-          <div className="bg-[#FDFCFA] border border-[#DDD3BE] rounded-2xl w-full max-w-md p-6">
-            <div className="flex items-center justify-between pb-3 border-b border-[#DDD3BE]">
-              <h3 className="font-display text-xl font-semibold">Clé de Publication</h3>
-              <button
-                type="button"
-                onClick={() => setPublishModalOpen(false)}
-                className="w-8 h-8 rounded-full border border-[#DDD3BE] flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handlePublishModalSubmit} className="mt-4 space-y-4">
-              <p className="text-xs text-[#8C857B] leading-relaxed">
-                Saisissez votre clé <code>PUBLISH_KEY</code> pour déclencher la reconstruction
-                statique du catalogue. Elle sera mémorisée uniquement pour cette session.
-              </p>
-              <input
-                type="password"
-                required
-                value={publishKeyInput}
-                onChange={(e) => setPublishKeyInput(e.target.value)}
-                placeholder="Clé de publication"
-                className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
-              />
-              {publishError && (
-                <p className="text-xs text-red-700 bg-red-50 border border-red-200 p-2.5">
-                  {publishError}
-                </p>
-              )}
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPublishModalOpen(false)}
-                  className="px-4 py-2 border border-[#DDD3BE] text-xs uppercase tracking-[0.12em]"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={publishing}
-                  className="btn-primary-wipe px-5 py-2 text-xs uppercase tracking-[0.12em]"
-                >
-                  {publishing ? 'Envoi...' : 'Publier maintenant'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

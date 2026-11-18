@@ -82,6 +82,9 @@ export async function saveAdminPack(
       if (pack.imageUrl === '' && existingData.imageUrl) {
         updatePayload.imageUrl = deleteField();
       }
+      if (pack.imageData === '' && existingData.imageData) {
+        updatePayload.imageData = deleteField();
+      }
       await updateDoc(ref, updatePayload);
     } else {
       await setDoc(ref, {
