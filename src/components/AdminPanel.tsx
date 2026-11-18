@@ -68,10 +68,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   // Auth state
   const [authReady, setAuthReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [loginEmail, setLoginEmail] = useState<string>(STORE_IDENTITY.adminEmail);
   const [loginPassword, setLoginPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authHelpUrl, setAuthHelpUrl] = useState<string | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState(0);
 
@@ -346,28 +346,79 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     if (lockoutSecondsLeft > 0) return;
 
     setAuthError(null);
+    setAuthHelpUrl(null);
     setAuthLoading(true);
     try {
-      const [{ auth }, { signInWithEmailAndPassword }] = await Promise.all([
+      const [{ auth, firebaseProjectId }, { signInWithEmailAndPassword }] = await Promise.all([
         import('../services/firebase'),
         import('firebase/auth'),
       ]);
-      await signInWithEmailAndPassword(auth, loginEmail.trim(), loginPassword);
-      setFailedAttempts(0);
-      setLoginPassword('');
-    } catch {
-      const nextFails = failedAttempts + 1;
-      setFailedAttempts(nextFails);
-      if (nextFails >= MAX_FAILED_ATTEMPTS) {
-        setLockoutSecondsLeft(LOCKOUT_SECONDS);
-        setAuthError(
-          `Trop de tentatives échouées. Compte verrouillé pendant ${LOCKOUT_SECONDS} secondes.`
-        );
-      } else {
-        setAuthError(
-          `Identifiants invalides (${nextFails}/${MAX_FAILED_ATTEMPTS} tentatives).`
-        );
+      try {
+        await signInWithEmailAndPassword(auth, STORE_IDENTITY.adminEmail, loginPassword);
+        setFailedAttempts(0);
+        setLoginPassword('');
+      } catch (err: unknown) {
+        const code =
+          typeof err === 'object' && err !== null && 'code' in err
+            ? String((err as { code?: unknown }).code || '')
+            : '';
+
+        if (code === 'auth/operation-not-allowed') {
+          setAuthHelpUrl(
+            `https://console.firebase.google.com/project/${firebaseProjectId}/authentication/providers`
+          );
+          setAuthError(
+            "La connexion Email/Mot de passe n'est pas encore activée dans votre console Firebase (Authentication → Sign-in method). Activez-la puis créez l'utilisateur, ou utilisez « Connexion rapide avec Google » ci-dessous."
+          );
+          return;
+        }
+
+        if (code === 'auth/too-many-requests') {
+          setLockoutSecondsLeft(LOCKOUT_SECONDS);
+          setAuthError(
+            `Trop de tentatives côté Firebase. Veuillez patienter ${LOCKOUT_SECONDS} secondes.`
+          );
+          return;
+        }
+
+        const nextFails = failedAttempts + 1;
+        setFailedAttempts(nextFails);
+        if (nextFails >= MAX_FAILED_ATTEMPTS) {
+          setLockoutSecondsLeft(LOCKOUT_SECONDS);
+          setAuthError(
+            `Trop de tentatives échouées. Compte verrouillé pendant ${LOCKOUT_SECONDS} secondes.`
+          );
+        } else {
+          setAuthHelpUrl(
+            `https://console.firebase.google.com/project/${firebaseProjectId}/authentication/users`
+          );
+          setAuthError(
+            `Identifiants invalides ou compte non créé dans Firebase Auth (${nextFails}/${MAX_FAILED_ATTEMPTS} tentatives).`
+          );
+        }
       }
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (lockoutSecondsLeft > 0) return;
+    setAuthError(null);
+    setAuthHelpUrl(null);
+    setAuthLoading(true);
+    try {
+      const [{ auth }, { GoogleAuthProvider, signInWithPopup }] = await Promise.all([
+        import('../services/firebase'),
+        import('firebase/auth'),
+      ]);
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      setFailedAttempts(0);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : 'Erreur lors de la connexion Google.';
+      setAuthError(msg);
     } finally {
       setAuthLoading(false);
     }
@@ -587,67 +638,63 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   // Login Gate
   if (!userEmail) {
     return (
-      <div className="min-h-screen bg-[#0B0A08] text-[#F6F1E7] flex flex-col justify-between p-6">
+      <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F5] flex flex-col justify-between p-6">
         <div>
           <button
             type="button"
             onClick={onBackHome}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[#E8D08C] hover:text-white min-h-[44px]"
+            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[#DFC48B] hover:text-white min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Retour à la boutique</span>
           </button>
         </div>
 
-        <div className="max-w-md w-full mx-auto bg-[#14120E] border border-[#C9A24D]/35 rounded-2xl p-8">
+        <div className="max-w-md w-full mx-auto bg-[#141311] border border-[#C5A059]/35 rounded-2xl p-8">
           <div className="flex flex-col items-center text-center mb-8">
-            <BrandLogo sizeClass="w-20 h-20 mb-4 border border-[#C9A24D]/40" glow />
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#C9A24D]">
+            <BrandLogo sizeClass="w-20 h-20 mb-4 border border-[#C5A059]/40" glow />
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#C5A059]">
               Accès Curateur
             </p>
-            <h1 className="font-brand text-xl text-[#F6F1E7] mt-1">{STORE_IDENTITY.brand}</h1>
+            <h1 className="font-brand text-xl text-[#FAF8F5] mt-1">{STORE_IDENTITY.brand}</h1>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label htmlFor="admin-email" className="block text-xs uppercase tracking-[0.12em] text-[#E8D08C] mb-1.5">
-                Email Administrateur
-              </label>
-              <input
-                id="admin-email"
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                disabled={lockoutSecondsLeft > 0}
-                className="w-full min-h-[44px] px-3.5 bg-[#0B0A08] border border-[#C9A24D]/35 text-sm text-[#F6F1E7] focus:border-[#C9A24D] focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="admin-password" className="block text-xs uppercase tracking-[0.12em] text-[#E8D08C] mb-1.5">
+              <label htmlFor="admin-password" className="block text-xs uppercase tracking-[0.12em] text-[#DFC48B] mb-1.5">
                 Mot de passe
               </label>
               <input
                 id="admin-password"
                 type="password"
                 required
+                autoFocus
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 disabled={lockoutSecondsLeft > 0}
                 placeholder="••••••••••••"
-                className="w-full min-h-[44px] px-3.5 bg-[#0B0A08] border border-[#C9A24D]/35 text-sm text-[#F6F1E7] focus:border-[#C9A24D] focus:outline-none"
+                className="w-full min-h-[44px] px-3.5 bg-[#0A0A0A] border border-[#C5A059]/35 text-sm text-[#FAF8F5] focus:border-[#C5A059] focus:outline-none"
               />
             </div>
 
             {authError && (
-              <div className="p-3 bg-red-950/60 border border-red-500/40 text-xs text-red-200">
-                {authError}
+              <div className="p-3 bg-red-950/60 border border-red-500/40 text-xs text-red-200 space-y-2">
+                <p>{authError}</p>
+                {authHelpUrl && (
+                  <a
+                    href={authHelpUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block underline text-[#E8D08C] hover:text-white"
+                  >
+                    Ouvrir Firebase Authentication →
+                  </a>
+                )}
               </div>
             )}
 
             {lockoutSecondsLeft > 0 && (
-              <div className="p-3 bg-[#C9A24D]/15 border border-[#C9A24D]/40 text-xs text-[#E8D08C] text-center tabular-nums">
+              <div className="p-3 bg-[#C5A059]/15 border border-[#C5A059]/40 text-xs text-[#DFC48B] text-center tabular-nums">
                 Verrouillage de sécurité : {lockoutSecondsLeft}s restantes
               </div>
             )}
@@ -655,7 +702,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             <button
               type="submit"
               disabled={authLoading || lockoutSecondsLeft > 0}
-              className="w-full min-h-[48px] bg-[#C9A24D] hover:bg-[#E8D08C] text-[#0B0A08] text-xs uppercase tracking-[0.16em] font-semibold transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="w-full min-h-[48px] bg-[#C5A059] hover:bg-[#DFC48B] text-[#0A0A0A] text-xs uppercase tracking-[0.16em] font-semibold transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
               <span>
@@ -667,10 +714,25 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               </span>
             </button>
           </form>
+
+          <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-[#A8A29A]">
+            <span className="h-px flex-1 bg-[#C5A059]/25" />
+            <span>ou</span>
+            <span className="h-px flex-1 bg-[#C5A059]/25" />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={authLoading || lockoutSecondsLeft > 0}
+            className="w-full min-h-[46px] border border-[#C5A059]/45 text-[#DFC48B] hover:bg-[#C5A059]/10 text-xs uppercase tracking-[0.14em] font-medium transition-colors disabled:opacity-50"
+          >
+            Connexion rapide avec Google
+          </button>
         </div>
 
-        <p className="text-center text-xs text-[#8C857B]">
-          Authentification sécurisée Firebase · {STORE_IDENTITY.adminEmail}
+        <p className="text-center text-xs text-[#A8A29A]">
+          Authentification sécurisée Firebase
         </p>
       </div>
     );
