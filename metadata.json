@@ -1,0 +1,6 @@
+{
+  "name": "PARFUMERIE EL KHALIFI",
+  "description": "Haute Parfumerie & Décants à Tanger — Flacons originaux et décants sur mesure livrés dans tout le Maroc via WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

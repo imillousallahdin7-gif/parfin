@@ -1,0 +1,245 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Perfume or decant product in the PARFUMERIE EL KHALIFI catalog.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Localized product name { fr, ar }"
+        },
+        "description": {
+          "type": "object",
+          "description": "Localized product description { fr, ar }"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Category label (e.g. Française, Arabe, Niche, Homme, Femme, Unisexe, Cadeaux, or custom)"
+        },
+        "price": {
+          "type": "number",
+          "description": "Default display price in MAD"
+        },
+        "sizeLabel": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Default size badge label (e.g. 10 ml, Flacon complet)"
+        },
+        "sizes": {
+          "type": "array",
+          "description": "Available sizes/decants with label, price, and inStock status (max 20 items)"
+        },
+        "inStock": {
+          "type": "boolean",
+          "description": "Overall product availability"
+        },
+        "imageData": {
+          "type": "string",
+          "maxLength": 600000,
+          "description": "Optional compressed Base64 data URL image (<= 600000 chars)"
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "Optional Firebase Storage or static WebP URL"
+        },
+        "images": {
+          "type": "array",
+          "description": "Optional gallery image URLs or data strings (max 5 items)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "category",
+        "price",
+        "sizes",
+        "inStock",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Pack": {
+      "title": "Pack",
+      "description": "Curated fragrance discovery or gift pack (Femme / Homme).",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["women", "men"],
+          "description": "Pack target audience: women or men"
+        },
+        "name": {
+          "type": "object",
+          "description": "Localized pack name { fr, ar }"
+        },
+        "description": {
+          "type": "object",
+          "description": "Localized pack description { fr, ar }"
+        },
+        "price": {
+          "type": "number",
+          "description": "Pack price in MAD"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Visibility toggle on storefront"
+        },
+        "imageData": {
+          "type": "string",
+          "maxLength": 600000,
+          "description": "Optional compressed Base64 data URL image (<= 600000 chars)"
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "Optional Firebase Storage or static WebP URL"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp"
+        }
+      },
+      "required": [
+        "category",
+        "name",
+        "description",
+        "price",
+        "active",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Storefront configuration documents (whatsapp, general).",
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^[0-9+\\s]{8,20}$"
+        },
+        "storeName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "announcementFr": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "announcementAr": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "customCategories": {
+          "type": "array",
+          "description": "Custom storefront category labels (max 20)"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Managed fragrance category metadata.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Localized category name { fr, ar }"
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "order": {
+          "type": "number"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["name", "slug", "order", "active", "updatedAt"]
+    },
+    "HealthCheck": {
+      "title": "HealthCheck",
+      "description": "Admin diagnostic self-test record.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "step": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "checkedBy": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["status", "checkedBy", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Publicly readable catalog products; writable only by authenticated admin."
+    },
+    "/packs/{packId}": {
+      "schema": { "$ref": "#/entities/Pack" },
+      "description": "Publicly readable curated packs; writable only by authenticated admin."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Publicly readable store settings (whatsapp, general); writable only by authenticated admin."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Publicly readable custom categories; writable only by authenticated admin."
+    },
+    "/_health/{docId}": {
+      "schema": { "$ref": "#/entities/HealthCheck" },
+      "description": "Admin-only diagnostic CRUD health-check records."
+    }
+  }
+}

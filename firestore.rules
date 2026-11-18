@@ -1,0 +1,236 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny all undeclared paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================
+    // GLOBAL PRIMITIVES & IDENTITY HELPERS
+    // =========================================================
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && (
+          (
+            request.auth.token.email.lower() == 'taghzout.saif@hotmail.com'
+            && (request.auth.token.firebase.sign_in_provider == 'password' || request.auth.token.email_verified == true)
+          )
+          || (request.auth.token.email.lower() == 'imillousallahdin7@gmail.com' && request.auth.token.email_verified == true)
+        );
+    }
+
+    function isValidLocalizedMap(m, minFr, maxFr, maxAr) {
+      return m is map
+        && m.keys().hasAll(['fr', 'ar'])
+        && m.keys().hasOnly(['fr', 'ar'])
+        && m.fr is string
+        && m.fr.size() >= minFr
+        && m.fr.size() <= maxFr
+        && m.ar is string
+        && m.ar.size() <= maxAr;
+    }
+
+    function isValidOptionalImageData(data) {
+      return !('imageData' in data) || (data.imageData is string && data.imageData.size() <= 600000);
+    }
+
+    function isValidOptionalImageUrl(data) {
+      return !('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2048);
+    }
+
+    function isValidOptionalImagesList(data) {
+      return !('images' in data) || (
+        data.images is list
+        && data.images.size() <= 5
+        && (data.images.size() == 0 || (data.images[0] is string && data.images[0].size() <= 600000))
+      );
+    }
+
+    // =========================================================
+    // VALIDATION BLUEPRINTS
+    // =========================================================
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'description', 'category', 'price', 'sizes', 'inStock', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'description', 'category', 'price', 'sizeLabel', 'sizes', 'inStock', 'imageData', 'imageUrl', 'images', 'createdAt', 'updatedAt'])
+        && isValidLocalizedMap(data.name, 1, 160, 160)
+        && isValidLocalizedMap(data.description, 0, 2000, 2000)
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 64
+        && data.price is number && data.price >= 0 && data.price <= 1000000
+        && (!('sizeLabel' in data) || (data.sizeLabel is string && data.sizeLabel.size() <= 40))
+        && data.sizes is list && data.sizes.size() >= 1 && data.sizes.size() <= 20
+        && data.sizes[0] is map
+        && data.sizes[0].keys().hasAll(['id', 'label', 'price', 'inStock'])
+        && data.sizes[0].keys().hasOnly(['id', 'label', 'price', 'inStock'])
+        && data.sizes[0].id is string && data.sizes[0].id.size() >= 1 && data.sizes[0].id.size() <= 64
+        && data.sizes[0].label is string && data.sizes[0].label.size() >= 1 && data.sizes[0].label.size() <= 40
+        && data.sizes[0].price is number && data.sizes[0].price >= 0 && data.sizes[0].price <= 1000000
+        && data.sizes[0].inStock is bool
+        && data.inStock is bool
+        && isValidOptionalImageData(data)
+        && isValidOptionalImageUrl(data)
+        && isValidOptionalImagesList(data)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidPack(data) {
+      return data.keys().hasAll(['category', 'name', 'description', 'price', 'active', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['category', 'name', 'description', 'price', 'active', 'imageData', 'imageUrl', 'createdAt', 'updatedAt'])
+        && data.category is string && (data.category == 'women' || data.category == 'men')
+        && isValidLocalizedMap(data.name, 1, 160, 160)
+        && isValidLocalizedMap(data.description, 0, 2000, 2000)
+        && data.price is number && data.price >= 0 && data.price <= 1000000
+        && data.active is bool
+        && isValidOptionalImageData(data)
+        && isValidOptionalImageUrl(data)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSettings(data, settingId) {
+      return data.keys().hasAll(['updatedAt'])
+        && data.updatedAt is timestamp
+        && (
+          (settingId == 'whatsapp'
+            && data.keys().hasAll(['number', 'updatedAt'])
+            && data.keys().hasOnly(['number', 'updatedAt'])
+            && data.number is string && data.number.size() >= 8 && data.number.size() <= 32)
+          ||
+          (settingId == 'general'
+            && data.keys().hasOnly(['storeName', 'announcementFr', 'announcementAr', 'customCategories', 'deliveryFeeLocal', 'deliveryFeeNational', 'updatedAt'])
+            && (!('storeName' in data) || (data.storeName is string && data.storeName.size() <= 120))
+            && (!('announcementFr' in data) || (data.announcementFr is string && data.announcementFr.size() <= 240))
+            && (!('announcementAr' in data) || (data.announcementAr is string && data.announcementAr.size() <= 240))
+            && (!('customCategories' in data) || (data.customCategories is list && data.customCategories.size() <= 20 && (data.customCategories.size() == 0 || (data.customCategories[0] is string && data.customCategories[0].size() <= 64))))
+            && (!('deliveryFeeLocal' in data) || (data.deliveryFeeLocal is number && data.deliveryFeeLocal >= 0 && data.deliveryFeeLocal <= 1000))
+            && (!('deliveryFeeNational' in data) || (data.deliveryFeeNational is number && data.deliveryFeeNational >= 0 && data.deliveryFeeNational <= 1000)))
+        );
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasAll(['name', 'slug', 'order', 'active', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'slug', 'order', 'active', 'updatedAt'])
+        && isValidLocalizedMap(data.name, 1, 64, 64)
+        && data.slug is string && data.slug.size() >= 1 && data.slug.size() <= 64 && data.slug.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.order is number && data.order >= 0 && data.order <= 1000
+        && data.active is bool
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidHealth(data) {
+      return data.keys().hasAll(['status', 'checkedBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['status', 'step', 'checkedBy', 'createdAt', 'updatedAt'])
+        && data.status is string && data.status.size() >= 1 && data.status.size() <= 64
+        && (!('step' in data) || (data.step is string && data.step.size() <= 64))
+        && data.checkedBy is string && data.checkedBy.size() >= 1 && data.checkedBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // =========================================================
+    // COLLECTION RULES
+    // =========================================================
+    match /products/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow create: if isValidId(productId)
+        && isAdmin()
+        && isValidProduct(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(productId)
+        && isAdmin()
+        && isValidProduct(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'category', 'price', 'sizeLabel', 'sizes', 'inStock', 'imageData', 'imageUrl', 'images', 'updatedAt']);
+      allow delete: if isValidId(productId) && isAdmin();
+    }
+
+    match /packs/{packId} {
+      allow get: if isValidId(packId);
+      allow list: if true;
+      allow create: if isValidId(packId)
+        && isAdmin()
+        && isValidPack(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(packId)
+        && isAdmin()
+        && isValidPack(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['category', 'name', 'description', 'price', 'active', 'imageData', 'imageUrl', 'updatedAt']);
+      allow delete: if isValidId(packId) && isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow get: if isValidId(settingId) && (settingId == 'whatsapp' || settingId == 'general');
+      allow list: if true;
+      allow create: if isValidId(settingId)
+        && (settingId == 'whatsapp' || settingId == 'general')
+        && isAdmin()
+        && isValidSettings(incoming(), settingId)
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(settingId)
+        && (settingId == 'whatsapp' || settingId == 'general')
+        && isAdmin()
+        && isValidSettings(incoming(), settingId)
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['number', 'storeName', 'announcementFr', 'announcementAr', 'customCategories', 'deliveryFeeLocal', 'deliveryFeeNational', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    match /categories/{categoryId} {
+      allow get: if isValidId(categoryId);
+      allow list: if true;
+      allow create: if isValidId(categoryId)
+        && isAdmin()
+        && isValidCategory(incoming())
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(categoryId)
+        && isAdmin()
+        && isValidCategory(incoming())
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'slug', 'order', 'active', 'updatedAt']);
+      allow delete: if isValidId(categoryId) && isAdmin();
+    }
+
+    match /_health/{docId} {
+      allow get: if isValidId(docId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(docId)
+        && isAdmin()
+        && isValidHealth(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(docId)
+        && isAdmin()
+        && isValidHealth(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'step', 'checkedBy', 'updatedAt']);
+      allow delete: if isValidId(docId) && isAdmin();
+    }
+  }
+}
