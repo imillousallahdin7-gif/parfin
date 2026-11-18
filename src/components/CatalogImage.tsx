@@ -126,9 +126,7 @@ export const CatalogImage: React.FC<CatalogImageProps> = ({
           referrerPolicy="no-referrer"
           onLoad={() => setLoaded(true)}
           onError={handleError}
-          className={`w-full h-full object-cover transition-opacity duration-150 ${
-            showImage ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="relative z-10 w-full h-full object-cover opacity-100"
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-5 text-center bg-gradient-to-b from-[#FAF8F5] to-[#F3EFE8]">

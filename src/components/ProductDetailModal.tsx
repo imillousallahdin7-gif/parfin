@@ -153,14 +153,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#8F6E2E] mb-2">
                 <span>{product.category}</span>
-                {product.name?.ar && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span dir="rtl" className="font-sans">
-                      {product.name.ar}
-                    </span>
-                  </>
-                )}
               </div>
 
               <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#0B0A08] leading-tight">

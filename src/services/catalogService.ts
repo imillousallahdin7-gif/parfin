@@ -20,6 +20,25 @@ interface CacheEnvelope {
 
 let inFlightFetch: Promise<CatalogSnapshot> | null = null;
 
+export function toTimestampMs(val: unknown): number | undefined {
+  if (typeof val === 'number' && Number.isFinite(val)) return val;
+  if (typeof val === 'string' && val.trim()) {
+    const asNum = Number(val);
+    if (Number.isFinite(asNum)) return asNum;
+    const parsed = Date.parse(val);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  if (
+    val &&
+    typeof val === 'object' &&
+    'toMillis' in val &&
+    typeof (val as { toMillis?: unknown }).toMillis === 'function'
+  ) {
+    return (val as { toMillis: () => number }).toMillis();
+  }
+  return undefined;
+}
+
 function isValidSnapshot(data: unknown): data is CatalogSnapshot {
   if (!data || typeof data !== 'object') return false;
   const obj = data as Record<string, unknown>;
@@ -224,6 +243,8 @@ export async function subscribePublicCatalog(
           imageData: typeof data.imageData === 'string' && data.imageData ? data.imageData : undefined,
           imageUrl: typeof data.imageUrl === 'string' && data.imageUrl ? data.imageUrl : undefined,
           images: Array.isArray(data.images) ? (data.images as string[]) : undefined,
+          createdAt: toTimestampMs(data.createdAt),
+          updatedAt: toTimestampMs(data.updatedAt),
         };
       });
       gotProducts = true;
@@ -251,6 +272,8 @@ export async function subscribePublicCatalog(
           active: typeof data.active === 'boolean' ? data.active : true,
           imageData: typeof data.imageData === 'string' && data.imageData ? data.imageData : undefined,
           imageUrl: typeof data.imageUrl === 'string' && data.imageUrl ? data.imageUrl : undefined,
+          createdAt: toTimestampMs(data.createdAt),
+          updatedAt: toTimestampMs(data.updatedAt),
         };
       });
       gotPacks = true;
@@ -372,7 +395,14 @@ async function decodeImageForCanvas(
   }
 }
 
-let storageUnavailable = false;
+const STORAGE_UNAVAILABLE_KEY = 'parfumerie_storage_unavailable';
+let storageUnavailable = (() => {
+  try {
+    return window.sessionStorage.getItem(STORAGE_UNAVAILABLE_KEY) === '1';
+  } catch {
+    return false;
+  }
+})();
 
 export async function compressImageFile(file: File, maxDim = 650, maxBytes = 90000): Promise<string> {
   const source = await decodeImageForCanvas(file);
@@ -451,6 +481,11 @@ export async function uploadAdminImage(
     return { imageUrl: downloadUrl, imageData: compressedDataUrl };
   } catch {
     storageUnavailable = true;
+    try {
+      window.sessionStorage.setItem(STORAGE_UNAVAILABLE_KEY, '1');
+    } catch {
+      // ignore
+    }
     // Fast immediate fallback: <90KB WebP stored directly in Firestore
     return { imageData: compressedDataUrl };
   }
@@ -481,6 +516,8 @@ export async function subscribeAdminProducts(
           imageData: typeof data.imageData === 'string' ? data.imageData : undefined,
           imageUrl: typeof data.imageUrl === 'string' ? data.imageUrl : undefined,
           images: Array.isArray(data.images) ? (data.images as string[]) : undefined,
+          createdAt: toTimestampMs(data.createdAt),
+          updatedAt: toTimestampMs(data.updatedAt),
         };
       });
       onUpdate(items);
@@ -752,7 +789,7 @@ export async function runFiveStepSelfTest(adminEmail: string): Promise<Diagnosti
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    results.push({ step: 'CREATE', ok: true, detail: `Document _health/${testId} créé.` });
+    results.push({ step: 'CREATE', ok: true, detail: `تم إنشاء سجل الفحص _health/${testId}.` });
   } catch (error) {
     handleFirestoreError(error, OperationType.CREATE, `_health/${testId}`);
   }
@@ -760,8 +797,8 @@ export async function runFiveStepSelfTest(adminEmail: string): Promise<Diagnosti
   // 2. READ
   try {
     const snap = await getDoc(ref);
-    if (!snap.exists()) throw new Error('Document introuvable après création.');
-    results.push({ step: 'READ', ok: true, detail: 'Lecture serveur confirmée.' });
+    if (!snap.exists()) throw new Error('لم يتم العثور على المستند بعد الإنشاء.');
+    results.push({ step: 'READ', ok: true, detail: 'تم تأكيد القراءة من الخادم.' });
   } catch (error) {
     handleFirestoreError(error, OperationType.GET, `_health/${testId}`);
   }
@@ -773,7 +810,7 @@ export async function runFiveStepSelfTest(adminEmail: string): Promise<Diagnosti
       step: 'UPDATE',
       updatedAt: serverTimestamp(),
     });
-    results.push({ step: 'UPDATE', ok: true, detail: 'Mise à jour validée.' });
+    results.push({ step: 'UPDATE', ok: true, detail: 'تمت المصادقة على التحديث.' });
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `_health/${testId}`);
   }
@@ -781,7 +818,7 @@ export async function runFiveStepSelfTest(adminEmail: string): Promise<Diagnosti
   // 4. DELETE
   try {
     await deleteDoc(ref);
-    results.push({ step: 'DELETE', ok: true, detail: 'Suppression effectuée.' });
+    results.push({ step: 'DELETE', ok: true, detail: 'تم الحذف بنجاح.' });
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, `_health/${testId}`);
   }
@@ -793,13 +830,13 @@ export async function runFiveStepSelfTest(adminEmail: string): Promise<Diagnosti
       results.push({
         step: 'CONFIRM_GONE',
         ok: false,
-        detail: 'Le document existe encore après suppression.',
+        detail: 'المستند لا يزال موجوداً بعد الحذف.',
       });
     } else {
       results.push({
         step: 'CONFIRM_GONE',
         ok: true,
-        detail: 'Absence définitive confirmée.',
+        detail: 'تم تأكيد الحذف النهائي.',
       });
     }
   } catch (error) {

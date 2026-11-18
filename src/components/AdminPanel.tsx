@@ -345,7 +345,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     return products.filter((p) => {
       if (prodCategoryFilter !== 'Tout' && normalizeText(p.category) !== cat) return false;
       if (!q) return true;
-      return normalizeText(`${p.name?.fr || ''} ${p.name?.ar || ''} ${p.category}`).includes(q);
+      return normalizeText(
+        `${p.name?.fr || ''} ${p.description?.fr || ''} ${p.category}`
+      ).includes(q);
     });
   }, [products, prodSearch, prodCategoryFilter]);
 
@@ -918,6 +920,47 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 />
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1.5">
+                    رسوم التوصيل داخل طنجة (DH)
+                  </label>
+                  <input
+                    type="number"
+                    dir="ltr"
+                    min="0"
+                    max="1000"
+                    value={settingsForm.deliveryFeeLocal}
+                    onChange={(e) =>
+                      setSettingsForm((s) => ({
+                        ...s,
+                        deliveryFeeLocal: Number(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1.5">
+                    رسوم التوصيل لباقي المدن (DH)
+                  </label>
+                  <input
+                    type="number"
+                    dir="ltr"
+                    min="0"
+                    max="1000"
+                    value={settingsForm.deliveryFeeNational}
+                    onChange={(e) =>
+                      setSettingsForm((s) => ({
+                        ...s,
+                        deliveryFeeNational: Number(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-medium mb-1.5">تصنيفات مخصصة (بالفرنسية)</label>
                 <div className="flex gap-2 mb-3">
@@ -993,8 +1036,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   <p className="text-xs text-[#8F6E2E] mb-1">حالة الاتصال عند التشغيل</p>
                   {healthResult ? (
                     <p
-                      dir="ltr"
-                      className={`text-sm font-medium text-right ${
+                      className={`text-sm font-medium ${
                         healthResult.ok ? 'text-[#0B0A08]' : 'text-red-700'
                       }`}
                     >
@@ -1036,7 +1078,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           <span className="font-mono font-semibold" dir="ltr">
                             {step.step}
                           </span>
-                          <span className={step.ok ? 'text-emerald-800' : 'text-red-700'} dir="ltr">
+                          <span className={step.ok ? 'text-emerald-800' : 'text-red-700'}>
                             {step.ok ? 'نجاح' : 'فشل'} · {step.detail}
                           </span>
                         </li>
@@ -1107,6 +1149,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                         {c}
                       </option>
                     ))}
+                    {productForm.category &&
+                      !allCategories.some(
+                        (c) => normalizeText(c) === normalizeText(productForm.category)
+                      ) && (
+                        <option value={productForm.category}>{productForm.category}</option>
+                      )}
                   </select>
                 </div>
 

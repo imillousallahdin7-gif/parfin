@@ -71,7 +71,7 @@ export async function testConnection(): Promise<{ ok: boolean; latencyMs: number
     return {
       ok: true,
       latencyMs,
-      message: `Connexion Firestore active (${latencyMs} ms).`,
+      message: `الاتصال بقاعدة البيانات نشط (${latencyMs} ms).`,
     };
   } catch (error) {
     const latencyMs = Math.round(performance.now() - start);
@@ -80,7 +80,7 @@ export async function testConnection(): Promise<{ ok: boolean; latencyMs: number
       return {
         ok: false,
         latencyMs,
-        message: 'Client hors ligne : vérifiez la configuration Firebase.',
+        message: 'العميل غير متصل بالإنترنت: يرجى التحقق من إعدادات Firebase.',
       };
     }
     // Even if doc doesn't exist yet, reaching server means connection works
@@ -88,13 +88,13 @@ export async function testConnection(): Promise<{ ok: boolean; latencyMs: number
       return {
         ok: false,
         latencyMs,
-        message: 'Accès Firestore refusé par les règles de sécurité.',
+        message: 'تم رفض الوصول إلى Firestore بسبب قواعد الأمان.',
       };
     }
     return {
       ok: true,
       latencyMs,
-      message: `Serveur Firestore joignable (${latencyMs} ms).`,
+      message: `خادم Firestore متصل (${latencyMs} ms).`,
     };
   }
 }

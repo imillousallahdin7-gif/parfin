@@ -301,8 +301,11 @@ export default function App() {
     return (
       <Suspense
         fallback={
-          <div className="min-h-screen bg-[#0B0A08] text-[#E8D08C] flex items-center justify-center text-xs uppercase tracking-[0.18em]">
-            Chargement de l&apos;espace Curateur...
+          <div
+            dir="rtl"
+            className="min-h-screen bg-[#0B0A08] text-[#E8D08C] flex items-center justify-center text-xs"
+          >
+            جاري تحميل لوحة الإدارة...
           </div>
         }
       >
@@ -396,7 +399,12 @@ export default function App() {
         )}
       </main>
 
-      <Footer whatsappNumber={settings.whatsappNumber} onNavigate={handleNavigate} />
+      <Footer
+        whatsappNumber={settings.whatsappNumber}
+        deliveryFeeLocal={settings.deliveryFeeLocal}
+        deliveryFeeNational={settings.deliveryFeeNational}
+        onNavigate={handleNavigate}
+      />
 
       <FloatingWhatsApp
         whatsappNumber={settings.whatsappNumber}

@@ -1,15 +1,22 @@
 import React from 'react';
 import { Lock, MessageCircle } from 'lucide-react';
 import { AppRoute, STORE_IDENTITY } from '../types/catalog';
-import { buildWhatsAppDirectUrl } from '../utils/format';
+import { formatMAD, buildWhatsAppDirectUrl } from '../utils/format';
 import { BrandLogo } from './BrandLogo';
 
 interface FooterProps {
   whatsappNumber: string;
+  deliveryFeeLocal?: number;
+  deliveryFeeNational?: number;
   onNavigate: (route: AppRoute, sectionId?: string) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ whatsappNumber, onNavigate }) => {
+export const Footer: React.FC<FooterProps> = ({
+  whatsappNumber,
+  deliveryFeeLocal = 20,
+  deliveryFeeNational = 35,
+  onNavigate,
+}) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -163,7 +170,8 @@ export const Footer: React.FC<FooterProps> = ({ whatsappNumber, onNavigate }) =>
                 </a>
               </li>
               <li className="text-xs text-[#A8A29A]">
-                Livraison Tanger : 20 DH · Tout le Maroc : 35 DH
+                Livraison Tanger : {formatMAD(deliveryFeeLocal)} · Tout le Maroc :{' '}
+                {formatMAD(deliveryFeeNational)}
               </li>
               <li className="pt-2">
                 <button

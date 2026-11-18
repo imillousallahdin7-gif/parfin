@@ -1,5 +1,5 @@
 import { Pack } from '../types/catalog';
-import { clearCatalogCache } from './catalogService';
+import { clearCatalogCache, toTimestampMs } from './catalogService';
 
 export async function subscribeAdminPacks(
   onUpdate: (packs: Pack[]) => void,
@@ -23,6 +23,8 @@ export async function subscribeAdminPacks(
           active: typeof data.active === 'boolean' ? data.active : true,
           imageData: typeof data.imageData === 'string' && data.imageData ? data.imageData : undefined,
           imageUrl: typeof data.imageUrl === 'string' && data.imageUrl ? data.imageUrl : undefined,
+          createdAt: toTimestampMs(data.createdAt),
+          updatedAt: toTimestampMs(data.updatedAt),
         };
       });
       onUpdate(packs);
