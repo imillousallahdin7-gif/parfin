@@ -188,11 +188,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                         key={size.id}
                         type="button"
                         onClick={() => setSelectedSizeId(size.id)}
-                        className={`p-3 rounded-xl border text-left transition-all min-h-[56px] ${
+                        className={`p-3 rounded-xl border text-left transition-all duration-150 active:scale-[0.97] min-h-[56px] ${
                           isSelected
-                            ? 'border-[#0B0A08] bg-[#0B0A08] text-[#F6F1E7]'
+                            ? 'border-[#C5A059] bg-[#0B0A08] text-[#F6F1E7] shadow-[0_6px_18px_-4px_rgba(197,160,89,0.5)]'
                             : sizeAvail
-                            ? 'border-[#DDD3BE] bg-[#F6F1E7]/60 text-[#0B0A08] hover:border-[#C9A24D]'
+                            ? 'border-[#DDD3BE] bg-[#F6F1E7]/60 text-[#0B0A08] hover:border-[#C9A24D] hover:bg-white'
                             : 'border-[#DDD3BE]/60 bg-[#EAE4DC]/40 text-[#8C857B]'
                         }`}
                       >
@@ -222,10 +222,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   type="button"
                   disabled={!isAvailable}
                   onClick={handleAdd}
-                  className={`min-h-[48px] rounded-xl px-4 text-xs uppercase tracking-[0.12em] font-medium inline-flex items-center justify-center gap-2 transition-colors ${
+                  className={`min-h-[48px] px-4 text-xs uppercase tracking-[0.12em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap ${
                     !isAvailable
-                      ? 'bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed'
-                      : 'border border-[#0B0A08] bg-[#FDFCFA] text-[#0B0A08] hover:bg-[#0B0A08] hover:text-[#F6F1E7]'
+                      ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
+                      : 'btn-secondary-invert'
                   }`}
                 >
                   {addedFeedback ? (
@@ -236,7 +236,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   ) : (
                     <>
                       <ShoppingBag className="w-4 h-4" />
-                      <span>Ajouter à la commande</span>
+                      <span>Ajouter au panier</span>
                     </>
                   )}
                 </button>
@@ -245,10 +245,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   type="button"
                   disabled={!isAvailable}
                   onClick={() => isAvailable && selectedSize && onOrderDirect(product, selectedSize)}
-                  className={`min-h-[48px] rounded-xl px-4 text-xs uppercase tracking-[0.12em] font-medium transition-colors ${
+                  className={`min-h-[48px] px-4 text-xs uppercase tracking-[0.12em] font-semibold whitespace-nowrap ${
                     !isAvailable
-                      ? 'bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed'
-                      : 'bg-[#0B0A08] text-[#F6F1E7] hover:bg-[#25D366] hover:text-white'
+                      ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
+                      : 'btn-gold-luminous'
                   }`}
                 >
                   Commander
@@ -278,10 +278,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             type="button"
             disabled={!isAvailable}
             onClick={handleAdd}
-            className={`min-h-[46px] rounded-xl px-3 text-[11px] uppercase tracking-[0.1em] font-medium inline-flex items-center justify-center gap-1.5 ${
+            className={`min-h-[46px] px-3 text-[11px] uppercase tracking-[0.1em] font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap ${
               !isAvailable
-                ? 'bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed'
-                : 'border border-[#0B0A08] bg-[#FDFCFA] text-[#0B0A08]'
+                ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
+                : 'btn-secondary-invert'
             }`}
           >
             {addedFeedback ? <Check className="w-4 h-4 text-[#25D366]" /> : <ShoppingBag className="w-4 h-4" />}
@@ -292,10 +292,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             type="button"
             disabled={!isAvailable}
             onClick={() => isAvailable && selectedSize && onOrderDirect(product, selectedSize)}
-            className={`min-h-[46px] rounded-xl px-3 text-[11px] uppercase tracking-[0.1em] font-medium ${
+            className={`min-h-[46px] px-3 text-[11px] uppercase tracking-[0.1em] font-semibold whitespace-nowrap ${
               !isAvailable
-                ? 'bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed'
-                : 'bg-[#0B0A08] text-[#F6F1E7] active:bg-[#25D366]'
+                ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
+                : 'btn-gold-luminous'
             }`}
           >
             Commander

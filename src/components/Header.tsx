@@ -90,12 +90,12 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={onOpenCart}
                 aria-label="Ouvrir le panier"
-                className="relative w-11 h-11 flex items-center justify-center text-[#FAF8F5] hover:text-[#DFC48B] transition-colors"
+                className="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#FAF8F5] hover:text-[#DFC48B] hover:bg-[#C5A059]/10 active:scale-95 transition-all"
               >
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
                 {cartCount > 0 && (
                   <span
-                    className={`absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#C5A059] text-[#0A0A0A] text-[10px] font-semibold flex items-center justify-center tabular-nums transition-transform duration-200 ${
+                    className={`absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-br from-[#E8D29E] to-[#C5A059] text-[#0A0A0A] text-[10px] font-semibold flex items-center justify-center tabular-nums shadow-[0_0_10px_rgba(197,160,89,0.65)] transition-transform duration-200 ${
                       badgePop ? 'scale-125' : 'scale-100'
                     }`}
                   >
@@ -142,13 +142,13 @@ export const Header: React.FC<HeaderProps> = ({
             </nav>
 
             {/* Zone 3: Socials + Bag */}
-            <div className="flex items-center justify-end gap-2 shrink-0">
+            <div className="flex items-center justify-end gap-1.5 shrink-0">
               <a
                 href={STORE_IDENTITY.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram PARFUMERIE EL KHALIFI"
-                className="w-10 h-10 flex items-center justify-center text-[#FAF8F5]/80 hover:text-[#DFC48B] transition-colors"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-[#FAF8F5]/80 hover:text-[#DFC48B] hover:bg-[#C5A059]/10 active:scale-95 transition-all"
               >
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok PARFUMERIE EL KHALIFI"
-                className="w-10 h-10 flex items-center justify-center text-[#FAF8F5]/80 hover:text-[#DFC48B] transition-colors"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-[#FAF8F5]/80 hover:text-[#DFC48B] hover:bg-[#C5A059]/10 active:scale-95 transition-all"
               >
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07Z" />
@@ -172,11 +172,11 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={onOpenCart}
                 aria-label="Ouvrir le panier"
-                className="relative min-w-[44px] h-11 px-2 flex items-center justify-center gap-2 text-[#FAF8F5] hover:text-[#DFC48B] transition-colors"
+                className="relative min-w-[44px] h-10 px-2.5 rounded-xl border border-[#C5A059]/25 hover:border-[#C5A059]/60 bg-[#C5A059]/5 hover:bg-[#C5A059]/15 flex items-center justify-center gap-2 text-[#FAF8F5] hover:text-[#DFC48B] hover:shadow-[0_0_16px_rgba(197,160,89,0.28)] active:scale-95 transition-all"
               >
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
                 <span
-                  className={`min-w-[20px] h-[20px] px-1.5 rounded-full bg-[#C5A059] text-[#0A0A0A] text-[11px] font-semibold flex items-center justify-center tabular-nums transition-transform duration-200 ${
+                  className={`min-w-[20px] h-[20px] px-1.5 rounded-full bg-gradient-to-br from-[#E8D29E] to-[#C5A059] text-[#0A0A0A] text-[11px] font-semibold flex items-center justify-center tabular-nums shadow-[0_0_10px_rgba(197,160,89,0.55)] transition-transform duration-200 ${
                     badgePop ? 'scale-125' : 'scale-100'
                   }`}
                 >

@@ -41,7 +41,7 @@ export const PacksTopBanners: React.FC<PacksTopBannersProps> = ({ packs, onNavig
             key={banner.route}
             type="button"
             onClick={() => onNavigate(banner.route)}
-            className="group relative h-60 sm:h-72 bg-[#0A0A0A] text-left overflow-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-[#C5A059]"
+            className="group relative h-60 sm:h-72 rounded-2xl bg-[#0A0A0A] text-left overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_42px_-12px_rgba(197,160,89,0.45)] active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-[#C5A059]"
           >
             <img
               src={banner.image}

@@ -66,17 +66,17 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
             <button
               type="button"
               onClick={onExplore}
-              className="inline-flex items-center gap-3 px-7 py-4 bg-[#C5A059] hover:bg-[#DFC48B] text-[#0A0A0A] text-xs uppercase tracking-[0.16em] font-semibold transition-colors duration-200 min-h-[48px]"
+              className="group btn-gold-luminous inline-flex items-center gap-3 px-7 py-4 text-xs uppercase tracking-[0.16em] font-semibold min-h-[48px] whitespace-nowrap"
             >
               <span>Découvrir la Collection</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </button>
 
             {onNavigate && (
               <button
                 type="button"
                 onClick={() => onNavigate('packs-women')}
-                className="inline-flex items-center gap-2 px-6 py-4 border border-[#DFC48B]/45 text-[#DFC48B] hover:border-[#DFC48B] hover:bg-[#FAF8F5]/5 text-xs uppercase tracking-[0.16em] font-medium transition-colors duration-200 min-h-[48px]"
+                className="btn-outline-luminous inline-flex items-center gap-2 px-6 py-4 text-xs uppercase tracking-[0.16em] font-medium min-h-[48px] whitespace-nowrap"
               >
                 <span>Nos Packs</span>
               </button>

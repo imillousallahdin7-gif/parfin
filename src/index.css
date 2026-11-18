@@ -54,63 +54,290 @@
   background: linear-gradient(135deg, #8A6D3B 0%, #DFC48B 50%, #C5A059 100%);
 }
 
-/* Buttons */
-.btn-primary-wipe {
+/* Luminous Button Sheen Keyframes */
+@keyframes button-sheen-sweep {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  55% {
+    transform: translateX(240%) skewX(-20deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(240%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+/* Primary Gold Luminous CTA */
+.btn-gold-luminous {
   position: relative;
   overflow: hidden;
-  background-color: #111111;
-  color: #FAF8F5;
-  border: 1px solid #111111;
-  transition: color 220ms cubic-bezier(0.16, 1, 0.3, 1), border-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #B89146 0%, #E8D29E 48%, #C5A059 100%);
+  color: #0A0A0A;
+  border: 1px solid rgba(232, 210, 158, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 8px 24px -6px rgba(197, 160, 89, 0.52);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 180ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1;
 }
 
+.btn-gold-luminous::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 42%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-140%) skewX(-20deg);
+  pointer-events: none;
+  animation: button-sheen-sweep 5.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.btn-gold-luminous:hover:not(:disabled),
+.btn-gold-luminous:focus-visible:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 12px 32px -4px rgba(223, 196, 139, 0.72),
+    0 0 18px rgba(197, 160, 89, 0.36);
+}
+
+.btn-gold-luminous:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Primary Obsidian + Champagne Rim Luminous CTA */
+.btn-noir-luminous,
+.btn-primary-wipe {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #1E1B16 0%, #0B0A08 55%, #16130E 100%);
+  color: #FAF8F5;
+  border: 1px solid rgba(197, 160, 89, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(223, 196, 139, 0.25),
+    0 6px 20px -6px rgba(10, 10, 10, 0.45);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+
+.btn-noir-luminous::before,
 .btn-primary-wipe::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #C5A059 0%, #DFC48B 50%, #C5A059 100%);
-  transform: translateX(-101%);
-  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(135deg, #B89146 0%, #E8D29E 50%, #C5A059 100%);
+  opacity: 0;
+  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: -1;
 }
 
-.btn-primary-wipe:hover::before,
-.btn-primary-wipe:focus-visible::before {
-  transform: translateX(0);
+.btn-noir-luminous::after,
+.btn-primary-wipe::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 38%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(223, 196, 139, 0.26) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-140%) skewX(-20deg);
+  pointer-events: none;
+  animation: button-sheen-sweep 6.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
-.btn-primary-wipe:hover,
-.btn-primary-wipe:focus-visible {
+.btn-noir-luminous:hover:not(:disabled)::before,
+.btn-noir-luminous:focus-visible:not(:disabled)::before,
+.btn-primary-wipe:hover:not(:disabled)::before,
+.btn-primary-wipe:focus-visible:not(:disabled)::before {
+  opacity: 1;
+}
+
+.btn-noir-luminous:hover:not(:disabled),
+.btn-noir-luminous:focus-visible:not(:disabled),
+.btn-primary-wipe:hover:not(:disabled),
+.btn-primary-wipe:focus-visible:not(:disabled) {
   color: #0A0A0A;
-  border-color: #C5A059;
+  border-color: #E8D29E;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 10px 28px -5px rgba(197, 160, 89, 0.55),
+    0 0 16px rgba(223, 196, 139, 0.32);
 }
 
+.btn-noir-luminous:active:not(:disabled),
+.btn-primary-wipe:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Luminous Emerald WhatsApp CTA */
+.btn-whatsapp-luminous {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #28DC6C 0%, #1EBE5D 55%, #19A851 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(167, 243, 208, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 8px 24px -5px rgba(37, 211, 102, 0.52);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+
+.btn-whatsapp-luminous::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.42) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-140%) skewX(-20deg);
+  pointer-events: none;
+  animation: button-sheen-sweep 5.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.btn-whatsapp-luminous:hover:not(:disabled),
+.btn-whatsapp-luminous:focus-visible:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    0 12px 30px -4px rgba(37, 211, 102, 0.68),
+    0 0 18px rgba(37, 211, 102, 0.35);
+}
+
+.btn-whatsapp-luminous:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Secondary Luminous Outline Button (Light Surface) */
 .btn-secondary-invert {
-  background-color: transparent;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: #FFFFFF;
   color: #111111;
-  border: 1px solid #111111;
-  transition: background-color 200ms cubic-bezier(0.16, 1, 0.3, 1), color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(17, 17, 17, 0.85);
+  box-shadow: 0 2px 10px -4px rgba(10, 10, 10, 0.14);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-secondary-invert:hover,
-.btn-secondary-invert:focus-visible {
-  background-color: #111111;
+.btn-secondary-invert:hover:not(:disabled),
+.btn-secondary-invert:focus-visible:not(:disabled) {
+  background-color: #0B0A08;
+  color: #E8D08C;
+  border-color: #C5A059;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -6px rgba(197, 160, 89, 0.42);
+}
+
+.btn-secondary-invert:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Secondary Luminous Outline Button (Dark Surface) */
+.btn-outline-luminous {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: rgba(20, 19, 17, 0.55);
+  backdrop-filter: blur(8px);
+  color: #E8D08C;
+  border: 1px solid rgba(223, 196, 139, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-outline-luminous:hover:not(:disabled),
+.btn-outline-luminous:focus-visible:not(:disabled) {
+  background-color: rgba(197, 160, 89, 0.16);
+  border-color: #E8D08C;
   color: #FAF8F5;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 8px 24px -6px rgba(223, 196, 139, 0.45);
+}
+
+.btn-outline-luminous:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
 }
 
 .btn-whatsapp-outline {
-  background-color: transparent;
-  color: #8A6D3B;
-  border: 1px solid #C5A059;
-  transition: background-color 200ms cubic-bezier(0.16, 1, 0.3, 1), color 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: #FFFFFF;
+  color: #16793D;
+  border: 1px solid rgba(37, 211, 102, 0.6);
+  box-shadow: 0 4px 14px -4px rgba(37, 211, 102, 0.2);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-whatsapp-outline:hover,
-.btn-whatsapp-outline:focus-visible {
-  background-color: #25D366;
+.btn-whatsapp-outline:hover:not(:disabled),
+.btn-whatsapp-outline:focus-visible:not(:disabled) {
+  background: linear-gradient(135deg, #28DC6C 0%, #1EBE5D 100%);
   border-color: #25D366;
   color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px -5px rgba(37, 211, 102, 0.55);
+}
+
+.btn-whatsapp-outline:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
 }
 
 /* Marquee */
@@ -135,6 +362,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee {
+    animation: none;
+  }
+  .btn-gold-luminous::after,
+  .btn-noir-luminous::after,
+  .btn-primary-wipe::after,
+  .btn-whatsapp-luminous::after {
     animation: none;
   }
   *,

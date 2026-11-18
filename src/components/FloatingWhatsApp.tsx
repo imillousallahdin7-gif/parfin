@@ -48,7 +48,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Commander sur WhatsApp"
-        className="relative w-[58px] h-[58px] rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center shadow-xl transition-transform duration-200 hover:scale-105"
+        className="relative w-[58px] h-[58px] rounded-full bg-gradient-to-br from-[#28DC6C] to-[#19A851] text-white border border-emerald-200/50 flex items-center justify-center shadow-[0_10px_28px_-4px_rgba(37,211,102,0.65)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_14px_34px_-4px_rgba(37,211,102,0.8)] active:scale-95"
       >
         <span
           aria-hidden="true"

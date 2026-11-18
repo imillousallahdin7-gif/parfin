@@ -55,10 +55,10 @@ export const PacksPage: React.FC<PacksPageProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('packs-women')}
-            className={`px-5 py-2.5 text-xs uppercase tracking-[0.12em] border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold min-h-[44px] whitespace-nowrap transition-all duration-150 active:scale-95 ${
               isWomen
-                ? 'bg-[#111111] text-[#DFC48B] border-[#111111]'
-                : 'bg-white text-[#111111] border-[#E5DFD5] hover:border-[#C5A059]'
+                ? 'btn-noir-luminous shadow-[0_8px_22px_-6px_rgba(197,160,89,0.5)]'
+                : 'btn-secondary-invert'
             }`}
           >
             Packs Femme
@@ -66,10 +66,10 @@ export const PacksPage: React.FC<PacksPageProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('packs-men')}
-            className={`px-5 py-2.5 text-xs uppercase tracking-[0.12em] border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold min-h-[44px] whitespace-nowrap transition-all duration-150 active:scale-95 ${
               !isWomen
-                ? 'bg-[#111111] text-[#DFC48B] border-[#111111]'
-                : 'bg-white text-[#111111] border-[#E5DFD5] hover:border-[#C5A059]'
+                ? 'btn-noir-luminous shadow-[0_8px_22px_-6px_rgba(197,160,89,0.5)]'
+                : 'btn-secondary-invert'
             }`}
           >
             Packs Homme

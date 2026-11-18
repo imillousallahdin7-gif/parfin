@@ -246,7 +246,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 type="button"
                 onClick={() => setStep('checkout')}
-                className="w-full min-h-[48px] rounded-xl bg-[#0B0A08] text-[#F6F1E7] hover:bg-[#C9A24D] hover:text-[#0B0A08] text-xs uppercase tracking-[0.14em] font-semibold transition-colors"
+                className="btn-noir-luminous w-full min-h-[48px] text-xs uppercase tracking-[0.14em] font-semibold whitespace-nowrap"
               >
                 Passer la commande
               </button>
@@ -367,7 +367,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
               <button
                 type="submit"
-                className="w-full min-h-[48px] rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs uppercase tracking-[0.14em] font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+                className="btn-whatsapp-luminous w-full min-h-[48px] text-xs uppercase tracking-[0.14em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Confirmer via WhatsApp</span>

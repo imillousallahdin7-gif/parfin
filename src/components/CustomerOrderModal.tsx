@@ -267,7 +267,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
 
           <button
             type="submit"
-            className="w-full min-h-[48px] rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs uppercase tracking-[0.14em] font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+            className="btn-whatsapp-luminous w-full min-h-[48px] text-xs uppercase tracking-[0.14em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Envoyer la commande sur WhatsApp</span>

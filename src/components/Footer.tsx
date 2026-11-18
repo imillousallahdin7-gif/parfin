@@ -45,7 +45,7 @@ export const Footer: React.FC<FooterProps> = ({
               href={buildWhatsAppDirectUrl(whatsappNumber)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs uppercase tracking-[0.14em] font-medium transition-colors min-h-[44px]"
+              className="btn-whatsapp-luminous inline-flex items-center gap-2 px-6 py-3 text-xs uppercase tracking-[0.14em] font-semibold min-h-[44px] whitespace-nowrap"
             >
               <MessageCircle className="w-4 h-4" />
               <span>Conciergerie WhatsApp</span>
@@ -56,7 +56,7 @@ export const Footer: React.FC<FooterProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
-              className="inline-flex items-center gap-2 px-4 py-3 border border-[#C5A059]/40 text-[#DFC48B] hover:bg-[#C5A059] hover:text-[#0A0A0A] text-xs uppercase tracking-[0.12em] transition-colors min-h-[44px]"
+              className="btn-outline-luminous inline-flex items-center gap-2 px-4 py-3 text-xs uppercase tracking-[0.12em] min-h-[44px] whitespace-nowrap"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -71,7 +71,7 @@ export const Footer: React.FC<FooterProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="TikTok"
-              className="inline-flex items-center gap-2 px-4 py-3 border border-[#C5A059]/40 text-[#DFC48B] hover:bg-[#C5A059] hover:text-[#0A0A0A] text-xs uppercase tracking-[0.12em] transition-colors min-h-[44px]"
+              className="btn-outline-luminous inline-flex items-center gap-2 px-4 py-3 text-xs uppercase tracking-[0.12em] min-h-[44px] whitespace-nowrap"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07Z" />

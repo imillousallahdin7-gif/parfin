@@ -67,7 +67,7 @@ export const ShopView: React.FC<ShopViewProps> = ({
         <button
           type="button"
           onClick={onBackHome}
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[#6B655E] hover:text-[#111111] py-2 min-h-[44px]"
+          className="inline-flex items-center gap-2 px-3 rounded-xl text-xs uppercase tracking-[0.14em] text-[#6B655E] hover:text-[#111111] hover:bg-white hover:shadow-sm active:scale-95 transition-all py-2 min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Retour à l&apos;accueil</span>
@@ -99,7 +99,7 @@ export const ShopView: React.FC<ShopViewProps> = ({
               id="shop-sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="w-full sm:w-auto min-h-[44px] px-3.5 bg-white border border-[#E5DFD5] text-xs uppercase tracking-[0.08em] text-[#111111] focus:border-[#C5A059] focus:outline-none"
+              className="w-full sm:w-auto min-h-[44px] px-3.5 rounded-xl bg-white border border-[#E5DFD5] text-xs uppercase tracking-[0.08em] text-[#111111] focus:border-[#C5A059] focus:outline-none transition-colors"
             >
               <option value="newest">Nouveautés d&apos;abord</option>
               <option value="price-asc">Prix : Croissant</option>

@@ -31,14 +31,13 @@ export const StoreLocation: React.FC<StoreLocationProps> = ({ whatsappNumber }) 
               <h3 className="font-brand text-lg sm:text-xl text-[#111111]">
                 {STORE_IDENTITY.brand}
               </h3>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#0A0A0A] text-[#DFC48B] px-3 py-1 text-[11px] uppercase tracking-[0.12em]">
-                <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" aria-hidden="true" />
-                <span>Boutique Ouverte</span>
+              <span className="text-[11px] uppercase tracking-[0.14em] font-medium text-[#8A6D3B]">
+                Boutique Ouverte
               </span>
             </div>
 
-            {/* French Address with gold left accent border */}
-            <div className="mt-6 pl-4 border-l-2 border-[#C5A059]">
+            {/* French Address in clean framed surface */}
+            <div className="mt-6 p-4 rounded-xl bg-[#FAF8F5] border border-[#E5DFD5]">
               <p className="text-[11px] uppercase tracking-[0.14em] text-[#8A6D3B] mb-1">
                 Adresse
               </p>
@@ -73,20 +72,20 @@ export const StoreLocation: React.FC<StoreLocationProps> = ({ whatsappNumber }) 
               href={STORE_IDENTITY.mapsLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary-wipe min-h-[46px] px-4 text-xs uppercase tracking-[0.12em] font-medium inline-flex items-center justify-center gap-2"
+              className="btn-noir-luminous min-h-[46px] px-4 text-xs uppercase tracking-[0.12em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <Navigation className="w-4 h-4" />
-              <span>Itinéraire Google Maps</span>
+              <span>Itinéraire Maps</span>
             </a>
 
             <a
               href={buildWhatsAppDirectUrl(whatsappNumber)}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-whatsapp-outline min-h-[46px] px-4 text-xs uppercase tracking-[0.12em] font-medium inline-flex items-center justify-center gap-2"
+              className="btn-whatsapp-luminous min-h-[46px] px-4 text-xs uppercase tracking-[0.12em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Discuter sur WhatsApp</span>
+              <span>WhatsApp</span>
             </a>
           </div>
         </div>

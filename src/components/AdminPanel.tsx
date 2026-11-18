@@ -518,7 +518,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           <button
             type="button"
             onClick={onBackHome}
-            className="inline-flex items-center gap-2 text-xs text-[#DFC48B] hover:text-white min-h-[44px]"
+            className="inline-flex items-center gap-2 px-3 rounded-xl text-xs text-[#DFC48B] hover:text-white hover:bg-white/5 active:scale-95 transition-all min-h-[44px]"
           >
             <ArrowRight className="w-4 h-4" />
             <span>العودة إلى المتجر</span>
@@ -578,7 +578,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             <button
               type="submit"
               disabled={authLoading || lockoutSecondsLeft > 0}
-              className="w-full min-h-[48px] bg-[#C5A059] hover:bg-[#DFC48B] text-[#0A0A0A] text-xs font-semibold transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="btn-gold-luminous w-full min-h-[48px] text-xs font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
               <span>
@@ -601,7 +601,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={authLoading || lockoutSecondsLeft > 0}
-            className="w-full min-h-[46px] border border-[#C5A059]/45 text-[#DFC48B] hover:bg-[#C5A059]/10 text-xs font-medium transition-colors disabled:opacity-50"
+            className="btn-outline-luminous w-full min-h-[46px] text-xs font-medium disabled:opacity-50"
           >
             الدخول السريع عبر Google
           </button>
@@ -640,7 +640,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             <button
               type="button"
               onClick={onBackHome}
-              className="px-3.5 py-2.5 border border-[#C9A24D]/40 text-xs text-[#E8D08C] hover:bg-[#C9A24D]/15 min-h-[42px]"
+              className="btn-outline-luminous px-4 py-2 text-xs min-h-[42px] inline-flex items-center justify-center"
             >
               عرض المتجر
             </button>
@@ -650,7 +650,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               onClick={handleLogout}
               aria-label="تسجيل الخروج"
               title="تسجيل الخروج"
-              className="w-10 h-10 border border-[#C9A24D]/40 flex items-center justify-center text-[#F6F1E7] hover:text-[#C9A24D]"
+              className="btn-outline-luminous w-10 h-10 flex items-center justify-center"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -673,14 +673,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
         )}
 
         {/* 3 Main Admin Tabs */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-[#DDD3BE] pb-4 mb-8">
+        <div className="flex flex-wrap items-center gap-2.5 border-b border-[#DDD3BE] pb-4 mb-8">
           <button
             type="button"
             onClick={() => setActiveTab('products')}
-            className={`px-5 py-2.5 text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-all duration-200 active:scale-95 ${
               activeTab === 'products'
-                ? 'bg-[#0B0A08] text-[#E8D08C] border-[#0B0A08]'
-                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
+                ? 'bg-gradient-to-br from-[#1E1B16] to-[#0B0A08] text-[#E8D08C] border-[#C5A059] shadow-[0_8px_20px_-6px_rgba(197,160,89,0.5)]'
+                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
             <Sparkles className="w-4 h-4" />
@@ -690,10 +690,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           <button
             type="button"
             onClick={() => setActiveTab('packs')}
-            className={`px-5 py-2.5 text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-all duration-200 active:scale-95 ${
               activeTab === 'packs'
-                ? 'bg-[#0B0A08] text-[#E8D08C] border-[#0B0A08]'
-                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
+                ? 'bg-gradient-to-br from-[#1E1B16] to-[#0B0A08] text-[#E8D08C] border-[#C5A059] shadow-[0_8px_20px_-6px_rgba(197,160,89,0.5)]'
+                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
             <Package className="w-4 h-4" />
@@ -703,10 +703,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`px-5 py-2.5 text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-colors ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-medium inline-flex items-center gap-2 border min-h-[44px] transition-all duration-200 active:scale-95 ${
               activeTab === 'settings'
-                ? 'bg-[#0B0A08] text-[#E8D08C] border-[#0B0A08]'
-                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
+                ? 'bg-gradient-to-br from-[#1E1B16] to-[#0B0A08] text-[#E8D08C] border-[#C5A059] shadow-[0_8px_20px_-6px_rgba(197,160,89,0.5)]'
+                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -838,7 +838,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                                 onClick={() => openEditProduct(product)}
                                 aria-label={`تعديل ${product.name?.fr}`}
                                 title="تعديل"
-                                className="w-9 h-9 border border-[#DDD3BE] hover:border-[#C9A24D] inline-flex items-center justify-center"
+                                className="w-9 h-9 rounded-xl border border-[#DDD3BE] bg-white hover:border-[#C9A24D] hover:bg-[#FAF8F5] hover:shadow-sm active:scale-95 transition-all inline-flex items-center justify-center"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -847,7 +847,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                                 onClick={() => setDeleteTarget(product)}
                                 aria-label={`حذف ${product.name?.fr}`}
                                 title="حذف"
-                                className="w-9 h-9 border border-[#DDD3BE] hover:border-red-600 text-red-700 inline-flex items-center justify-center"
+                                className="w-9 h-9 rounded-xl border border-[#DDD3BE] bg-white hover:border-red-600 hover:bg-red-50 hover:shadow-sm text-red-700 active:scale-95 transition-all inline-flex items-center justify-center"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -985,7 +985,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                       }
                       setNewCustomCategory('');
                     }}
-                    className="px-4 min-h-[44px] border border-[#0B0A08] text-xs font-medium hover:bg-[#0B0A08] hover:text-[#F6F1E7]"
+                    className="btn-secondary-invert px-4 min-h-[44px] text-xs font-medium"
                   >
                     إضافة
                   </button>
@@ -1286,7 +1286,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               <div>
                 <label className="block text-xs font-medium mb-1.5">صورة المنتج</label>
                 <div className="flex flex-wrap items-center gap-4">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#0B0A08] text-xs font-medium cursor-pointer hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors">
+                  <label className="btn-secondary-invert inline-flex items-center gap-2 px-4 py-2.5 text-xs font-medium cursor-pointer">
                     <Upload className="w-4 h-4" />
                     <span>{uploadingImage ? 'جاري معالجة الصورة...' : 'اختيار صورة'}</span>
                     <input
@@ -1331,7 +1331,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 <button
                   type="button"
                   onClick={() => setProductModalOpen(false)}
-                  className="px-5 py-2.5 border border-[#DDD3BE] text-xs font-medium"
+                  className="px-5 py-2.5 rounded-xl border border-[#DDD3BE] hover:border-[#C9A24D] bg-white text-xs font-medium transition-all active:scale-95"
                 >
                   إلغاء
                 </button>
@@ -1364,7 +1364,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 border border-[#DDD3BE] text-xs font-medium"
+                className="px-4 py-2 rounded-xl border border-[#DDD3BE] hover:border-[#C9A24D] bg-white text-xs font-medium transition-all active:scale-95"
               >
                 إلغاء
               </button>
@@ -1372,7 +1372,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 type="button"
                 disabled={savingProduct}
                 onClick={handleConfirmDeleteProduct}
-                className="px-5 py-2 bg-red-700 text-white text-xs font-medium hover:bg-red-800"
+                className="px-5 py-2 rounded-xl bg-gradient-to-br from-red-600 to-red-800 text-white text-xs font-medium shadow-[0_6px_18px_-4px_rgba(185,28,28,0.5)] hover:brightness-110 active:scale-95 transition-all"
               >
                 {savingProduct ? 'جاري الحذف...' : 'تأكيد الحذف'}
               </button>

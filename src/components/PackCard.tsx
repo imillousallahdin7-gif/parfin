@@ -22,7 +22,7 @@ export const PackCard: React.FC<PackCardProps> = ({
     pack.imageUrl;
 
   return (
-    <article className="group relative flex flex-col h-full bg-white rounded-2xl border border-[#E5DFD5] overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:border-[#C5A059]/60">
+    <article className="group relative flex flex-col h-full bg-white rounded-2xl border border-[#E5DFD5] overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:border-[#C5A059]/70 hover:shadow-[0_14px_34px_-14px_rgba(197,160,89,0.4)]">
       <div className="relative">
         <CatalogImage
           src={imageSrc}
@@ -47,7 +47,7 @@ export const PackCard: React.FC<PackCardProps> = ({
           <span className="text-sm sm:text-[15px] font-semibold text-[#111111] tabular-nums whitespace-nowrap">
             {formatMAD(pack.price)}
           </span>
-          <span className="rounded-full border border-[#E5DFD5] bg-[#FAF8F5] px-2.5 py-0.5 text-[10px] sm:text-[11px] uppercase tracking-[0.06em] text-[#8A6D3B] font-medium whitespace-nowrap">
+          <span className="text-[11px] uppercase tracking-[0.08em] text-[#8A6D3B] font-medium whitespace-nowrap">
             Pack
           </span>
         </div>
@@ -55,7 +55,7 @@ export const PackCard: React.FC<PackCardProps> = ({
         <button
           type="button"
           onClick={() => onOrderPack(pack)}
-          className="mt-auto w-full min-h-[44px] rounded-xl bg-[#111111] text-[#FAF8F5] hover:bg-[#25D366] hover:text-white text-xs uppercase tracking-[0.14em] font-medium transition-colors duration-200"
+          className="mt-auto w-full min-h-[44px] btn-noir-luminous text-xs uppercase tracking-[0.14em] font-semibold"
         >
           Commander
         </button>

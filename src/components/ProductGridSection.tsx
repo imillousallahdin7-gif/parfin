@@ -118,14 +118,14 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
               }}
               placeholder="Rechercher un parfum, une note..."
               aria-label="Rechercher un parfum"
-              className="w-full min-h-[44px] pl-10 pr-10 bg-white border border-[#E5DFD5] text-sm text-[#111111] placeholder:text-[#6B655E] focus:border-[#C5A059] focus:outline-none"
+              className="w-full min-h-[44px] pl-10 pr-10 rounded-xl bg-white border border-[#E5DFD5] text-sm text-[#111111] placeholder:text-[#6B655E] focus:border-[#C5A059] focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => onSearchChange('')}
                 aria-label="Effacer la recherche"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-[#6B655E] hover:text-[#111111]"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-[#6B655E] hover:text-[#111111] hover:bg-[#F3EFE8] active:scale-95 transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -156,7 +156,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                   onSelectCategory(cat);
                   setVisibleCount(initialLimit);
                 }}
-                className={`relative py-2.5 px-2 text-xs uppercase tracking-[0.12em] whitespace-nowrap shrink-0 transition-colors min-h-[44px] flex items-center gap-1.5 ${
+                className={`relative py-2.5 px-2.5 text-xs uppercase tracking-[0.12em] whitespace-nowrap shrink-0 transition-all duration-150 active:scale-95 min-h-[44px] flex items-center gap-1.5 ${
                   isActive
                     ? 'text-[#111111] font-semibold'
                     : 'text-[#6B655E] hover:text-[#111111]'
@@ -167,7 +167,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                 {isActive && (
                   <span
                     aria-hidden="true"
-                    className="absolute left-2 right-2 bottom-0 h-[2px] bg-[#C5A059]"
+                    className="absolute left-2 right-2 bottom-0 h-[2px] bg-[#C5A059] shadow-[0_0_12px_rgba(197,160,89,0.85)]"
                   />
                 )}
               </button>

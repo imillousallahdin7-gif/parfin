@@ -154,14 +154,14 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
     <div>
       {/* Sub-tabs + Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setSubTab('women')}
-            className={`px-4 py-2.5 text-xs font-medium border min-h-[44px] transition-colors ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-medium border min-h-[44px] transition-all duration-200 active:scale-95 ${
               subTab === 'women'
-                ? 'bg-[#0B0A08] text-[#E8D08C] border-[#C9A24D]'
-                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
+                ? 'bg-gradient-to-br from-[#1E1B16] to-[#0B0A08] text-[#E8D08C] border-[#C5A059] shadow-[0_8px_20px_-6px_rgba(197,160,89,0.5)]'
+                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
             باقات النساء ({packs.filter((p) => p.category === 'women').length})
@@ -169,10 +169,10 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
           <button
             type="button"
             onClick={() => setSubTab('men')}
-            className={`px-4 py-2.5 text-xs font-medium border min-h-[44px] transition-colors ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-medium border min-h-[44px] transition-all duration-200 active:scale-95 ${
               subTab === 'men'
-                ? 'bg-[#0B0A08] text-[#E8D08C] border-[#C9A24D]'
-                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D]'
+                ? 'bg-gradient-to-br from-[#1E1B16] to-[#0B0A08] text-[#E8D08C] border-[#C5A059] shadow-[0_8px_20px_-6px_rgba(197,160,89,0.5)]'
+                : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
             باقات الرجال ({packs.filter((p) => p.category === 'men').length})
@@ -256,7 +256,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                     <button
                       type="button"
                       onClick={() => handleToggleActive(pack)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 text-xs border border-[#DDD3BE] hover:border-[#0B0A08] transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs border border-[#DDD3BE] bg-white hover:border-[#C9A24D] hover:shadow-sm active:scale-95 transition-all"
                     >
                       {pack.active ? (
                         <>
@@ -277,7 +277,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                         onClick={() => openEdit(pack)}
                         aria-label={`تعديل ${pack.name?.fr}`}
                         title="تعديل"
-                        className="w-9 h-9 flex items-center justify-center border border-[#DDD3BE] hover:border-[#C9A24D] text-[#0B0A08]"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center border border-[#DDD3BE] bg-white hover:border-[#C9A24D] hover:shadow-sm text-[#0B0A08] active:scale-95 transition-all"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -286,7 +286,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                         onClick={() => setDeleteTarget(pack)}
                         aria-label={`حذف ${pack.name?.fr}`}
                         title="حذف"
-                        className="w-9 h-9 flex items-center justify-center border border-[#DDD3BE] hover:border-red-600 text-red-700"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center border border-[#DDD3BE] bg-white hover:border-red-600 hover:bg-red-50 hover:shadow-sm text-red-700 active:scale-95 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -393,7 +393,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
               <div>
                 <label className="block text-xs font-medium mb-1.5">صورة الباقة</label>
                 <div className="flex items-center gap-3">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#0B0A08] text-xs font-medium cursor-pointer hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors">
+                  <label className="btn-secondary-invert inline-flex items-center gap-2 px-4 py-2.5 text-xs font-medium cursor-pointer">
                     <Upload className="w-4 h-4" />
                     <span>{uploading ? 'جاري ضغط الصورة...' : 'اختيار صورة'}</span>
                     <input
@@ -429,7 +429,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-5 py-2.5 border border-[#DDD3BE] text-xs font-medium"
+                  className="px-5 py-2.5 rounded-xl border border-[#DDD3BE] hover:border-[#C9A24D] bg-white text-xs font-medium transition-all active:scale-95"
                 >
                   إلغاء
                 </button>
@@ -465,7 +465,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 border border-[#DDD3BE] text-xs font-medium"
+                className="px-4 py-2 rounded-xl border border-[#DDD3BE] hover:border-[#C9A24D] bg-white text-xs font-medium transition-all active:scale-95"
               >
                 إلغاء
               </button>
@@ -473,7 +473,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                 type="button"
                 disabled={saving}
                 onClick={handleDelete}
-                className="px-5 py-2 bg-red-700 text-white text-xs font-medium hover:bg-red-800"
+                className="px-5 py-2 rounded-xl bg-gradient-to-br from-red-600 to-red-800 text-white text-xs font-medium shadow-[0_6px_18px_-4px_rgba(185,28,28,0.5)] hover:brightness-110 active:scale-95 transition-all"
               >
                 {saving ? 'جاري الحذف...' : 'حذف'}
               </button>

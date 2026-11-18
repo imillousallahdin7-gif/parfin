@@ -87,12 +87,12 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({
           ))}
         </nav>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
           <a
             href={STORE_IDENTITY.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2.5 text-xs uppercase tracking-[0.12em] border border-[#C5A059]/40 text-[#DFC48B] hover:bg-[#C5A059] hover:text-[#0A0A0A] transition-colors"
+            className="btn-outline-luminous px-4 py-2.5 text-xs uppercase tracking-[0.12em] whitespace-nowrap"
           >
             Instagram
           </a>
@@ -100,7 +100,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({
             href={STORE_IDENTITY.tiktokUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2.5 text-xs uppercase tracking-[0.12em] border border-[#C5A059]/40 text-[#DFC48B] hover:bg-[#C5A059] hover:text-[#0A0A0A] transition-colors"
+            className="btn-outline-luminous px-4 py-2.5 text-xs uppercase tracking-[0.12em] whitespace-nowrap"
           >
             TikTok
           </a>
@@ -108,7 +108,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({
             href={buildWhatsAppDirectUrl(whatsappNumber)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs uppercase tracking-[0.12em] bg-[#25D366] hover:bg-[#1EBE5D] text-white transition-colors"
+            className="btn-whatsapp-luminous inline-flex items-center gap-2 px-5 py-2.5 text-xs uppercase tracking-[0.12em] font-semibold whitespace-nowrap"
           >
             <MessageCircle className="w-4 h-4" />
             WhatsApp Direct
