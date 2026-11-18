@@ -16,18 +16,22 @@ import { Hero } from './components/Hero';
 import { Marquee } from './components/Marquee';
 import { PacksTopBanners } from './components/PacksTopBanners';
 import { ProductGridSection } from './components/ProductGridSection';
-import { ShopView } from './components/ShopView';
-import { PacksPage } from './components/PacksPage';
 import { StorySection } from './components/StorySection';
 import { Testimonials } from './components/Testimonials';
 import { StoreLocation } from './components/StoreLocation';
 import { Footer } from './components/Footer';
-import { ProductDetailModal } from './components/ProductDetailModal';
-import { CustomerOrderModal } from './components/CustomerOrderModal';
-import { CartDrawer } from './components/CartDrawer';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
+const ShopView = lazy(() => import('./components/ShopView').then((m) => ({ default: m.ShopView })));
+const PacksPage = lazy(() => import('./components/PacksPage').then((m) => ({ default: m.PacksPage })));
+const ProductDetailModal = lazy(() =>
+  import('./components/ProductDetailModal').then((m) => ({ default: m.ProductDetailModal }))
+);
+const CustomerOrderModal = lazy(() =>
+  import('./components/CustomerOrderModal').then((m) => ({ default: m.CustomerOrderModal }))
+);
+const CartDrawer = lazy(() => import('./components/CartDrawer').then((m) => ({ default: m.CartDrawer })));
 
 function parseRouteFromLocation(): AppRoute {
   const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
@@ -372,30 +376,46 @@ export default function App() {
         )}
 
         {route === 'shop' && (
-          <ShopView
-            products={products}
-            customCategories={settings.customCategories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={handleSelectCategory}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            loading={loading}
-            error={catalogError}
-            onRetry={() => loadCatalog(true)}
-            onOpenDetail={(p) => setDetailProduct(p)}
-            onOrderNow={(p) => handleOrderProductDirect(p)}
-            onBackHome={() => handleNavigate('home')}
-          />
+          <Suspense
+            fallback={
+              <div className="min-h-[60vh] flex items-center justify-center text-xs uppercase tracking-[0.16em] text-[#8A6D3B]">
+                Chargement de la boutique...
+              </div>
+            }
+          >
+            <ShopView
+              products={products}
+              customCategories={settings.customCategories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleSelectCategory}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              loading={loading}
+              error={catalogError}
+              onRetry={() => loadCatalog(true)}
+              onOpenDetail={(p) => setDetailProduct(p)}
+              onOrderNow={(p) => handleOrderProductDirect(p)}
+              onBackHome={() => handleNavigate('home')}
+            />
+          </Suspense>
         )}
 
         {(route === 'packs-women' || route === 'packs-men') && (
-          <PacksPage
-            category={route === 'packs-women' ? 'women' : 'men'}
-            packs={packs}
-            loading={loading}
-            onOrderPack={handleOrderPack}
-            onNavigate={(r) => handleNavigate(r)}
-          />
+          <Suspense
+            fallback={
+              <div className="min-h-[60vh] flex items-center justify-center text-xs uppercase tracking-[0.16em] text-[#8A6D3B]">
+                Chargement des packs...
+              </div>
+            }
+          >
+            <PacksPage
+              category={route === 'packs-women' ? 'women' : 'men'}
+              packs={packs}
+              loading={loading}
+              onOrderPack={handleOrderPack}
+              onNavigate={(r) => handleNavigate(r)}
+            />
+          </Suspense>
         )}
       </main>
 
@@ -411,32 +431,44 @@ export default function App() {
         elevateMobile={Boolean(detailProduct)}
       />
 
-      <ProductDetailModal
-        product={detailProduct}
-        onClose={() => setDetailProduct(null)}
-        onAddToCart={handleAddToCart}
-        onOrderDirect={(p, size) => handleOrderProductDirect(p, size)}
-      />
+      {detailProduct && (
+        <Suspense fallback={null}>
+          <ProductDetailModal
+            product={detailProduct}
+            onClose={() => setDetailProduct(null)}
+            onAddToCart={handleAddToCart}
+            onOrderDirect={(p, size) => handleOrderProductDirect(p, size)}
+          />
+        </Suspense>
+      )}
 
-      <CustomerOrderModal
-        item={directOrderItem}
-        whatsappNumber={settings.whatsappNumber}
-        deliveryFeeLocal={settings.deliveryFeeLocal}
-        deliveryFeeNational={settings.deliveryFeeNational}
-        onClose={() => setDirectOrderItem(null)}
-      />
+      {directOrderItem && (
+        <Suspense fallback={null}>
+          <CustomerOrderModal
+            item={directOrderItem}
+            whatsappNumber={settings.whatsappNumber}
+            deliveryFeeLocal={settings.deliveryFeeLocal}
+            deliveryFeeNational={settings.deliveryFeeNational}
+            onClose={() => setDirectOrderItem(null)}
+          />
+        </Suspense>
+      )}
 
-      <CartDrawer
-        open={cartOpen}
-        items={cartItems}
-        whatsappNumber={settings.whatsappNumber}
-        deliveryFeeLocal={settings.deliveryFeeLocal}
-        deliveryFeeNational={settings.deliveryFeeNational}
-        onClose={() => setCartOpen(false)}
-        onUpdateQuantity={handleUpdateCartQuantity}
-        onRemoveItem={handleRemoveCartItem}
-        onClearCart={() => setCartItems([])}
-      />
+      {cartOpen && (
+        <Suspense fallback={null}>
+          <CartDrawer
+            open={cartOpen}
+            items={cartItems}
+            whatsappNumber={settings.whatsappNumber}
+            deliveryFeeLocal={settings.deliveryFeeLocal}
+            deliveryFeeNational={settings.deliveryFeeNational}
+            onClose={() => setCartOpen(false)}
+            onUpdateQuantity={handleUpdateCartQuantity}
+            onRemoveItem={handleRemoveCartItem}
+            onClearCart={() => setCartItems([])}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

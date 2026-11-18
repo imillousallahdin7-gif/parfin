@@ -40,21 +40,25 @@
     />
     <meta name="twitter:image" content="https://parfumerie-elkhalifi.vercel.app/logo.png" />
 
-    <!-- Preload Hero Assets -->
+    <!-- Preload Lightweight WebP Hero Assets -->
     <link
       rel="preload"
       as="image"
-      href="/src/assets/images/hero_cosmetics_perfume_desktop_1795011231315.jpg"
+      type="image/webp"
+      href="/assets/hero/hero-desktop.webp"
       media="(min-width: 768px)"
     />
     <link
       rel="preload"
       as="image"
-      href="/src/assets/images/hero_cosmetics_perfume_mobile_1795011231875.jpg"
+      type="image/webp"
+      href="/assets/hero/hero-mobile.webp"
       media="(max-width: 767px)"
     />
 
-    <!-- Google Fonts: Cormorant Garamond (600/700) & Inter (300-600) -->
+    <!-- Preconnect: Firestore + Google Fonts -->
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

@@ -380,17 +380,41 @@ export async function subscribePublicCatalog(
 // ============================================================================
 
 async function decodeImageForCanvas(
-  file: File
+  file: File,
+  maxDim: number
 ): Promise<{ width: number; height: number; draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void; release: () => void }> {
   if (typeof createImageBitmap === 'function') {
     try {
-      const bitmap = await createImageBitmap(file);
-      return {
-        width: bitmap.width,
-        height: bitmap.height,
-        draw: (ctx, w, h) => ctx.drawImage(bitmap, 0, 0, w, h),
-        release: () => bitmap.close(),
-      };
+      const probe = await createImageBitmap(file);
+      const naturalMax = Math.max(probe.width, probe.height);
+      if (naturalMax > maxDim) {
+        const scale = maxDim / naturalMax;
+        const targetW = Math.max(1, Math.round(probe.width * scale));
+        const targetH = Math.max(1, Math.round(probe.height * scale));
+        probe.close();
+        try {
+          const resized = await createImageBitmap(file, {
+            resizeWidth: targetW,
+            resizeHeight: targetH,
+            resizeQuality: 'medium',
+          });
+          return {
+            width: resized.width,
+            height: resized.height,
+            draw: (ctx, w, h) => ctx.drawImage(resized, 0, 0, w, h),
+            release: () => resized.close(),
+          };
+        } catch {
+          // Fallback to full-size bitmap if resize options unsupported
+        }
+      } else {
+        return {
+          width: probe.width,
+          height: probe.height,
+          draw: (ctx, w, h) => ctx.drawImage(probe, 0, 0, w, h),
+          release: () => probe.close(),
+        };
+      }
     } catch {
       // Fallback to HTMLImageElement for formats where createImageBitmap fails
     }
@@ -416,17 +440,8 @@ async function decodeImageForCanvas(
   }
 }
 
-const STORAGE_UNAVAILABLE_KEY = 'parfumerie_storage_unavailable';
-let storageUnavailable = (() => {
-  try {
-    return window.sessionStorage.getItem(STORAGE_UNAVAILABLE_KEY) === '1';
-  } catch {
-    return false;
-  }
-})();
-
-export async function compressImageFile(file: File, maxDim = 650, maxBytes = 90000): Promise<string> {
-  const source = await decodeImageForCanvas(file);
+export async function compressImageFile(file: File, maxDim = 600, maxBytes = 80000): Promise<string> {
+  const source = await decodeImageForCanvas(file, maxDim);
   const renderScaled = (targetDim: number, quality: number): string => {
     const scale = Math.min(1, targetDim / Math.max(source.width, source.height));
     const width = Math.max(1, Math.round(source.width * scale));
@@ -445,21 +460,13 @@ export async function compressImageFile(file: File, maxDim = 650, maxBytes = 900
   };
 
   try {
-    let quality = 0.74;
-    let dataUrl = renderScaled(maxDim, quality);
-
-    while (dataUrl.length > maxBytes && quality > 0.42) {
-      quality -= 0.08;
-      dataUrl = renderScaled(maxDim, quality);
-    }
-
+    let dataUrl = renderScaled(maxDim, 0.72);
     if (dataUrl.length > maxBytes) {
-      dataUrl = renderScaled(520, 0.65);
+      dataUrl = renderScaled(500, 0.6);
     }
     if (dataUrl.length > maxBytes) {
-      dataUrl = renderScaled(420, 0.55);
+      dataUrl = renderScaled(400, 0.52);
     }
-
     if (dataUrl.length > 590000) {
       throw new Error('Image trop volumineuse après compression (max 600 Ko).');
     }
@@ -469,6 +476,15 @@ export async function compressImageFile(file: File, maxDim = 650, maxBytes = 900
   }
 }
 
+const STORAGE_UNAVAILABLE_KEY = 'parfumerie_storage_unavailable';
+let storageUnavailable = (() => {
+  try {
+    return window.sessionStorage.getItem(STORAGE_UNAVAILABLE_KEY) === '1';
+  } catch {
+    return false;
+  }
+})();
+
 export async function uploadAdminImage(
   file: File,
   folder: 'products' | 'packs',
@@ -476,15 +492,17 @@ export async function uploadAdminImage(
 ): Promise<{ imageUrl?: string; imageData: string }> {
   const compressedDataUrl = await compressImageFile(file);
 
-  if (storageUnavailable) {
+  // Instant compressed WebP storage in Firestore unless Firebase Storage is explicitly enabled
+  if (import.meta.env.VITE_ENABLE_FIREBASE_STORAGE !== 'true' || storageUnavailable) {
     return { imageData: compressedDataUrl };
   }
 
   try {
-    const [{ storage }, { ref, uploadString, getDownloadURL }] = await Promise.all([
+    const [{ getFirebaseStorage }, { ref, uploadString, getDownloadURL }] = await Promise.all([
       import('./firebase'),
       import('firebase/storage'),
     ]);
+    const storage = await getFirebaseStorage();
     storage.maxUploadRetryTime = 1200;
     storage.maxOperationRetryTime = 1200;
 
@@ -507,7 +525,6 @@ export async function uploadAdminImage(
     } catch {
       // ignore
     }
-    // Fast immediate fallback: <90KB WebP stored directly in Firestore
     return { imageData: compressedDataUrl };
   }
 }
@@ -558,7 +575,7 @@ export async function saveAdminProduct(
 ): Promise<string> {
   const [
     { db, handleFirestoreError, OperationType },
-    { deleteField, doc, getDoc, serverTimestamp, setDoc, updateDoc },
+    { deleteField, doc, serverTimestamp, setDoc, updateDoc },
   ] = await Promise.all([import('./firebase'), import('firebase/firestore')]);
 
   const rawId = product.id?.trim().replace(/[^a-zA-Z0-9_-]/g, '_') || `prod_${Date.now()}`;
@@ -605,25 +622,26 @@ export async function saveAdminProduct(
   try {
     const isExistingEdit = Boolean(product.id?.trim());
     if (isExistingEdit) {
-      const existingSnap = await getDoc(ref);
-      if (existingSnap.exists()) {
-        const existingData = existingSnap.data();
-        const updatePayload: Record<string, unknown> = { ...payload };
-        if (!existingData.createdAt) {
-          updatePayload.createdAt = serverTimestamp();
-        }
-        if (product.imageUrl === '' && existingData.imageUrl) {
-          updatePayload.imageUrl = deleteField();
-        }
-        if (product.imageData === '' && existingData.imageData) {
-          updatePayload.imageData = deleteField();
-        }
+      const updatePayload: Record<string, unknown> = { ...payload };
+      if (product.imageUrl === '') {
+        updatePayload.imageUrl = deleteField();
+      }
+      if (product.imageData === '') {
+        updatePayload.imageData = deleteField();
+      }
+      try {
         await updateDoc(ref, updatePayload);
-      } else {
-        await setDoc(ref, {
-          ...payload,
-          createdAt: serverTimestamp(),
-        });
+      } catch (err) {
+        const code = (err as { code?: string })?.code;
+        const msg = err instanceof Error ? err.message : String(err);
+        if (code === 'not-found' || msg.includes('No document to update')) {
+          await setDoc(ref, {
+            ...payload,
+            createdAt: serverTimestamp(),
+          });
+        } else {
+          throw err;
+        }
       }
     } else {
       await setDoc(ref, {

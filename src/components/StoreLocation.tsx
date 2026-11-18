@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Clock, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react';
 import { STORE_IDENTITY } from '../types/catalog';
 import { buildWhatsAppDirectUrl } from '../utils/format';
@@ -8,6 +8,31 @@ interface StoreLocationProps {
 }
 
 export const StoreLocation: React.FC<StoreLocationProps> = ({ whatsappNumber }) => {
+  const [mapReady, setMapReady] = useState(false);
+  const mapWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (mapReady) return;
+    const node = mapWrapperRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setMapReady(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setMapReady(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [mapReady]);
+
   return (
     <section
       id="location"
@@ -93,16 +118,35 @@ export const StoreLocation: React.FC<StoreLocationProps> = ({ whatsappNumber }) 
           </div>
         </div>
 
-        {/* Right Free Google Maps Iframe Embed */}
-        <div className="lg:col-span-7 relative min-h-[340px] sm:min-h-[420px] bg-[#F3EFE8] border border-[#E5DFD5] overflow-hidden">
-          <iframe
-            title="Localisation PARFUMERIE EL KHALIFI à Tanger"
-            src={STORE_IDENTITY.mapsEmbedUrl}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="w-full h-full min-h-[340px] sm:min-h-[420px] border-0"
-            allowFullScreen
-          />
+        {/* Right Free Google Maps Iframe Embed (lazy-mounted on scroll) */}
+        <div
+          ref={mapWrapperRef}
+          className="lg:col-span-7 relative min-h-[340px] sm:min-h-[420px] bg-[#F3EFE8] border border-[#E5DFD5] overflow-hidden"
+        >
+          {mapReady ? (
+            <iframe
+              title="Localisation PARFUMERIE EL KHALIFI à Tanger"
+              src={STORE_IDENTITY.mapsEmbedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-full min-h-[340px] sm:min-h-[420px] border-0"
+              allowFullScreen
+            />
+          ) : (
+            <div className="w-full h-full min-h-[340px] sm:min-h-[420px] flex flex-col items-center justify-center gap-3 p-6 text-center">
+              <MapPin className="w-7 h-7 text-[#8A6D3B]" aria-hidden="true" />
+              <p className="text-xs uppercase tracking-[0.14em] text-[#6B655E]">
+                {STORE_IDENTITY.addressFr}
+              </p>
+              <button
+                type="button"
+                onClick={() => setMapReady(true)}
+                className="btn-secondary-invert px-4 py-2 text-xs uppercase tracking-[0.12em] font-medium"
+              >
+                Afficher la carte
+              </button>
+            </div>
+          )}
           <div className="absolute top-4 left-4 bg-[#0A0A0A]/95 text-[#FAF8F5] border border-[#C5A059]/45 px-4 py-2.5 pointer-events-none">
             <p className="font-brand text-xs text-[#DFC48B]">{STORE_IDENTITY.brand}</p>
             <p className="text-[11px] text-[#FAF8F5]/80 mt-0.5">{STORE_IDENTITY.addressFr}</p>

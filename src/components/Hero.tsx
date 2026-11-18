@@ -24,13 +24,14 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
       <picture className="absolute inset-0 w-full h-full pointer-events-none">
         <source
           media="(min-width: 768px)"
-          srcSet="/src/assets/images/hero_cosmetics_perfume_desktop_1795011231315.jpg"
+          srcSet="/assets/hero/hero-desktop.webp"
         />
         <img
-          src="/src/assets/images/hero_cosmetics_perfume_mobile_1795011231875.jpg"
+          src="/assets/hero/hero-mobile.webp"
           alt="Parfums d'exception et soins cosmétiques PARFUMERIE EL KHALIFI"
           className="w-full h-full object-cover object-center sm:object-right opacity-85"
           fetchPriority="high"
+          decoding="async"
         />
       </picture>
 

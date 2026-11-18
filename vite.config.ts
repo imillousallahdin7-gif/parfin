@@ -128,8 +128,23 @@ export default defineConfig(() => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/scheduler')) {
+              return 'react-vendor';
+            }
+            if (id.includes('node_modules/lucide-react')) {
+              return 'icons-vendor';
+            }
+            if (id.includes('node_modules/@firebase/auth') || id.includes('node_modules/firebase/auth')) {
+              return 'firebase-auth';
+            }
+            if (id.includes('node_modules/@firebase/storage') || id.includes('node_modules/firebase/storage')) {
+              return 'firebase-storage';
+            }
+            if (id.includes('node_modules/@firebase/firestore') || id.includes('node_modules/firebase/firestore')) {
+              return 'firebase-firestore';
+            }
             if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) {
-              return 'firebase-bundle';
+              return 'firebase-core';
             }
           },
         },

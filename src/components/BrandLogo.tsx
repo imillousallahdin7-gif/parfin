@@ -20,8 +20,9 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       } ${className}`}
     >
       <img
-        src="/logo.png"
+        src="/logo.webp"
         alt={alt}
+        decoding="async"
         className="w-full h-full object-cover scale-[1.06]"
         referrerPolicy="no-referrer"
       />

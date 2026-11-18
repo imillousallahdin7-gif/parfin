@@ -44,7 +44,7 @@ export async function saveAdminPack(
 ): Promise<string> {
   const [
     { db, handleFirestoreError, OperationType },
-    { deleteField, doc, getDoc, serverTimestamp, setDoc, updateDoc },
+    { deleteField, doc, serverTimestamp, setDoc, updateDoc },
   ] = await Promise.all([import('./firebase'), import('firebase/firestore')]);
 
   const rawId = pack.id?.trim().replace(/[^a-zA-Z0-9_-]/g, '_') || `pack_${Date.now()}`;
@@ -76,25 +76,26 @@ export async function saveAdminPack(
   try {
     const isExistingEdit = Boolean(pack.id?.trim());
     if (isExistingEdit) {
-      const existingSnap = await getDoc(ref);
-      if (existingSnap.exists()) {
-        const existingData = existingSnap.data();
-        const updatePayload: Record<string, unknown> = { ...payload };
-        if (!existingData.createdAt) {
-          updatePayload.createdAt = serverTimestamp();
-        }
-        if (pack.imageUrl === '' && existingData.imageUrl) {
-          updatePayload.imageUrl = deleteField();
-        }
-        if (pack.imageData === '' && existingData.imageData) {
-          updatePayload.imageData = deleteField();
-        }
+      const updatePayload: Record<string, unknown> = { ...payload };
+      if (pack.imageUrl === '') {
+        updatePayload.imageUrl = deleteField();
+      }
+      if (pack.imageData === '') {
+        updatePayload.imageData = deleteField();
+      }
+      try {
         await updateDoc(ref, updatePayload);
-      } else {
-        await setDoc(ref, {
-          ...payload,
-          createdAt: serverTimestamp(),
-        });
+      } catch (err) {
+        const code = (err as { code?: string })?.code;
+        const msg = err instanceof Error ? err.message : String(err);
+        if (code === 'not-found' || msg.includes('No document to update')) {
+          await setDoc(ref, {
+            ...payload,
+            createdAt: serverTimestamp(),
+          });
+        } else {
+          throw err;
+        }
       }
     } else {
       await setDoc(ref, {

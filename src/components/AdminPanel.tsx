@@ -130,10 +130,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     let mounted = true;
 
     (async () => {
-      const [{ auth }, { onAuthStateChanged }] = await Promise.all([
+      const [{ getFirebaseAuth }, { onAuthStateChanged }] = await Promise.all([
         import('../services/firebase'),
         import('firebase/auth'),
       ]);
+      const auth = await getFirebaseAuth();
       if (!mounted) return;
       unsub = onAuthStateChanged(auth, (user) => {
         setUserEmail(user?.email ?? null);
@@ -245,10 +246,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setAuthHelpUrl(null);
     setAuthLoading(true);
     try {
-      const [{ auth, firebaseProjectId }, { signInWithEmailAndPassword }] = await Promise.all([
-        import('../services/firebase'),
-        import('firebase/auth'),
-      ]);
+      const [{ getFirebaseAuth, firebaseProjectId }, { signInWithEmailAndPassword }] =
+        await Promise.all([import('../services/firebase'), import('firebase/auth')]);
+      const auth = await getFirebaseAuth();
       try {
         await signInWithEmailAndPassword(auth, STORE_IDENTITY.adminEmail, loginPassword);
         setFailedAttempts(0);
@@ -304,10 +304,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     setAuthHelpUrl(null);
     setAuthLoading(true);
     try {
-      const [{ auth }, { GoogleAuthProvider, signInWithPopup }] = await Promise.all([
+      const [{ getFirebaseAuth }, { GoogleAuthProvider, signInWithPopup }] = await Promise.all([
         import('../services/firebase'),
         import('firebase/auth'),
       ]);
+      const auth = await getFirebaseAuth();
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       setFailedAttempts(0);
@@ -321,10 +322,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
   };
 
   const handleLogout = async () => {
-    const [{ auth }, { signOut }] = await Promise.all([
+    const [{ getFirebaseAuth }, { signOut }] = await Promise.all([
       import('../services/firebase'),
       import('firebase/auth'),
     ]);
+    const auth = await getFirebaseAuth();
     await signOut(auth);
   };
 

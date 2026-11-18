@@ -1,15 +1,54 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { doc, getDocFromServer, getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import type { Auth } from 'firebase/auth';
+import type { FirebaseStorage } from 'firebase/storage';
+import {
+  doc,
+  getDocFromServer,
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  type Firestore,
+} from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+function createFirestore(): Firestore {
+  try {
+    return initializeFirestore(
+      app,
+      {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      },
+      firebaseConfig.firestoreDatabaseId
+    );
+  } catch {
+    return getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  }
+}
+
+export const db: Firestore = createFirestore();
 export const firebaseProjectId = firebaseConfig.projectId;
+
+let cachedAuth: Auth | null = null;
+let cachedStorage: FirebaseStorage | null = null;
+
+export async function getFirebaseAuth(): Promise<Auth> {
+  if (cachedAuth) return cachedAuth;
+  const { getAuth } = await import('firebase/auth');
+  cachedAuth = getAuth(app);
+  return cachedAuth;
+}
+
+export async function getFirebaseStorage(): Promise<FirebaseStorage> {
+  if (cachedStorage) return cachedStorage;
+  const { getStorage } = await import('firebase/storage');
+  cachedStorage = getStorage(app);
+  return cachedStorage;
+}
 
 export enum OperationType {
   CREATE = 'create',
@@ -42,16 +81,17 @@ export function handleFirestoreError(
   operationType: OperationType,
   path: string | null
 ): never {
+  const user = cachedAuth?.currentUser;
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid ?? null,
-      email: auth.currentUser?.email ?? null,
-      emailVerified: auth.currentUser?.emailVerified ?? null,
-      isAnonymous: auth.currentUser?.isAnonymous ?? null,
-      tenantId: auth.currentUser?.tenantId ?? null,
+      userId: user?.uid ?? null,
+      email: user?.email ?? null,
+      emailVerified: user?.emailVerified ?? null,
+      isAnonymous: user?.isAnonymous ?? null,
+      tenantId: user?.tenantId ?? null,
       providerInfo:
-        auth.currentUser?.providerData?.map((provider) => ({
+        user?.providerData?.map((provider) => ({
           providerId: provider.providerId,
           email: provider.email,
         })) || [],
@@ -83,7 +123,6 @@ export async function testConnection(): Promise<{ ok: boolean; latencyMs: number
         message: 'العميل غير متصل بالإنترنت: يرجى التحقق من إعدادات Firebase.',
       };
     }
-    // Even if doc doesn't exist yet, reaching server means connection works
     if (msg.includes('permission-denied')) {
       return {
         ok: false,
