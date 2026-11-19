@@ -1,4 +1,5 @@
 import { AppRoute, Pack, Product, STORE_IDENTITY } from '../types/catalog';
+import { getCategoryLabel, getProductDescription, getProductTitle, SiteLang } from './i18n';
 
 const DYNAMIC_LD_SCRIPT_ID = 'elkhalifi-dynamic-jsonld';
 
@@ -22,7 +23,13 @@ function upsertCanonical(url: string): void {
   link.setAttribute('href', url);
 }
 
-function resolveRouteSeo(route: AppRoute, selectedCategory: string, detailProduct: Product | null) {
+function resolveRouteSeo(
+  route: AppRoute,
+  selectedCategory: string,
+  detailProduct: Product | null,
+  lang: SiteLang
+) {
+  const isAr = lang === 'ar';
   const origin =
     typeof window !== 'undefined' && window.location.origin.startsWith('http')
       ? window.location.origin
@@ -30,20 +37,20 @@ function resolveRouteSeo(route: AppRoute, selectedCategory: string, detailProduc
 
   if (route === 'admin') {
     return {
-      title: 'Administration | PARFUMERIE EL KHALIFI',
-      description: 'Espace d’administration privé PARFUMERIE EL KHALIFI.',
+      title: 'لوحة الإدارة | PARFUMERIE EL KHALIFI',
+      description: 'فضاء الإدارة الخاص بـ PARFUMERIE EL KHALIFI.',
       url: `${origin}/admin`,
       robots: 'noindex, nofollow',
       breadcrumbs: [
-        { name: 'Accueil', item: `${origin}/` },
-        { name: 'Administration', item: `${origin}/admin` },
+        { name: isAr ? 'الرئيسية' : 'Accueil', item: `${origin}/` },
+        { name: isAr ? 'الإدارة' : 'Administration', item: `${origin}/admin` },
       ],
     };
   }
 
   if (detailProduct) {
-    const productName = detailProduct.name?.fr || 'Création';
-    const rawDesc = (detailProduct.description?.fr || '').trim();
+    const productName = getProductTitle(detailProduct, lang);
+    const rawDesc = getProductDescription(detailProduct, lang).trim();
     const minPrice =
       detailProduct.sizes && detailProduct.sizes.length > 0
         ? Math.min(...detailProduct.sizes.map((s) => s.price))
@@ -51,77 +58,101 @@ function resolveRouteSeo(route: AppRoute, selectedCategory: string, detailProduc
     const desc =
       rawDesc.length >= 40
         ? rawDesc.slice(0, 155)
-        : `${productName} (${detailProduct.category}) à partir de ${minPrice} DH chez PARFUMERIE EL KHALIFI à Tanger. Livraison dans tout le Maroc.`;
+        : isAr
+        ? `${productName} (${getCategoryLabel(detailProduct.category, lang)}) ابتداءً من ${minPrice} درهم مغربي لدى بارفومري الخليفي بطنجة. التوصيل لجميع مدن المغرب.`
+        : `${productName} (${detailProduct.category}) à partir de ${minPrice} MAD chez PARFUMERIE EL KHALIFI à Tanger. Livraison dans tout le Maroc.`;
 
     return {
-      title: `${productName} — PARFUMERIE EL KHALIFI Tanger`,
+      title: isAr
+        ? `${productName} — بارفومري الخليفي طنجة`
+        : `${productName} — PARFUMERIE EL KHALIFI Tanger`,
       description: desc,
       url: `${origin}${route === 'shop' ? '/shop' : '/'}`,
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       breadcrumbs: [
-        { name: 'Accueil', item: `${origin}/` },
-        { name: 'Boutique', item: `${origin}/shop` },
+        { name: isAr ? 'الرئيسية' : 'Accueil', item: `${origin}/` },
+        { name: isAr ? 'المتجر' : 'Boutique', item: `${origin}/shop` },
         { name: productName, item: `${origin}/shop` },
       ],
     };
   }
 
   if (route === 'shop') {
-    const catSuffix = selectedCategory && selectedCategory !== 'Tout' ? ` · ${selectedCategory}` : '';
+    const localizedCat =
+      selectedCategory && selectedCategory !== 'Tout'
+        ? getCategoryLabel(selectedCategory, lang)
+        : '';
+    const catSuffix = localizedCat ? ` · ${localizedCat}` : '';
     return {
-      title: `Boutique Parfums & Cosmétiques${catSuffix} — PARFUMERIE EL KHALIFI`,
-      description: `Explorez notre catalogue complet de parfums originaux, décants, soins visage et maquillage${catSuffix} à Tanger. Commande WhatsApp & livraison partout au Maroc.`,
+      title: isAr
+        ? `متجر العطور ومستحضرات التجميل${catSuffix} — بارفومري الخليفي`
+        : `Boutique Parfums & Cosmétiques${catSuffix} — PARFUMERIE EL KHALIFI`,
+      description: isAr
+        ? `اكتشفوا مجموعتنا الكاملة من العطور الأصلية في قنينات مختومة ومستحضرات العناية والمكياج${catSuffix} في طنجة. طلب عبر واتساب وتوصيل لجميع مدن المغرب.`
+        : `Explorez notre catalogue complet de parfums originaux en flacons scellés, soins visage et maquillage${catSuffix} à Tanger. Commande WhatsApp & livraison partout au Maroc.`,
       url:
         selectedCategory && selectedCategory !== 'Tout'
           ? `${origin}/shop?category=${encodeURIComponent(selectedCategory)}`
           : `${origin}/shop`,
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       breadcrumbs: [
-        { name: 'Accueil', item: `${origin}/` },
-        { name: 'Boutique', item: `${origin}/shop` },
+        { name: isAr ? 'الرئيسية' : 'Accueil', item: `${origin}/` },
+        { name: isAr ? 'المتجر' : 'Boutique', item: `${origin}/shop` },
       ],
     };
   }
 
   if (route === 'packs-women') {
     return {
-      title: 'Packs Femme Parfums & Cosmétiques — PARFUMERIE EL KHALIFI',
-      description:
-        'Découvrez nos Packs Femme alliant parfums de prestige et soins beauté à Tanger. Idéal pour offrir ou se faire plaisir, livré partout au Maroc.',
+      title: isAr
+        ? 'باقات النساء: عطور ومستحضرات تجميل — بارفومري الخليفي'
+        : 'Packs Femme Parfums & Cosmétiques — PARFUMERIE EL KHALIFI',
+      description: isAr
+        ? 'اكتشفوا باقات النساء التي تجمع بين أرقى العطور ومستحضرات العناية والجمال في طنجة مع التوصيل لجميع مدن المغرب.'
+        : 'Découvrez nos Packs Femme alliant parfums de prestige et soins beauté à Tanger. Idéal pour offrir ou se faire plaisir, livré partout au Maroc.',
       url: `${origin}/packs-women`,
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       breadcrumbs: [
-        { name: 'Accueil', item: `${origin}/` },
-        { name: 'Packs Femme', item: `${origin}/packs-women` },
+        { name: isAr ? 'الرئيسية' : 'Accueil', item: `${origin}/` },
+        { name: isAr ? 'باقات النساء' : 'Packs Femme', item: `${origin}/packs-women` },
       ],
     };
   }
 
   if (route === 'packs-men') {
     return {
-      title: 'Packs Homme Parfums & Soins — PARFUMERIE EL KHALIFI',
-      description:
-        'Découvrez nos Packs Homme mêlant parfums boisés, orientaux et soins essentiels à Tanger. Livraison rapide dans tout le Maroc.',
+      title: isAr
+        ? 'باقات الرجال: عطور وعناية — بارفومري الخليفي'
+        : 'Packs Homme Parfums & Soins — PARFUMERIE EL KHALIFI',
+      description: isAr
+        ? 'اكتشفوا باقات الرجال التي تجمع بين العطور الخشبية والشرقية ومنتجات العناية الأساسية في طنجة مع توصيل سريع لكل المغرب.'
+        : 'Découvrez nos Packs Homme mêlant parfums boisés, orientaux et soins essentiels à Tanger. Livraison rapide dans tout le Maroc.',
       url: `${origin}/packs-men`,
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       breadcrumbs: [
-        { name: 'Accueil', item: `${origin}/` },
-        { name: 'Packs Homme', item: `${origin}/packs-men` },
+        { name: isAr ? 'الرئيسية' : 'Accueil', item: `${origin}/` },
+        { name: isAr ? 'باقات الرجال' : 'Packs Homme', item: `${origin}/packs-men` },
       ],
     };
   }
 
-  const catLabel = selectedCategory && selectedCategory !== 'Tout' ? ` (${selectedCategory})` : '';
+  const catLabel =
+    selectedCategory && selectedCategory !== 'Tout'
+      ? ` (${getCategoryLabel(selectedCategory, lang)})`
+      : '';
   return {
-    title: `PARFUMERIE EL KHALIFI — Parfums & Cosmétiques Tanger${catLabel}`,
-    description:
-      'PARFUMERIE EL KHALIFI à Tanger : parfums français, arabes et de niche, décants sur mesure, soins visage et maquillage livrés partout au Maroc.',
+    title: isAr
+      ? `بارفومري الخليفي — عطور ومستحضرات تجميل طنجة${catLabel}`
+      : `PARFUMERIE EL KHALIFI — Parfums & Cosmétiques Tanger${catLabel}`,
+    description: isAr
+      ? 'بارفومري الخليفي بطنجة: عطور فرنسية وعربية وعطور نيش أصلية في قنينات مختومة، عناية بالبشرة ومكياج مع التوصيل لجميع مدن المغرب.'
+      : 'PARFUMERIE EL KHALIFI à Tanger : parfums français, arabes et de niche en flacons originaux, soins visage et maquillage livrés partout au Maroc.',
     url:
       selectedCategory && selectedCategory !== 'Tout'
         ? `${origin}/?category=${encodeURIComponent(selectedCategory)}`
         : `${origin}/`,
     robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
-    breadcrumbs: [{ name: 'Accueil', item: `${origin}/` }],
+    breadcrumbs: [{ name: isAr ? 'الرئيسية' : 'Accueil', item: `${origin}/` }],
   };
 }
 
@@ -186,9 +217,10 @@ export function updateDocumentSeo(params: {
   detailProduct: Product | null;
   products: Product[];
   packs: Pack[];
+  lang?: SiteLang;
 }): void {
-  const { route, selectedCategory, detailProduct, products, packs } = params;
-  const seo = resolveRouteSeo(route, selectedCategory, detailProduct);
+  const { route, selectedCategory, detailProduct, products, packs, lang = 'fr' } = params;
+  const seo = resolveRouteSeo(route, selectedCategory, detailProduct, lang);
   const origin =
     typeof window !== 'undefined' && window.location.origin.startsWith('http')
       ? window.location.origin

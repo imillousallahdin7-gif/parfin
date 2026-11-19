@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { BASE_CATEGORIES, Product } from '../types/catalog';
 import { normalizeText } from '../utils/format';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCategoryLabel } from '../utils/i18n';
+import { LatinNumber } from './LatinDigits';
 import { ProductCard } from './ProductCard';
 
 interface ProductGridSectionProps {
@@ -25,8 +28,8 @@ interface ProductGridSectionProps {
 
 export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
   id = 'collection',
-  title = 'La Collection',
-  subtitle = 'Parfums originaux, décants sur mesure et soins cosmétiques authentiques',
+  title,
+  subtitle,
   products,
   customCategories,
   selectedCategory,
@@ -41,7 +44,15 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
   sortControl,
   initialLimit = 12,
 }) => {
+  const { lang, isAr } = useLanguage();
   const [visibleCount, setVisibleCount] = useState(initialLimit);
+
+  const sectionTitle = title ?? (isAr ? 'التشكيلة المختارة' : 'La Collection');
+  const sectionSubtitle =
+    subtitle ??
+    (isAr
+      ? 'عطور أصلية في قنينات مختومة ومستحضرات تجميل وعناية أصلية'
+      : 'Parfums originaux en flacons scellés et soins cosmétiques authentiques');
 
   const categories = useMemo(() => {
     const merged: string[] = [...BASE_CATEGORIES];
@@ -76,7 +87,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
       const haystack = normalizeText(
         `${product.name?.fr || ''} ${product.name?.ar || ''} ${product.description?.fr || ''} ${
           product.description?.ar || ''
-        } ${product.category || ''}`
+        } ${product.category || ''} ${getCategoryLabel(product.category || '', 'ar')}`
       );
       return haystack.includes(normQuery);
     });
@@ -93,20 +104,24 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
       {/* Editorial Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pb-6 border-b border-[#E5DFD5]">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] text-[#8A6D3B] mb-2">
-            Parfums &amp; Cosmétiques
+          <p
+            className={`text-[11px] text-[#8A6D3B] mb-2 ${
+              isAr ? 'font-medium' : 'uppercase tracking-[0.18em]'
+            }`}
+          >
+            {isAr ? 'عطور ومستحضرات تجميل' : 'Parfums & Cosmétiques'}
           </p>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-[0.04em] text-[#111111]">
-            {title}
+            {sectionTitle}
           </h2>
-          <p className="mt-1.5 text-sm text-[#6B655E]">{subtitle}</p>
+          <p className="mt-1.5 text-sm text-[#6B655E]">{sectionSubtitle}</p>
         </div>
 
         {/* Search + Optional Sort */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 sm:w-72">
             <Search
-              className="w-4 h-4 text-[#6B655E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="w-4 h-4 text-[#6B655E] absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -116,16 +131,24 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                 onSearchChange(e.target.value);
                 setVisibleCount(initialLimit);
               }}
-              placeholder="Rechercher un parfum, un soin, une note..."
-              aria-label="Rechercher un parfum ou un produit cosmétique"
-              className="w-full min-h-[44px] pl-10 pr-10 rounded-xl bg-white border border-[#E5DFD5] text-sm text-[#111111] placeholder:text-[#6B655E] focus:border-[#C5A059] focus:outline-none transition-colors"
+              placeholder={
+                isAr
+                  ? 'ابحث عن عطر أو مستحضر تجميل...'
+                  : 'Rechercher un parfum, un soin, une note...'
+              }
+              aria-label={
+                isAr
+                  ? 'البحث عن عطر أو منتج تجميلي'
+                  : 'Rechercher un parfum ou un produit cosmétique'
+              }
+              className="w-full min-h-[44px] ps-10 pe-10 rounded-xl bg-white border border-[#E5DFD5] text-sm text-[#111111] placeholder:text-[#6B655E] focus:border-[#C5A059] focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => onSearchChange('')}
-                aria-label="Effacer la recherche"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-[#6B655E] hover:text-[#111111] hover:bg-[#F3EFE8] active:scale-95 transition-all"
+                aria-label={isAr ? 'مسح البحث' : 'Effacer la recherche'}
+                className="absolute end-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-[#6B655E] hover:text-[#111111] hover:bg-[#F3EFE8] active:scale-95 transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -137,12 +160,13 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
 
       {/* Horizontal Scrollable CategoryBar */}
       <nav
-        aria-label="Filtrer par catégorie"
+        aria-label={isAr ? 'تصفية حسب الفئة' : 'Filtrer par catégorie'}
         className="flex items-center overflow-x-auto no-scrollbar pb-3 mb-8 border-b border-[#E5DFD5]/70"
       >
         {categories.map((cat, index) => {
           const isActive = normalizeText(selectedCategory) === normalizeText(cat);
           const count = categoryCounts[cat] ?? 0;
+          const catLabel = getCategoryLabel(cat, lang);
           return (
             <React.Fragment key={cat}>
               {index > 0 && (
@@ -156,14 +180,18 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                   onSelectCategory(cat);
                   setVisibleCount(initialLimit);
                 }}
-                className={`relative py-2.5 px-2.5 text-xs uppercase tracking-[0.12em] whitespace-nowrap shrink-0 transition-all duration-150 active:scale-95 min-h-[44px] flex items-center gap-1.5 ${
+                className={`relative py-2.5 px-2.5 text-xs whitespace-nowrap shrink-0 transition-all duration-150 active:scale-95 min-h-[44px] flex items-center gap-1.5 ${
+                  isAr ? '' : 'uppercase tracking-[0.12em]'
+                } ${
                   isActive
                     ? 'text-[#111111] font-semibold'
                     : 'text-[#6B655E] hover:text-[#111111]'
                 }`}
               >
-                <span>{cat}</span>
-                <span className="text-[11px] tabular-nums text-[#8A6D3B]">({count})</span>
+                <span>{catLabel}</span>
+                <span className="text-[11px] tabular-nums text-[#8A6D3B]">
+                  (<LatinNumber value={count} />)
+                </span>
                 {isActive && (
                   <span
                     aria-hidden="true"
@@ -199,7 +227,9 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
             ◆
           </span>
           <p className="font-display text-2xl text-[#111111] mb-3">
-            Catalogue momentanément indisponible, veuillez réessayer
+            {isAr
+              ? 'الكتالوج غير متوفر مؤقتاً، يرجى المحاولة مرة أخرى'
+              : 'Catalogue momentanément indisponible, veuillez réessayer'}
           </p>
           <p className="text-sm text-[#6B655E] mb-6">{error}</p>
           <button
@@ -207,7 +237,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
             onClick={onRetry}
             className="btn-primary-wipe px-7 py-3 text-xs uppercase tracking-[0.14em] min-h-[44px]"
           >
-            Réessayer
+            {isAr ? 'إعادة المحاولة' : 'Réessayer'}
           </button>
         </div>
       ) : products.length === 0 ? (
@@ -216,20 +246,23 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
             ◆
           </span>
           <h3 className="font-display text-2xl sm:text-3xl text-[#111111] mb-3">
-            Nouvelle collection bientôt disponible
+            {isAr ? 'تشكيلة جديدة قريباً' : 'Nouvelle collection bientôt disponible'}
           </h3>
           <p className="text-sm text-[#6B655E] max-w-md mx-auto leading-relaxed">
-            Notre sélection de parfums et produits cosmétiques est en cours de préparation. Contactez
-            notre conciergerie sur WhatsApp pour toute demande particulière.
+            {isAr
+              ? 'نحن بصدد تحضير تشكيلتنا من العطور ومستحضرات التجميل. تواصلوا معنا عبر واتساب لأي طلب خاص.'
+              : 'Notre sélection de parfums et produits cosmétiques est en cours de préparation. Contactez notre conciergerie sur WhatsApp pour toute demande particulière.'}
           </p>
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="bg-white border border-[#E5DFD5] p-10 sm:p-14 text-center max-w-xl mx-auto">
           <p className="font-display text-2xl text-[#111111] mb-2">
-            Aucune création correspondante
+            {isAr ? 'لا توجد منتجات مطابقة' : 'Aucune création correspondante'}
           </p>
           <p className="text-sm text-[#6B655E] mb-6">
-            Essayez un autre mot-clé ou réinitialisez les filtres de catégorie.
+            {isAr
+              ? 'جرّب كلمة بحث أخرى أو أعد ضبط الفلاتر لعرض جميع المنتجات.'
+              : 'Essayez un autre mot-clé ou réinitialisez les filtres de catégorie.'}
           </p>
           <button
             type="button"
@@ -239,7 +272,7 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
             }}
             className="btn-secondary-invert px-6 py-3 text-xs uppercase tracking-[0.14em] min-h-[44px]"
           >
-            Afficher toute la collection
+            {isAr ? 'عرض كامل التشكيلة' : 'Afficher toute la collection'}
           </button>
         </div>
       ) : (
@@ -263,7 +296,15 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                 onClick={() => setVisibleCount((prev) => prev + 12)}
                 className="btn-secondary-invert px-8 py-3.5 text-xs uppercase tracking-[0.14em] font-medium min-h-[44px]"
               >
-                Voir plus de créations ({remainingCount} restants)
+                {isAr ? (
+                  <>
+                    عرض المزيد من المنتجات (متبقي <LatinNumber value={remainingCount} />)
+                  </>
+                ) : (
+                  <>
+                    Voir plus de créations (<LatinNumber value={remainingCount} /> restants)
+                  </>
+                )}
               </button>
             </div>
           )}

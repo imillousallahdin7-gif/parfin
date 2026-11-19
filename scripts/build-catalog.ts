@@ -320,10 +320,15 @@ async function main() {
         typeof generalData.storeName === 'string' && generalData.storeName.trim()
           ? generalData.storeName.trim()
           : DEFAULT_SETTINGS.storeName,
-      announcementFr:
-        typeof generalData.announcementFr === 'string' && generalData.announcementFr.trim()
-          ? generalData.announcementFr.trim()
-          : DEFAULT_SETTINGS.announcementFr,
+      announcementFr: (() => {
+        const raw = typeof generalData.announcementFr === 'string' ? generalData.announcementFr.trim() : '';
+        if (!raw) return DEFAULT_SETTINGS.announcementFr;
+        const upper = raw.toUpperCase();
+        if (upper.includes('DÉCANT') || upper.includes('DECANT')) {
+          return DEFAULT_SETTINGS.announcementFr;
+        }
+        return raw;
+      })(),
       announcementAr:
         typeof generalData.announcementAr === 'string'
           ? generalData.announcementAr

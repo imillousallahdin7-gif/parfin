@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Edit2, Eye, EyeOff, Plus, Trash2, Upload, X } from 'lucide-react';
 import { Pack } from '../types/catalog';
-import { formatMAD } from '../utils/format';
 import { uploadAdminImage } from '../services/catalogService';
 import { deleteAdminPack, saveAdminPack, toggleAdminPackActive } from '../services/packService';
+import { LatinNumber, LatinPrice } from './LatinDigits';
 
 interface PacksAdminSectionProps {
   packs: Pack[];
@@ -97,7 +97,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
 
     const numericPrice = Number(form.price);
     if (!Number.isFinite(numericPrice) || numericPrice < 0) {
-      setError('يرجى إدخال سعر صحيح بالدرهم.');
+      setError('يرجى إدخال سعر صحيح بالدرهم المغربي.');
       return;
     }
 
@@ -164,7 +164,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                 : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
-            باقات النساء ({packs.filter((p) => p.category === 'women').length})
+            باقات النساء (<LatinNumber value={packs.filter((p) => p.category === 'women').length} />)
           </button>
           <button
             type="button"
@@ -175,7 +175,7 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                 : 'bg-[#FDFCFA] text-[#0B0A08] border-[#DDD3BE] hover:border-[#C9A24D] hover:shadow-sm'
             }`}
           >
-            باقات الرجال ({packs.filter((p) => p.category === 'men').length})
+            باقات الرجال (<LatinNumber value={packs.filter((p) => p.category === 'men').length} />)
           </button>
         </div>
 
@@ -248,8 +248,8 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
                   <p className="text-xs text-[#8C857B] mt-1 line-clamp-2 min-h-[2rem]" dir="ltr">
                     {pack.description?.fr || 'Sans description'}
                   </p>
-                  <p className="text-sm font-semibold text-[#8F6E2E] mt-2 tabular-nums" dir="ltr">
-                    {formatMAD(pack.price)}
+                  <p className="text-sm font-semibold text-[#8F6E2E] mt-2" dir="ltr">
+                    <LatinPrice amount={pack.price} currencyLabel="درهم مغربي" />
                   </p>
 
                   <div className="mt-4 pt-3 border-t border-[#DDD3BE] flex items-center justify-between gap-2">
@@ -367,16 +367,21 @@ export const PacksAdminSection: React.FC<PacksAdminSectionProps> = ({ packs, onM
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                 <div>
-                  <label className="block text-xs font-medium mb-1">السعر (بالدرهم DH) *</label>
+                  <label className="block text-xs font-medium mb-1">
+                    السعر (بالدرهم المغربي MAD) *
+                  </label>
                   <input
                     type="number"
                     dir="ltr"
+                    lang="en"
+                    translate="no"
+                    inputMode="numeric"
                     min="0"
                     step="1"
                     required
                     value={form.price}
                     onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                    className="w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
+                    className="notranslate w-full min-h-[44px] px-3 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
                   />
                 </div>
                 <label className="flex items-center gap-2.5 min-h-[44px] px-3 border border-[#DDD3BE] bg-[#F6F1E7] cursor-pointer text-xs font-medium">

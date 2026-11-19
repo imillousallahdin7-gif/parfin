@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { Languages, ShoppingBag } from 'lucide-react';
 import { AppRoute, STORE_IDENTITY } from '../types/catalog';
+import { useLanguage } from '../contexts/LanguageContext';
 import { BrandLogo } from './BrandLogo';
+import { LatinNumber } from './LatinDigits';
 
 interface HeaderProps {
   announcementText: string;
@@ -20,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCart,
   onNavigate,
 }) => {
+  const { isAr, toggleLang } = useLanguage();
   const [badgePop, setBadgePop] = useState(false);
   const prevCartCount = useRef(cartCount);
 
@@ -33,6 +36,22 @@ export const Header: React.FC<HeaderProps> = ({
     prevCartCount.current = cartCount;
   }, [cartCount]);
 
+  const navItems = isAr
+    ? [
+        { label: 'المتجر', href: '/shop', action: () => onNavigate('shop') },
+        { label: 'الباقات', href: '/packs-women', action: () => onNavigate('packs-women') },
+        { label: 'قصتنا', href: '/#story', action: () => onNavigate('home', 'story') },
+        { label: 'متجرنا', href: '/#location', action: () => onNavigate('home', 'location') },
+        { label: 'تواصل معنا', href: '/#contact', action: () => onNavigate('home', 'contact') },
+      ]
+    : [
+        { label: 'Boutique', href: '/shop', action: () => onNavigate('shop') },
+        { label: 'Nos Packs', href: '/packs-women', action: () => onNavigate('packs-women') },
+        { label: 'Notre histoire', href: '/#story', action: () => onNavigate('home', 'story') },
+        { label: 'Notre Magasin', href: '/#location', action: () => onNavigate('home', 'location') },
+        { label: 'Contact', href: '/#contact', action: () => onNavigate('home', 'contact') },
+      ];
+
   return (
     <>
       {/* Static slim announcement strip above sticky header so sticky bar never changes height or jumps */}
@@ -41,23 +60,35 @@ export const Header: React.FC<HeaderProps> = ({
         <span className="text-[#C5A059] hidden sm:inline" aria-hidden="true">
           •
         </span>
-        <span className="hidden sm:inline shrink-0">Livraison dans tout le Maroc</span>
+        <span className="hidden sm:inline shrink-0">
+          {isAr ? 'التوصيل لجميع مدن المغرب' : 'Livraison dans tout le Maroc'}
+        </span>
         <span className="text-[#C5A059] hidden md:inline" aria-hidden="true">
           •
         </span>
-        <span className="hidden md:inline shrink-0">Tanger, Maroc</span>
+        <span className="hidden md:inline shrink-0">
+          {isAr ? 'طنجة، المغرب' : 'Tanger, Maroc'}
+        </span>
       </div>
 
       {/* Fixed-height, zero-jitter sticky navigation bar */}
       <header className="sticky top-0 z-40 w-full bg-[#0A0A0A]/95 backdrop-blur-md text-[#FAF8F5] border-b border-[#C5A059]/25">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          {/* Mobile Header (<768px): fixed 64px, 3-column grid */}
-          <div className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center h-[64px]">
-            <div className="flex items-center justify-start">
+          {/* Mobile Header (<768px): fixed 64px */}
+          <div className="md:hidden flex items-center justify-between gap-2 h-[64px]">
+            <div className="flex items-center shrink-0">
               <button
                 type="button"
                 onClick={onToggleMenu}
-                aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-label={
+                  menuOpen
+                    ? isAr
+                      ? 'إغلاق القائمة'
+                      : 'Fermer le menu'
+                    : isAr
+                    ? 'فتح القائمة'
+                    : 'Ouvrir le menu'
+                }
                 aria-expanded={menuOpen}
                 className="w-11 h-11 flex flex-col items-center justify-center gap-1.5 text-[#FAF8F5] hover:text-[#DFC48B] transition-colors"
               >
@@ -77,19 +108,35 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('home')}
-              className="flex items-center gap-2 min-w-0"
+              className="flex items-center gap-2 min-w-0 justify-center"
             >
-              <BrandLogo sizeClass="w-10 h-10" />
-              <span className="font-brand text-[11px] sm:text-xs text-[#DFC48B] whitespace-nowrap">
+              <BrandLogo sizeClass="w-9 h-9 sm:w-10 sm:h-10 shrink-0" />
+              <span
+                translate="no"
+                className="notranslate font-brand text-[10px] sm:text-xs text-[#DFC48B] whitespace-nowrap truncate max-w-[140px] sm:max-w-none"
+              >
                 {STORE_IDENTITY.brand}
               </span>
             </button>
 
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={toggleLang}
+                aria-label={isAr ? 'Passer en français' : 'التبديل إلى اللغة العربية'}
+                title={isAr ? 'Français' : 'العربية'}
+                className="min-w-[44px] h-10 px-2 rounded-xl border border-[#C5A059]/35 hover:border-[#DFC48B] bg-[#C5A059]/10 hover:bg-[#C5A059]/20 flex items-center justify-center gap-1 text-[#DFC48B] hover:text-[#FAF8F5] text-[11px] font-semibold whitespace-nowrap shrink-0 active:scale-95 transition-all"
+              >
+                <Languages className="w-3.5 h-3.5 text-[#C5A059] shrink-0" strokeWidth={1.7} />
+                <span translate="no" className="notranslate">
+                  {isAr ? 'FR' : 'عربي'}
+                </span>
+              </button>
+
               <button
                 type="button"
                 onClick={onOpenCart}
-                aria-label="Ouvrir le panier"
+                aria-label={isAr ? 'فتح السلة' : 'Ouvrir le panier'}
                 className="relative w-11 h-11 rounded-xl flex items-center justify-center text-[#FAF8F5] hover:text-[#DFC48B] hover:bg-[#C5A059]/10 active:scale-95 transition-all"
               >
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
@@ -99,15 +146,15 @@ export const Header: React.FC<HeaderProps> = ({
                       badgePop ? 'scale-125' : 'scale-100'
                     }`}
                   >
-                    {cartCount}
+                    <LatinNumber value={cartCount} />
                   </span>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Desktop Header (>=768px): fixed 72px, clean 3-zone lockup (Brand Left · Nav Center · Actions Right) */}
-          <div className="hidden md:flex items-center justify-between gap-8 h-[72px]">
+          {/* Desktop Header (>=768px): fixed 72px, clean 3-zone lockup (Brand · Nav · Actions) */}
+          <div className="hidden md:flex items-center justify-between gap-6 lg:gap-8 h-[72px]">
             {/* Zone 1: Brand Mark & Single-Line Wordmark */}
             <button
               type="button"
@@ -115,22 +162,22 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-3 shrink-0"
             >
               <BrandLogo sizeClass="w-11 h-11 border border-[#C5A059]/30" />
-              <span className="font-brand text-sm lg:text-[15px] text-gold-gradient whitespace-nowrap">
+              <span
+                translate="no"
+                className="notranslate font-brand text-sm lg:text-[15px] text-gold-gradient whitespace-nowrap"
+              >
                 {STORE_IDENTITY.brand}
               </span>
             </button>
 
-            {/* Zone 2: Clean Single-Line Navigation Links (crawlable anchors + SPA navigation) */}
-            <nav className="flex items-center gap-5 lg:gap-7" aria-label="Navigation principale">
-              {[
-                { label: 'Boutique', href: '/shop', action: () => onNavigate('shop') },
-                { label: 'Nos Packs', href: '/packs-women', action: () => onNavigate('packs-women') },
-                { label: 'Notre histoire', href: '/#story', action: () => onNavigate('home', 'story') },
-                { label: 'Notre Magasin', href: '/#location', action: () => onNavigate('home', 'location') },
-                { label: 'Contact', href: '/#contact', action: () => onNavigate('home', 'contact') },
-              ].map((item) => (
+            {/* Zone 2: Clean Single-Line Navigation Links */}
+            <nav
+              className="flex items-center gap-4 lg:gap-6"
+              aria-label={isAr ? 'القائمة الرئيسية' : 'Navigation principale'}
+            >
+              {navItems.map((item) => (
                 <a
-                  key={item.label}
+                  key={item.href}
                   href={item.href}
                   onClick={(e) => {
                     if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
@@ -138,7 +185,9 @@ export const Header: React.FC<HeaderProps> = ({
                       item.action();
                     }
                   }}
-                  className="group relative py-2 text-xs uppercase tracking-[0.1em] text-[#FAF8F5]/85 hover:text-[#DFC48B] transition-colors whitespace-nowrap shrink-0"
+                  className={`group relative py-2 text-xs ${
+                    isAr ? 'tracking-normal font-medium' : 'uppercase tracking-[0.1em]'
+                  } text-[#FAF8F5]/85 hover:text-[#DFC48B] transition-colors whitespace-nowrap shrink-0`}
                 >
                   {item.label}
                   <span className="absolute left-0 bottom-1 w-full h-px bg-[#C5A059] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
@@ -146,8 +195,21 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
             </nav>
 
-            {/* Zone 3: Socials + Bag */}
+            {/* Zone 3: Language Switcher + Socials + Bag */}
             <div className="flex items-center justify-end gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={toggleLang}
+                aria-label={isAr ? 'Passer en français' : 'التبديل إلى اللغة العربية'}
+                title={isAr ? 'Français' : 'العربية'}
+                className="min-w-[44px] h-10 px-3 rounded-xl border border-[#C5A059]/35 hover:border-[#DFC48B] bg-[#C5A059]/10 hover:bg-[#C5A059]/20 flex items-center justify-center gap-1.5 text-[#DFC48B] hover:text-[#FAF8F5] text-xs font-semibold whitespace-nowrap shrink-0 hover:shadow-[0_0_16px_rgba(197,160,89,0.28)] active:scale-95 transition-all"
+              >
+                <Languages className="w-4 h-4 text-[#C5A059] shrink-0" strokeWidth={1.7} />
+                <span translate="no" className="notranslate">
+                  {isAr ? 'FR' : 'العربية'}
+                </span>
+              </button>
+
               <a
                 href={STORE_IDENTITY.instagramUrl}
                 target="_blank"
@@ -176,7 +238,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCart}
-                aria-label="Ouvrir le panier"
+                aria-label={isAr ? 'فتح السلة' : 'Ouvrir le panier'}
                 className="relative min-w-[44px] h-10 px-2.5 rounded-xl border border-[#C5A059]/25 hover:border-[#C5A059]/60 bg-[#C5A059]/5 hover:bg-[#C5A059]/15 flex items-center justify-center gap-2 text-[#FAF8F5] hover:text-[#DFC48B] hover:shadow-[0_0_16px_rgba(197,160,89,0.28)] active:scale-95 transition-all"
               >
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
@@ -185,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
                     badgePop ? 'scale-125' : 'scale-100'
                   }`}
                 >
-                  {cartCount}
+                  <LatinNumber value={cartCount} />
                 </span>
               </button>
             </div>

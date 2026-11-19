@@ -3,11 +3,13 @@ import { MessageCircle, Minus, Plus, X } from 'lucide-react';
 import { CartItem, MOROCCAN_CITIES } from '../types/catalog';
 import {
   buildWhatsAppOrderUrl,
-  formatMAD,
   getDeliveryFee,
   isTangierCity,
   isValidMoroccanPhone,
 } from '../utils/format';
+import { useLanguage } from '../contexts/LanguageContext';
+import { CITY_AR_TO_FR } from '../utils/i18n';
+import { LatinNumber, LatinPrice } from './LatinDigits';
 
 interface CustomerOrderModalProps {
   item: CartItem | null;
@@ -24,6 +26,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
   deliveryFeeNational = 35,
   onClose,
 }) => {
+  const { lang, isAr } = useLanguage();
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState('');
   const [city, setCity] = useState('');
@@ -64,19 +67,23 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
     setError(null);
 
     if (!customerName.trim()) {
-      setError('Veuillez saisir votre nom complet.');
+      setError(isAr ? 'يرجى إدخال اسمك الكامل.' : 'Veuillez saisir votre nom complet.');
       return;
     }
     if (!city.trim()) {
-      setError('Veuillez indiquer votre ville de livraison.');
+      setError(isAr ? 'يرجى تحديد مدينة التوصيل.' : 'Veuillez indiquer votre ville de livraison.');
       return;
     }
     if (!address.trim()) {
-      setError('Veuillez renseigner votre adresse complète.');
+      setError(isAr ? 'يرجى إدخال عنوانك الكامل.' : 'Veuillez renseigner votre adresse complète.');
       return;
     }
     if (!isValidMoroccanPhone(phone)) {
-      setError('Numéro marocain invalide (ex. 06 10 64 06 66 ou +212610640666).');
+      setError(
+        isAr
+          ? 'رقم الهاتف المغربي غير صحيح (مثال: 06 10 64 06 66 أو +212610640666).'
+          : 'Numéro marocain invalide (ex. 06 10 64 06 66 ou +212610640666).'
+      );
       return;
     }
 
@@ -89,6 +96,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
       items: [{ ...item, quantity }],
       deliveryFeeLocal,
       deliveryFeeNational,
+      lang,
     });
 
     setGeneratedUrl(url);
@@ -105,7 +113,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Finaliser la commande"
+      aria-label={isAr ? 'إتمام الطلب' : 'Finaliser la commande'}
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0A08]/80 backdrop-blur-xs p-4"
       onClick={onClose}
     >
@@ -115,17 +123,21 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
       >
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#DDD3BE]">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-[#8F6E2E]">
-              Commande Rapide WhatsApp
+            <p
+              className={`text-[11px] text-[#8F6E2E] ${
+                isAr ? 'font-medium' : 'uppercase tracking-[0.16em]'
+              }`}
+            >
+              {isAr ? 'طلب سريع عبر واتساب' : 'Commande Rapide WhatsApp'}
             </p>
             <h2 className="font-display text-2xl font-semibold text-[#0B0A08] mt-1">
-              Finaliser votre commande
+              {isAr ? 'إتمام طلبك' : 'Finaliser votre commande'}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={isAr ? 'إغلاق' : 'Fermer'}
             className="w-10 h-10 rounded-full border border-[#DDD3BE] flex items-center justify-center text-[#0B0A08] hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors shrink-0"
           >
             <X className="w-4 h-4" />
@@ -138,24 +150,30 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
             <p className="font-display text-base font-semibold text-[#0B0A08] truncate">
               {item.title}
             </p>
-            <p className="text-xs text-[#8C857B] mt-0.5">
-              {item.sizeLabel} · {formatMAD(item.unitPrice)}
+            <p className="text-xs text-[#8C857B] mt-0.5 flex items-center gap-1.5 flex-wrap">
+              <span translate="no" className="notranslate">
+                {item.sizeLabel}
+              </span>
+              <span>·</span>
+              <LatinPrice amount={item.unitPrice} />
             </p>
           </div>
           <div className="flex items-center border border-[#DDD3BE] bg-[#FDFCFA] shrink-0">
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              aria-label="Diminuer la quantité"
+              aria-label={isAr ? 'إنقاص الكمية' : 'Diminuer la quantité'}
               className="w-9 h-9 flex items-center justify-center text-[#0B0A08] hover:bg-[#EAE4DC]"
             >
               <Minus className="w-3.5 h-3.5" />
             </button>
-            <span className="w-8 text-center text-xs font-semibold tabular-nums">{quantity}</span>
+            <span className="w-8 text-center text-xs font-semibold">
+              <LatinNumber value={quantity} />
+            </span>
             <button
               type="button"
               onClick={() => setQuantity((q) => q + 1)}
-              aria-label="Augmenter la quantité"
+              aria-label={isAr ? 'زيادة الكمية' : 'Augmenter la quantité'}
               className="w-9 h-9 flex items-center justify-center text-[#0B0A08] hover:bg-[#EAE4DC]"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -164,10 +182,10 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-          {/* 1. Nom complet * */}
+          {/* 1. Full Name */}
           <div>
             <label htmlFor="modal-fullname" className="block text-xs font-medium text-[#0B0A08] mb-1.5">
-              1. Nom complet *
+              <LatinNumber value="1" />. {isAr ? 'الاسم الكامل *' : 'Nom complet *'}
             </label>
             <input
               id="modal-fullname"
@@ -175,22 +193,30 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
               required
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Ex. Youssef El Mansouri"
+              placeholder={isAr ? 'مثال: يوسف المنصوري' : 'Ex. Youssef El Mansouri'}
               className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
             />
           </div>
 
-          {/* 2. Ville * */}
+          {/* 2. City */}
           <div>
             <div className="flex items-center justify-between gap-2 mb-1.5">
               <label htmlFor="modal-city" className="block text-xs font-medium text-[#0B0A08]">
-                2. Ville *
+                <LatinNumber value="2" />. {isAr ? 'المدينة *' : 'Ville *'}
               </label>
               {city.trim() && (
-                <span className="text-[11px] font-medium text-[#8F6E2E] tabular-nums">
-                  {isTangierCity(city)
-                    ? `Livraison Tanger : ${formatMAD(deliveryFeeLocal)}`
-                    : `Livraison Maroc : ${formatMAD(deliveryFeeNational)}`}
+                <span className="text-[11px] font-medium text-[#8F6E2E]">
+                  {isTangierCity(city) ? (
+                    <>
+                      {isAr ? 'التوصيل بطنجة:' : 'Livraison Tanger :'}{' '}
+                      <LatinPrice amount={deliveryFeeLocal} />
+                    </>
+                  ) : (
+                    <>
+                      {isAr ? 'التوصيل بالمغرب:' : 'Livraison Maroc :'}{' '}
+                      <LatinPrice amount={deliveryFeeNational} />
+                    </>
+                  )}
                 </span>
               )}
             </div>
@@ -201,20 +227,20 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
               list="moroccan-cities-modal"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="Sélectionnez ou saisissez votre ville"
+              placeholder={isAr ? 'اختر أو اكتب مدينتك' : 'Sélectionnez ou saisissez votre ville'}
               className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
             />
             <datalist id="moroccan-cities-modal">
               {MOROCCAN_CITIES.map((c) => (
-                <option key={c} value={c} />
+                <option key={c} value={isAr ? CITY_AR_TO_FR[c] || c : c} />
               ))}
             </datalist>
           </div>
 
-          {/* 3. Adresse complète * */}
+          {/* 3. Address */}
           <div>
             <label htmlFor="modal-address" className="block text-xs font-medium text-[#0B0A08] mb-1.5">
-              3. Adresse complète *
+              <LatinNumber value="3" />. {isAr ? 'العنوان الكامل *' : 'Adresse complète *'}
             </label>
             <input
               id="modal-address"
@@ -222,40 +248,49 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
               required
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Quartier, rue, numéro d'immeuble..."
+              placeholder={isAr ? 'الحي، الشارع، رقم الإقامة...' : "Quartier, rue, numéro d'immeuble..."}
               className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
             />
           </div>
 
-          {/* 4. Numéro de téléphone * */}
+          {/* 4. Phone */}
           <div>
             <label htmlFor="modal-phone" className="block text-xs font-medium text-[#0B0A08] mb-1.5">
-              4. Numéro de téléphone *
+              <LatinNumber value="4" />. {isAr ? 'رقم الهاتف *' : 'Numéro de téléphone *'}
             </label>
             <input
               id="modal-phone"
               type="tel"
+              dir="ltr"
+              lang="en"
+              translate="no"
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="06 10 64 06 66"
-              className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] tabular-nums focus:border-[#C9A24D] focus:outline-none"
+              className="notranslate w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] tabular-nums focus:border-[#C9A24D] focus:outline-none"
             />
           </div>
 
           {/* Live Breakdown */}
           <div className="pt-4 border-t border-[#DDD3BE] space-y-2 text-sm">
             <div className="flex justify-between text-[#8C857B]">
-              <span>Sous-total</span>
-              <span className="tabular-nums text-[#0B0A08]">{formatMAD(subtotal)}</span>
+              <span>{isAr ? 'المجموع الفرعي' : 'Sous-total'}</span>
+              <span className="text-[#0B0A08]">
+                <LatinPrice amount={subtotal} />
+              </span>
             </div>
             <div className="flex justify-between text-[#8C857B]">
-              <span>Frais de livraison</span>
-              <span className="tabular-nums text-[#0B0A08]">{formatMAD(deliveryFee)}</span>
+              <span>{isAr ? 'رسوم التوصيل' : 'Frais de livraison'}</span>
+              <span className="text-[#0B0A08]">
+                <LatinPrice amount={deliveryFee} />
+              </span>
             </div>
             <div className="flex justify-between pt-2 border-t border-[#DDD3BE] font-semibold text-base">
-              <span>TOTAL À PAYER</span>
-              <span className="tabular-nums text-[#0B0A08]">{formatMAD(total)}</span>
+              <span>{isAr ? 'الإجمالي للدفع' : 'TOTAL À PAYER'}</span>
+              <span className="text-[#0B0A08]">
+                <LatinPrice amount={total} />
+              </span>
             </div>
           </div>
 
@@ -267,16 +302,20 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
 
           <button
             type="submit"
-            className="btn-whatsapp-luminous w-full min-h-[48px] text-xs uppercase tracking-[0.14em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap"
+            className={`btn-whatsapp-luminous w-full min-h-[48px] text-xs font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap ${
+              isAr ? '' : 'uppercase tracking-[0.14em]'
+            }`}
           >
             <MessageCircle className="w-4 h-4" />
-            <span>Envoyer la commande sur WhatsApp</span>
+            <span>{isAr ? 'إرسال الطلب عبر واتساب' : 'Envoyer la commande sur WhatsApp'}</span>
           </button>
 
           {generatedUrl && (
             <div className="p-3 bg-[#F6F1E7] border border-[#C9A24D]/50 text-center">
               <p className="text-xs text-[#0B0A08] mb-2">
-                Si WhatsApp ne s&apos;est pas ouvert automatiquement :
+                {isAr
+                  ? 'إذا لم يُفتح تطبيق واتساب تلقائياً:'
+                  : "Si WhatsApp ne s'est pas ouvert automatiquement :"}
               </p>
               <a
                 href={generatedUrl}
@@ -284,7 +323,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#8F6E2E] underline"
               >
-                Ouvrir WhatsApp maintenant
+                {isAr ? 'افتح واتساب الآن' : 'Ouvrir WhatsApp maintenant'}
               </a>
             </div>
           )}

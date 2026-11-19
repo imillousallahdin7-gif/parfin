@@ -11,6 +11,8 @@ import {
 import { getPublicCatalog, subscribePublicCatalog } from './services/catalogService';
 import { loadCart, saveCart } from './services/cartService';
 import { updateDocumentSeo } from './utils/seo';
+import { useLanguage } from './contexts/LanguageContext';
+import { getPackTitle, getProductTitle } from './utils/i18n';
 import { Header } from './components/Header';
 import { NavigationOverlay } from './components/NavigationOverlay';
 import { Hero } from './components/Hero';
@@ -55,6 +57,7 @@ function getCategoryFromUrl(): string {
 }
 
 export default function App() {
+  const { lang, isAr } = useLanguage();
   const [route, setRoute] = useState<AppRoute>(() => parseRouteFromLocation());
   const [selectedCategory, setSelectedCategory] = useState<string>(() => getCategoryFromUrl());
   const [searchQuery, setSearchQuery] = useState('');
@@ -192,14 +195,19 @@ export default function App() {
   }, [cartItems]);
 
   useEffect(() => {
+    document.documentElement.dir = route === 'admin' || isAr ? 'rtl' : 'ltr';
+  }, [route, isAr]);
+
+  useEffect(() => {
     updateDocumentSeo({
       route,
       selectedCategory,
       detailProduct,
       products,
       packs,
+      lang,
     });
-  }, [route, selectedCategory, detailProduct, products, packs]);
+  }, [route, selectedCategory, detailProduct, products, packs, lang]);
 
   const handleSelectCategory = useCallback((cat: string) => {
     setSelectedCategory(cat);
@@ -253,68 +261,78 @@ export default function App() {
     }
   }, []);
 
-  const handleAddToCart = useCallback((product: Product, size: ProductSize) => {
-    const key = `product:${product.id}:${size.id}`;
-    const imageUrl = product.imageUrl || product.imageData || product.images?.[0];
-    setCartItems((prev) => {
-      const existing = prev.find((i) => i.key === key);
-      if (existing) {
-        return prev.map((i) => (i.key === key ? { ...i, quantity: i.quantity + 1 } : i));
-      }
-      return [
-        ...prev,
-        {
-          key,
-          kind: 'product',
-          id: product.id,
-          title: product.name?.fr || 'Création',
-          sizeLabel: size.label,
-          sizeId: size.id,
-          unitPrice: size.price,
-          quantity: 1,
-          imageUrl,
-        },
-      ];
-    });
-  }, []);
+  const handleAddToCart = useCallback(
+    (product: Product, size: ProductSize) => {
+      const key = `product:${product.id}:${size.id}`;
+      const imageUrl = product.imageUrl || product.imageData || product.images?.[0];
+      const title = getProductTitle(product, lang);
+      setCartItems((prev) => {
+        const existing = prev.find((i) => i.key === key);
+        if (existing) {
+          return prev.map((i) => (i.key === key ? { ...i, title, quantity: i.quantity + 1 } : i));
+        }
+        return [
+          ...prev,
+          {
+            key,
+            kind: 'product',
+            id: product.id,
+            title,
+            sizeLabel: size.label,
+            sizeId: size.id,
+            unitPrice: size.price,
+            quantity: 1,
+            imageUrl,
+          },
+        ];
+      });
+    },
+    [lang]
+  );
 
-  const handleOrderProductDirect = useCallback((product: Product, size?: ProductSize) => {
-    const chosenSize =
-      size ||
-      product.sizes?.find((s) => s.inStock) ||
-      product.sizes?.[0] || {
-        id: 'default',
-        label: product.sizeLabel || 'Format standard',
-        price: product.price,
-        inStock: product.inStock,
-      };
-    setDetailProduct(null);
-    setDirectOrderItem({
-      key: `product:${product.id}:${chosenSize.id}`,
-      kind: 'product',
-      id: product.id,
-      title: product.name?.fr || 'Création',
-      sizeLabel: chosenSize.label,
-      sizeId: chosenSize.id,
-      unitPrice: chosenSize.price,
-      quantity: 1,
-      imageUrl: product.imageUrl || product.imageData,
-    });
-  }, []);
+  const handleOrderProductDirect = useCallback(
+    (product: Product, size?: ProductSize) => {
+      const chosenSize =
+        size ||
+        product.sizes?.find((s) => s.inStock) ||
+        product.sizes?.[0] || {
+          id: 'default',
+          label: product.sizeLabel || 'Format standard',
+          price: product.price,
+          inStock: product.inStock,
+        };
+      setDetailProduct(null);
+      setDirectOrderItem({
+        key: `product:${product.id}:${chosenSize.id}`,
+        kind: 'product',
+        id: product.id,
+        title: getProductTitle(product, lang),
+        sizeLabel: chosenSize.label,
+        sizeId: chosenSize.id,
+        unitPrice: chosenSize.price,
+        quantity: 1,
+        imageUrl: product.imageUrl || product.imageData,
+      });
+    },
+    [lang]
+  );
 
-  const handleOrderPack = useCallback((pack: Pack) => {
-    setDirectOrderItem({
-      key: `pack:${pack.id}:pack`,
-      kind: 'pack',
-      id: pack.id,
-      title: pack.name?.fr || 'Pack',
-      sizeLabel: 'Pack',
-      sizeId: 'pack',
-      unitPrice: pack.price,
-      quantity: 1,
-      imageUrl: pack.imageUrl || pack.imageData,
-    });
-  }, []);
+  const handleOrderPack = useCallback(
+    (pack: Pack) => {
+      setDirectOrderItem({
+        key: `pack:${pack.id}:pack`,
+        kind: 'pack',
+        id: pack.id,
+        title: getPackTitle(pack, lang),
+        sizeLabel: 'Pack',
+        sizeId: 'pack',
+        unitPrice: pack.price,
+        quantity: 1,
+        imageUrl: pack.imageUrl || pack.imageData,
+      });
+    },
+    [lang]
+  );
 
   const handleUpdateCartQuantity = useCallback((key: string, delta: number) => {
     setCartItems((prev) =>
@@ -347,10 +365,14 @@ export default function App() {
     );
   }
 
+  const activeAnnouncement = isAr
+    ? settings.announcementAr || DEFAULT_STORE_SETTINGS.announcementAr || settings.announcementFr
+    : settings.announcementFr;
+
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#111111] flex flex-col">
+    <div dir={isAr ? 'rtl' : 'ltr'} className="min-h-screen bg-[#FAF8F5] text-[#111111] flex flex-col">
       <Header
-        announcementText={settings.announcementFr}
+        announcementText={activeAnnouncement}
         cartCount={totalCartCount}
         menuOpen={menuOpen}
         onToggleMenu={() => setMenuOpen((o) => !o)}
@@ -408,7 +430,7 @@ export default function App() {
           <Suspense
             fallback={
               <div className="min-h-[60vh] flex items-center justify-center text-xs uppercase tracking-[0.16em] text-[#8A6D3B]">
-                Chargement de la boutique...
+                {isAr ? 'جاري تحميل المتجر...' : 'Chargement de la boutique...'}
               </div>
             }
           >
@@ -433,7 +455,7 @@ export default function App() {
           <Suspense
             fallback={
               <div className="min-h-[60vh] flex items-center justify-center text-xs uppercase tracking-[0.16em] text-[#8A6D3B]">
-                Chargement des packs...
+                {isAr ? 'جاري تحميل الباقات...' : 'Chargement des packs...'}
               </div>
             }
           >

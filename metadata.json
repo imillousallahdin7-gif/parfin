@@ -1,6 +1,6 @@
 {
   "name": "PARFUMERIE EL KHALIFI",
-  "description": "Parfumerie & Cosmétiques à Tanger — Parfums originaux, décants sur mesure, soins visage et maquillage livrés dans tout le Maroc via WhatsApp.",
+  "description": "Parfumerie & Cosmétiques à Tanger — Parfums authentiques en flacons originaux, soins visage et maquillage livrés dans tout le Maroc via WhatsApp.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

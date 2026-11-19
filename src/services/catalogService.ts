@@ -22,7 +22,8 @@ const LEGACY_ANNOUNCEMENT_FR = 'PARFUMERIE EL KHALIFI — FLACONS ET DÉCANTS VI
 
 function upgradeLegacyAnnouncementFr(raw: unknown, fallback: string): string {
   if (typeof raw !== 'string' || !raw.trim()) return fallback;
-  if (raw.trim() === LEGACY_ANNOUNCEMENT_FR) {
+  const upper = raw.trim().toUpperCase();
+  if (upper === LEGACY_ANNOUNCEMENT_FR || upper.includes('DÉCANT') || upper.includes('DECANT')) {
     return DEFAULT_STORE_SETTINGS.announcementFr;
   }
   return raw;
@@ -584,7 +585,7 @@ export async function saveAdminProduct(
 
   const sanitizedSizes = (product.sizes || []).slice(0, 20).map((s, idx) => ({
     id: (s.id || `size_${idx + 1}`).trim().replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64) || `size_${idx + 1}`,
-    label: s.label.trim().slice(0, 40) || '10 ml',
+    label: s.label.trim().slice(0, 40) || 'Format standard',
     price: Math.min(1000000, Math.max(0, Number(s.price) || 0)),
     inStock: Boolean(s.inStock),
   }));

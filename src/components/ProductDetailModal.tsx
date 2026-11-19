@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, ShoppingBag, X } from 'lucide-react';
 import { Product, ProductSize } from '../types/catalog';
-import { formatMAD } from '../utils/format';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCategoryLabel, getProductDescription, getProductTitle } from '../utils/i18n';
 import { CatalogImage } from './CatalogImage';
+import { LatinPrice } from './LatinDigits';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -17,6 +19,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onAddToCart,
   onOrderDirect,
 }) => {
+  const { lang, isAr } = useLanguage();
+
   const gallery = useMemo(() => {
     if (!product) return [];
     const list: string[] = [];
@@ -39,12 +43,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     return [
       {
         id: 'default',
-        label: product.sizeLabel || 'Format standard',
+        label: product.sizeLabel || (isAr ? 'الحجم القياسي' : 'Format standard'),
         price: product.price,
         inStock: product.inStock,
       },
     ];
-  }, [product]);
+  }, [product, isAr]);
 
   const [selectedSizeId, setSelectedSizeId] = useState<string>('');
   const [activeImageIdx, setActiveImageIdx] = useState(0);
@@ -77,7 +81,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   const selectedSize = sizes.find((s) => s.id === selectedSizeId) || sizes[0];
   const isAvailable = product.inStock && selectedSize?.inStock;
-  const title = product.name?.fr || 'Création';
+  const title = getProductTitle(product, lang);
+  const description = getProductDescription(product, lang);
   const activeImage = gallery[activeImageIdx];
 
   const handleAdd = () => {
@@ -102,8 +107,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Fermer la fiche produit"
-          className="absolute top-3 right-3 z-20 w-11 h-11 rounded-full bg-[#FDFCFA]/95 border border-[#DDD3BE] flex items-center justify-center text-[#0B0A08] hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors"
+          aria-label={isAr ? 'إغلاق بطاقة المنتج' : 'Fermer la fiche produit'}
+          className="absolute top-3 end-3 z-20 w-11 h-11 rounded-full bg-[#FDFCFA]/95 border border-[#DDD3BE] flex items-center justify-center text-[#0B0A08] hover:bg-[#0B0A08] hover:text-[#F6F1E7] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -130,7 +135,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       key={`${imgUrl}-${idx}`}
                       type="button"
                       onClick={() => setActiveImageIdx(idx)}
-                      aria-label={`Voir photo ${idx + 1}`}
+                      aria-label={isAr ? `عرض الصورة ${idx + 1}` : `Voir photo ${idx + 1}`}
                       className={`w-16 h-20 rounded-lg overflow-hidden border-2 shrink-0 transition-colors ${
                         activeImageIdx === idx
                           ? 'border-[#C9A24D]'
@@ -139,7 +144,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     >
                       <img
                         src={imgUrl}
-                        alt={`${title} miniature ${idx + 1}`}
+                        alt={`${title} ${idx + 1}`}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
@@ -151,8 +156,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
             {/* Right 6 cols: Details & Contiguous Purchase Module */}
             <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#8F6E2E] mb-2">
-                <span>{product.category}</span>
+              <div
+                className={`flex items-center gap-2 text-xs text-[#8F6E2E] mb-2 ${
+                  isAr ? 'font-medium' : 'uppercase tracking-[0.16em]'
+                }`}
+              >
+                <span>{getCategoryLabel(product.category, lang)}</span>
               </div>
 
               <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#0B0A08] leading-tight">
@@ -160,24 +169,36 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </h2>
 
               <div className="mt-4 pb-4 border-b border-[#DDD3BE] flex items-center justify-between gap-4">
-                <span className="text-2xl font-semibold text-[#0B0A08] tabular-nums">
-                  {formatMAD(selectedSize ? selectedSize.price : product.price)}
+                <span className="text-2xl font-semibold text-[#0B0A08]">
+                  <LatinPrice amount={selectedSize ? selectedSize.price : product.price} />
                 </span>
                 <span
-                  className={`rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.12em] font-medium ${
+                  className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                    isAr ? '' : 'uppercase tracking-[0.12em]'
+                  } ${
                     isAvailable
                       ? 'bg-[#EAE4DC] text-[#0B0A08]'
                       : 'bg-[#0B0A08] text-[#C9A24D]'
                   }`}
                 >
-                  {isAvailable ? 'Disponible' : 'Épuisé'}
+                  {isAvailable
+                    ? isAr
+                      ? 'متوفر'
+                      : 'Disponible'
+                    : isAr
+                    ? 'نفد المخزون'
+                    : 'Épuisé'}
                 </span>
               </div>
 
-              {/* Interactive Size / Decant Grid */}
+              {/* Interactive Size Grid */}
               <div className="mt-5">
-                <p className="text-xs uppercase tracking-[0.14em] text-[#8C857B] mb-3">
-                  Format / Contenance
+                <p
+                  className={`text-xs text-[#8C857B] mb-3 ${
+                    isAr ? 'font-medium' : 'uppercase tracking-[0.14em]'
+                  }`}
+                >
+                  {isAr ? 'الحجم / السعة' : 'Format / Contenance'}
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {sizes.map((size) => {
@@ -188,7 +209,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                         key={size.id}
                         type="button"
                         onClick={() => setSelectedSizeId(size.id)}
-                        className={`p-3 rounded-xl border text-left transition-all duration-150 active:scale-[0.97] min-h-[56px] ${
+                        className={`p-3 rounded-xl border text-start transition-all duration-150 active:scale-[0.97] min-h-[56px] ${
                           isSelected
                             ? 'border-[#C5A059] bg-[#0B0A08] text-[#F6F1E7] shadow-[0_6px_18px_-4px_rgba(197,160,89,0.5)]'
                             : sizeAvail
@@ -197,18 +218,19 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                         }`}
                       >
                         <div
-                          className={`text-xs font-medium ${
+                          translate="no"
+                          className={`notranslate text-xs font-medium ${
                             !sizeAvail ? 'line-through' : ''
                           }`}
                         >
                           {size.label}
                         </div>
                         <div
-                          className={`text-xs mt-0.5 tabular-nums ${
+                          className={`text-xs mt-0.5 ${
                             isSelected ? 'text-[#E8D08C]' : 'text-[#8F6E2E]'
                           } ${!sizeAvail ? 'line-through' : ''}`}
                         >
-                          {formatMAD(size.price)}
+                          <LatinPrice amount={size.price} />
                         </div>
                       </button>
                     );
@@ -222,7 +244,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   type="button"
                   disabled={!isAvailable}
                   onClick={handleAdd}
-                  className={`min-h-[48px] px-4 text-xs uppercase tracking-[0.12em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap ${
+                  className={`min-h-[48px] px-4 text-xs font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap ${
+                    isAr ? '' : 'uppercase tracking-[0.12em]'
+                  } ${
                     !isAvailable
                       ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
                       : 'btn-secondary-invert'
@@ -231,12 +255,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   {addedFeedback ? (
                     <>
                       <Check className="w-4 h-4 text-[#25D366]" />
-                      <span>Ajouté</span>
+                      <span>{isAr ? 'تمت الإضافة' : 'Ajouté'}</span>
                     </>
                   ) : (
                     <>
                       <ShoppingBag className="w-4 h-4" />
-                      <span>Ajouter au panier</span>
+                      <span>{isAr ? 'أضف إلى السلة' : 'Ajouter au panier'}</span>
                     </>
                   )}
                 </button>
@@ -245,24 +269,29 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   type="button"
                   disabled={!isAvailable}
                   onClick={() => isAvailable && selectedSize && onOrderDirect(product, selectedSize)}
-                  className={`min-h-[48px] px-4 text-xs uppercase tracking-[0.12em] font-semibold whitespace-nowrap ${
+                  className={`min-h-[48px] px-4 text-xs font-semibold whitespace-nowrap ${
+                    isAr ? '' : 'uppercase tracking-[0.12em]'
+                  } ${
                     !isAvailable
                       ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
                       : 'btn-gold-luminous'
                   }`}
                 >
-                  Commander
+                  {isAr ? 'اطلب الآن' : 'Commander'}
                 </button>
               </div>
 
               {/* Full Multi-line Description */}
               <div className="mt-7 pt-5 border-t border-[#DDD3BE]">
-                <p className="text-xs uppercase tracking-[0.14em] text-[#8F6E2E] mb-2.5">
-                  Détails &amp; Caractère
+                <p
+                  className={`text-xs text-[#8F6E2E] mb-2.5 ${
+                    isAr ? 'font-semibold' : 'uppercase tracking-[0.14em]'
+                  }`}
+                >
+                  {isAr ? 'التفاصيل والمواصفات' : 'Détails & Caractère'}
                 </p>
                 <p className="text-sm text-[#0B0A08]/85 leading-relaxed whitespace-pre-line">
-                  {product.description?.fr ||
-                    'Une sélection authentique choisie avec soin pour sa qualité et son raffinement — parfums, décants et soins cosmétiques d’exception.'}
+                  {description}
                 </p>
               </div>
             </div>
@@ -278,27 +307,39 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             type="button"
             disabled={!isAvailable}
             onClick={handleAdd}
-            className={`min-h-[46px] px-3 text-[11px] uppercase tracking-[0.1em] font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap ${
+            className={`min-h-[46px] px-3 text-[11px] font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap ${
+              isAr ? '' : 'uppercase tracking-[0.1em]'
+            } ${
               !isAvailable
                 ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
                 : 'btn-secondary-invert'
             }`}
           >
             {addedFeedback ? <Check className="w-4 h-4 text-[#25D366]" /> : <ShoppingBag className="w-4 h-4" />}
-            <span>{addedFeedback ? 'Ajouté' : 'Ajouter'}</span>
+            <span>
+              {addedFeedback
+                ? isAr
+                  ? 'تمت الإضافة'
+                  : 'Ajouté'
+                : isAr
+                ? 'أضف للسلة'
+                : 'Ajouter'}
+            </span>
           </button>
 
           <button
             type="button"
             disabled={!isAvailable}
             onClick={() => isAvailable && selectedSize && onOrderDirect(product, selectedSize)}
-            className={`min-h-[46px] px-3 text-[11px] uppercase tracking-[0.1em] font-semibold whitespace-nowrap ${
+            className={`min-h-[46px] px-3 text-[11px] font-semibold whitespace-nowrap ${
+              isAr ? '' : 'uppercase tracking-[0.1em]'
+            } ${
               !isAvailable
                 ? 'rounded-xl bg-[#EAE4DC] text-[#8C857B] cursor-not-allowed border border-[#DDD3BE]'
                 : 'btn-gold-luminous'
             }`}
           >
-            Commander
+            {isAr ? 'اطلب الآن' : 'Commander'}
           </button>
         </div>
       </div>

@@ -24,7 +24,7 @@ import {
   STORE_IDENTITY,
   StoreSettings,
 } from '../types/catalog';
-import { formatMAD, normalizeText } from '../utils/format';
+import { normalizeText } from '../utils/format';
 import {
   DiagnosticStepResult,
   deleteAdminProduct,
@@ -38,6 +38,7 @@ import {
 } from '../services/catalogService';
 import { subscribeAdminPacks } from '../services/packService';
 import { BrandLogo } from './BrandLogo';
+import { LatinNumber, LatinPrice } from './LatinDigits';
 import { PacksAdminSection } from './PacksAdminSection';
 
 interface AdminPanelProps {
@@ -93,7 +94,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
     category: 'Niche',
     descFr: '',
     inStock: true,
-    sizes: [{ id: 's1', label: '10 ml', price: 150, inStock: true }],
+    sizes: [{ id: 's1', label: '50 ml', price: 450, inStock: true }],
   });
 
   // Settings & Diagnostic tab state
@@ -361,8 +362,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
       descFr: '',
       inStock: true,
       sizes: [
-        { id: 's_5ml', label: '5 ml', price: 90, inStock: true },
-        { id: 's_10ml', label: '10 ml', price: 160, inStock: true },
+        { id: 's_50ml', label: '50 ml', price: 450, inStock: true },
+        { id: 's_100ml', label: '100 ml', price: 750, inStock: true },
       ],
     });
     setProductModalOpen(true);
@@ -573,7 +574,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
             {lockoutSecondsLeft > 0 && (
               <div className="p-3 bg-[#C5A059]/15 border border-[#C5A059]/40 text-xs text-[#DFC48B] text-center tabular-nums">
-                حظر أمني مؤقت: متبقي {lockoutSecondsLeft} ثانية
+                حظر أمني مؤقت: متبقي <LatinNumber value={lockoutSecondsLeft} /> ثانية
               </div>
             )}
 
@@ -584,11 +585,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             >
               <Lock className="w-4 h-4" />
               <span>
-                {lockoutSecondsLeft > 0
-                  ? `محظور (${lockoutSecondsLeft} ث)`
-                  : authLoading
-                  ? 'جاري التحقق...'
-                  : 'تسجيل الدخول'}
+                {lockoutSecondsLeft > 0 ? (
+                  <>
+                    محظور (<LatinNumber value={lockoutSecondsLeft} /> ث)
+                  </>
+                ) : authLoading ? (
+                  'جاري التحقق...'
+                ) : (
+                  'تسجيل الدخول'
+                )}
               </span>
             </button>
           </form>
@@ -686,7 +691,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>المنتجات ({products.length})</span>
+            <span>
+              المنتجات (<LatinNumber value={products.length} />)
+            </span>
           </button>
 
           <button
@@ -699,7 +706,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>الباقات ({packs.length})</span>
+            <span>
+              الباقات (<LatinNumber value={packs.length} />)
+            </span>
           </button>
 
           <button
@@ -816,11 +825,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           <td className="py-3 px-4 text-xs text-[#8C857B]" dir="ltr">
                             {product.category}
                           </td>
-                          <td className="py-3 px-4 text-xs text-[#0B0A08]/80" dir="ltr">
+                          <td translate="no" className="notranslate py-3 px-4 text-xs text-[#0B0A08]/80" dir="ltr">
                             {product.sizes?.map((s) => s.label).join(' · ') || product.sizeLabel}
                           </td>
-                          <td className="py-3 px-4 font-semibold tabular-nums" dir="ltr">
-                            {formatMAD(minPrice)}
+                          <td className="py-3 px-4 font-semibold" dir="ltr">
+                            <LatinPrice amount={minPrice} currencyLabel="درهم مغربي" />
                           </td>
                           <td className="py-3 px-4">
                             <span
@@ -885,12 +894,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   <input
                     type="text"
                     dir="ltr"
+                    lang="en"
+                    translate="no"
                     value={settingsForm.whatsappNumber}
                     onChange={(e) =>
                       setSettingsForm((s) => ({ ...s, whatsappNumber: e.target.value }))
                     }
                     placeholder="212610640666"
-                    className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
+                    className="notranslate w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
                   />
                 </div>
                 <div>
@@ -925,11 +936,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium mb-1.5">
-                    رسوم التوصيل داخل طنجة (DH)
+                    رسوم التوصيل داخل طنجة (درهم مغربي MAD)
                   </label>
                   <input
                     type="number"
                     dir="ltr"
+                    lang="en"
+                    translate="no"
+                    inputMode="numeric"
                     min="0"
                     max="1000"
                     value={settingsForm.deliveryFeeLocal}
@@ -939,16 +953,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                         deliveryFeeLocal: Number(e.target.value) || 0,
                       }))
                     }
-                    className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
+                    className="notranslate w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium mb-1.5">
-                    رسوم التوصيل لباقي المدن (DH)
+                    رسوم التوصيل لباقي المدن (درهم مغربي MAD)
                   </label>
                   <input
                     type="number"
                     dir="ltr"
+                    lang="en"
+                    translate="no"
+                    inputMode="numeric"
                     min="0"
                     max="1000"
                     value={settingsForm.deliveryFeeNational}
@@ -958,7 +975,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                         deliveryFeeNational: Number(e.target.value) || 0,
                       }))
                     }
-                    className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
+                    className="notranslate w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm tabular-nums"
                   />
                 </div>
               </div>
@@ -971,7 +988,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                     dir="ltr"
                     value={newCustomCategory}
                     onChange={(e) => setNewCustomCategory(e.target.value)}
-                    placeholder="Ex. Oud Rare, Extrait..."
+                    placeholder="Ex. Soins Capillaires, Extrait..."
                     className="flex-1 min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm"
                   />
                   <button
@@ -1038,7 +1055,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                   <p className="text-xs text-[#8F6E2E] mb-1">حالة الاتصال عند التشغيل</p>
                   {healthResult ? (
                     <p
-                      className={`text-sm font-medium ${
+                      translate="no"
+                      className={`notranslate text-sm font-medium ${
                         healthResult.ok ? 'text-[#0B0A08]' : 'text-red-700'
                       }`}
                     >
@@ -1051,7 +1069,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
 
                 <div className="mt-6">
                   <p className="text-xs text-[#8C857B] mb-3">
-                    اختبار تلقائي شامل (5 مراحل على مجموعة _health)
+                    اختبار تلقائي شامل (<LatinNumber value={5} /> مراحل على مجموعة _health)
                   </p>
                   <button
                     type="button"
@@ -1080,7 +1098,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           <span className="font-mono font-semibold" dir="ltr">
                             {step.step}
                           </span>
-                          <span className={step.ok ? 'text-emerald-800' : 'text-red-700'}>
+                          <span
+                            translate="no"
+                            className={`notranslate ${step.ok ? 'text-emerald-800' : 'text-red-700'}`}
+                          >
                             {step.ok ? 'نجاح' : 'فشل'} · {step.detail}
                           </span>
                         </li>
@@ -1185,10 +1206,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                 />
               </div>
 
-              {/* Dynamic Multi-Size / Decant Rows */}
+              {/* Dynamic Multi-Size Rows */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-medium">الأحجام والأسعار (بالدرهم) *</label>
+                  <label className="text-xs font-medium">
+                    الأحجام والأسعار (بالدرهم المغربي MAD) *
+                  </label>
                   <button
                     type="button"
                     onClick={() =>
@@ -1198,8 +1221,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                           ...f.sizes,
                           {
                             id: `s_${Date.now()}`,
-                            label: '50 ml / Unité',
-                            price: 250,
+                            label: '100 ml / Unité',
+                            price: 450,
                             inStock: true,
                           },
                         ],
@@ -1220,6 +1243,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                       <input
                         type="text"
                         dir="ltr"
+                        lang="en"
+                        translate="no"
                         required
                         value={size.label}
                         onChange={(e) => {
@@ -1229,12 +1254,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                             sizes: f.sizes.map((s, i) => (i === idx ? { ...s, label: val } : s)),
                           }));
                         }}
-                        placeholder="Ex. 50 ml / 10 ml / Unité"
-                        className="col-span-5 min-h-[38px] px-2.5 bg-[#FDFCFA] border border-[#DDD3BE] text-xs"
+                        placeholder="Ex. 50 ml / 100 ml / Unité"
+                        className="notranslate col-span-5 min-h-[38px] px-2.5 bg-[#FDFCFA] border border-[#DDD3BE] text-xs"
                       />
                       <input
                         type="number"
                         dir="ltr"
+                        lang="en"
+                        translate="no"
+                        inputMode="numeric"
                         min="0"
                         required
                         value={size.price}
@@ -1245,8 +1273,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackHome }) => {
                             sizes: f.sizes.map((s, i) => (i === idx ? { ...s, price: val } : s)),
                           }));
                         }}
-                        placeholder="السعر DH"
-                        className="col-span-3 min-h-[38px] px-2.5 bg-[#FDFCFA] border border-[#DDD3BE] text-xs tabular-nums"
+                        placeholder="السعر MAD"
+                        className="notranslate col-span-3 min-h-[38px] px-2.5 bg-[#FDFCFA] border border-[#DDD3BE] text-xs tabular-nums"
                       />
                       <label className="col-span-3 flex items-center gap-1.5 text-[11px] cursor-pointer">
                         <input

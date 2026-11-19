@@ -21,6 +21,7 @@
   html {
     scroll-behavior: smooth;
     font-family: var(--font-sans);
+    font-variant-numeric: lining-nums tabular-nums;
     background-color: #FAF8F5;
     color: #111111;
   }

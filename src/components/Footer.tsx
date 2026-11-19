@@ -1,8 +1,10 @@
 import React from 'react';
 import { Lock, MessageCircle } from 'lucide-react';
 import { AppRoute, STORE_IDENTITY } from '../types/catalog';
-import { formatMAD, buildWhatsAppDirectUrl } from '../utils/format';
+import { buildWhatsAppDirectUrl } from '../utils/format';
+import { useLanguage } from '../contexts/LanguageContext';
 import { BrandLogo } from './BrandLogo';
+import { LatinNumber, LatinPrice } from './LatinDigits';
 
 interface FooterProps {
   whatsappNumber: string;
@@ -17,6 +19,7 @@ export const Footer: React.FC<FooterProps> = ({
   deliveryFeeNational = 35,
   onNavigate,
 }) => {
+  const { lang, isAr } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -29,26 +32,43 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="flex flex-col items-center text-center pb-12 border-b border-[#C5A059]/20">
           <BrandLogo sizeClass="w-[140px] h-[140px] mb-5 border border-[#C5A059]/35" glow />
 
-          <h2 className="font-brand text-xl sm:text-2xl text-gold-gradient">
+          <h2 translate="no" className="notranslate font-brand text-xl sm:text-2xl text-gold-gradient">
             {STORE_IDENTITY.brand}
           </h2>
-          <p className="text-xs uppercase tracking-[0.18em] text-[#A8A29A] mt-1.5">
-            {STORE_IDENTITY.taglineFr}
+          <p
+            className={`text-xs text-[#A8A29A] mt-1.5 ${
+              isAr ? '' : 'uppercase tracking-[0.18em]'
+            }`}
+          >
+            {isAr ? 'عطور ومستحضرات تجميل فاخرة' : STORE_IDENTITY.taglineFr}
           </p>
 
-          <p className="mt-5 text-xs uppercase tracking-[0.14em] text-[#DFC48B]">
-            {STORE_IDENTITY.conciergeHoursFr}
+          <p
+            className={`mt-5 text-xs text-[#DFC48B] ${
+              isAr ? '' : 'uppercase tracking-[0.14em]'
+            }`}
+          >
+            {isAr ? (
+              <>
+                خدمة الزبناء: طيلة أيام الأسبوع (<LatinNumber value="7/7" />) من{' '}
+                <LatinNumber value="9" /> صباحاً إلى <LatinNumber value="22" /> ليلاً
+              </>
+            ) : (
+              STORE_IDENTITY.conciergeHoursFr
+            )}
           </p>
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <a
-              href={buildWhatsAppDirectUrl(whatsappNumber)}
+              href={buildWhatsAppDirectUrl(whatsappNumber, undefined, lang)}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-whatsapp-luminous inline-flex items-center gap-2 px-6 py-3 text-xs uppercase tracking-[0.14em] font-semibold min-h-[44px] whitespace-nowrap"
+              className={`btn-whatsapp-luminous inline-flex items-center gap-2 px-6 py-3 text-xs font-semibold min-h-[44px] whitespace-nowrap ${
+                isAr ? '' : 'uppercase tracking-[0.14em]'
+              }`}
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Conciergerie WhatsApp</span>
+              <span>{isAr ? 'خدمة العملاء عبر واتساب' : 'Conciergerie WhatsApp'}</span>
             </a>
 
             <a
@@ -84,20 +104,46 @@ export const Footer: React.FC<FooterProps> = ({
         {/* 3 Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 py-12 border-b border-[#C5A059]/20 text-sm">
           <div>
-            <h3 className="text-xs uppercase tracking-[0.16em] text-[#C5A059] mb-4">
-              La Maison
+            <h3
+              className={`text-xs text-[#C5A059] mb-4 ${
+                isAr ? 'font-semibold' : 'uppercase tracking-[0.16em]'
+              }`}
+            >
+              {isAr ? 'عن الدار' : 'La Maison'}
             </h3>
             <p className="text-[#FAF8F5]/75 leading-relaxed mb-3">
-              Maison de parfumerie et cosmétiques à Tanger : parfums authentiques, décants sur
-              mesure, soins beauté et maquillage de prestige livrés au Maroc.
+              {isAr
+                ? 'دار متخصصة في العطور ومستحضرات التجميل بطنجة: عطور أصلية في قنينات مختومة، منتجات العناية بالجمال والمكياج الفاخر مع التوصيل لجميع مدن المغرب.'
+                : 'Maison de parfumerie et cosmétiques à Tanger : parfums authentiques en flacons originaux, soins beauté et maquillage de prestige livrés au Maroc.'}
             </p>
-            <p className="text-xs text-[#A8A29A]">{STORE_IDENTITY.addressFr}</p>
-            <p className="text-xs text-[#A8A29A] mt-1">{STORE_IDENTITY.openingHoursFr}</p>
+            {isAr ? (
+              <>
+                <p className="text-xs text-[#A8A29A]">
+                  <LatinNumber value="2" /> شارع فلورنسيا، طنجة <LatinNumber value="90060" />، المغرب
+                </p>
+                <p className="text-xs text-[#A8A29A] mt-1">
+                  الإثنين – السبت: <LatinNumber value="10:00" /> - <LatinNumber value="21:00" />
+                </p>
+              </>
+            ) : (
+              <>
+                <p translate="no" className="notranslate text-xs text-[#A8A29A]">
+                  {STORE_IDENTITY.addressFr}
+                </p>
+                <p translate="no" className="notranslate text-xs text-[#A8A29A] mt-1">
+                  {STORE_IDENTITY.openingHoursFr}
+                </p>
+              </>
+            )}
           </div>
 
           <div>
-            <h3 className="text-xs uppercase tracking-[0.16em] text-[#C5A059] mb-4">
-              Navigation
+            <h3
+              className={`text-xs text-[#C5A059] mb-4 ${
+                isAr ? 'font-semibold' : 'uppercase tracking-[0.16em]'
+              }`}
+            >
+              {isAr ? 'تصفح الموقع' : 'Navigation'}
             </h3>
             <ul className="space-y-2.5 text-[#FAF8F5]/80">
               <li>
@@ -111,7 +157,7 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
-                  Boutique complète
+                  {isAr ? 'المتجر الكامل' : 'Boutique complète'}
                 </a>
               </li>
               <li>
@@ -125,7 +171,7 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
-                  Packs Femme
+                  {isAr ? 'باقات النساء' : 'Packs Femme'}
                 </a>
               </li>
               <li>
@@ -139,7 +185,7 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
-                  Packs Homme
+                  {isAr ? 'باقات الرجال' : 'Packs Homme'}
                 </a>
               </li>
               <li>
@@ -153,7 +199,7 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
-                  Notre histoire
+                  {isAr ? 'قصتنا' : 'Notre histoire'}
                 </a>
               </li>
               <li>
@@ -167,15 +213,19 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                   className="hover:text-[#DFC48B] transition-colors"
                 >
-                  Notre Magasin
+                  {isAr ? 'متجرنا' : 'Notre Magasin'}
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-xs uppercase tracking-[0.16em] text-[#C5A059] mb-4">
-              Commandes &amp; Service Client
+            <h3
+              className={`text-xs text-[#C5A059] mb-4 ${
+                isAr ? 'font-semibold' : 'uppercase tracking-[0.16em]'
+              }`}
+            >
+              {isAr ? 'الطلبات وخدمة العملاء' : 'Commandes & Service Client'}
             </h3>
             <ul className="space-y-2.5 text-[#FAF8F5]/80">
               <li>
@@ -183,7 +233,8 @@ export const Footer: React.FC<FooterProps> = ({
                   href={STORE_IDENTITY.telHref}
                   className="hover:text-[#DFC48B] transition-colors tabular-nums"
                 >
-                  Tél : {STORE_IDENTITY.phoneDisplay}
+                  {isAr ? 'الهاتف:' : 'Tél :'}{' '}
+                  <LatinNumber value={STORE_IDENTITY.phoneDisplay} />
                 </a>
               </li>
               <li>
@@ -195,17 +246,28 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
               </li>
               <li className="text-xs text-[#A8A29A]">
-                Livraison Tanger : {formatMAD(deliveryFeeLocal)} · Tout le Maroc :{' '}
-                {formatMAD(deliveryFeeNational)}
+                {isAr ? (
+                  <>
+                    التوصيل بطنجة: <LatinPrice amount={deliveryFeeLocal} /> · باقي المدن:{' '}
+                    <LatinPrice amount={deliveryFeeNational} />
+                  </>
+                ) : (
+                  <>
+                    Livraison Tanger : <LatinPrice amount={deliveryFeeLocal} /> · Tout le Maroc :{' '}
+                    <LatinPrice amount={deliveryFeeNational} />
+                  </>
+                )}
               </li>
               <li className="pt-2">
                 <button
                   type="button"
                   onClick={() => onNavigate('admin')}
-                  className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.12em] text-[#A8A29A] hover:text-[#DFC48B] transition-colors"
+                  className={`inline-flex items-center gap-1.5 text-xs text-[#A8A29A] hover:text-[#DFC48B] transition-colors ${
+                    isAr ? '' : 'uppercase tracking-[0.12em]'
+                  }`}
                 >
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Accès Curateur</span>
+                  <span>{isAr ? 'لوحة الإدارة' : 'Accès Curateur'}</span>
                 </button>
               </li>
             </ul>
@@ -215,9 +277,12 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Copyright Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#A8A29A]">
           <p>
-            © {currentYear} {STORE_IDENTITY.brand}. Tous droits réservés.
+            © <LatinNumber value={currentYear} /> {STORE_IDENTITY.brand}.{' '}
+            {isAr ? 'جميع الحقوق محفوظة.' : 'Tous droits réservés.'}
           </p>
-          <p>{STORE_IDENTITY.handle}</p>
+          <p translate="no" className="notranslate">
+            {STORE_IDENTITY.handle}
+          </p>
         </div>
       </div>
     </footer>

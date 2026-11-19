@@ -1,7 +1,9 @@
 import React from 'react';
 import { Product } from '../types/catalog';
-import { formatMAD } from '../utils/format';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getProductDescription, getProductTitle } from '../utils/i18n';
 import { CatalogImage } from './CatalogImage';
+import { LatinPrice } from './LatinDigits';
 
 interface ProductCardProps {
   product: Product;
@@ -16,17 +18,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onOpenDetail,
   onOrderNow,
 }) => {
+  const { lang, isAr } = useLanguage();
   const firstAvailableSize =
     product.sizes?.find((s) => s.inStock) || product.sizes?.[0];
   const displayPrice = firstAvailableSize ? firstAvailableSize.price : product.price;
   const displaySize =
-    firstAvailableSize?.label || product.sizeLabel || 'Format standard';
+    firstAvailableSize?.label ||
+    product.sizeLabel ||
+    (isAr ? 'الحجم القياسي' : 'Format standard');
   const isOutOfStock =
     !product.inStock ||
     (product.sizes && product.sizes.length > 0 && product.sizes.every((s) => !s.inStock));
 
-  const title = product.name?.fr || 'Création';
-  const description = product.description?.fr || '';
+  const title = getProductTitle(product, lang);
+  const description = getProductDescription(product, lang);
   const imageSrc =
     (product.imageUrl?.startsWith('/') ? product.imageUrl : undefined) ||
     product.imageData ||
@@ -48,8 +53,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           aspectClass="aspect-[4/5]"
         />
         {isOutOfStock && (
-          <span className="absolute top-3 left-3 rounded-full bg-[#0A0A0A] text-[#DFC48B] px-3 py-1 text-[10px] uppercase tracking-[0.14em] font-medium">
-            Épuisé
+          <span className="absolute top-3 start-3 rounded-full bg-[#0A0A0A] text-[#DFC48B] px-3 py-1 text-[10px] uppercase tracking-[0.14em] font-medium">
+            {isAr ? 'نفد المخزون' : 'Épuisé'}
           </span>
         )}
       </div>
@@ -60,14 +65,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </h3>
 
         <p className="mt-1.5 text-xs sm:text-[13px] text-[#6B655E] leading-relaxed line-clamp-2 min-h-[2.5rem]">
-          {description || 'Sélection authentique de haute parfumerie et soins cosmétiques.'}
+          {description}
         </p>
 
         <div className="mt-3 mb-4 flex items-center justify-between gap-2 pt-2.5 border-t border-[#E5DFD5]/80">
-          <span className="text-sm sm:text-[15px] font-semibold text-[#111111] tabular-nums whitespace-nowrap">
-            {formatMAD(displayPrice)}
+          <span className="text-sm sm:text-[15px] font-semibold text-[#111111]">
+            <LatinPrice amount={displayPrice} />
           </span>
-          <span className="text-[11px] uppercase tracking-[0.08em] text-[#8A6D3B] font-medium whitespace-nowrap truncate max-w-[115px]">
+          <span
+            translate="no"
+            className="notranslate text-[11px] uppercase tracking-[0.08em] text-[#8A6D3B] font-medium whitespace-nowrap truncate max-w-[115px]"
+          >
             {displaySize}
           </span>
         </div>
@@ -79,13 +87,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             e.stopPropagation();
             if (!isOutOfStock) onOrderNow(product);
           }}
-          className={`mt-auto w-full min-h-[44px] text-xs uppercase tracking-[0.14em] font-semibold ${
+          className={`mt-auto w-full min-h-[44px] text-xs font-semibold ${
+            isAr ? '' : 'uppercase tracking-[0.14em]'
+          } ${
             isOutOfStock
               ? 'rounded-xl bg-[#F3EFE8] text-[#6B655E] cursor-not-allowed border border-[#E5DFD5]'
               : 'btn-noir-luminous'
           }`}
         >
-          {isOutOfStock ? 'Épuisé' : 'Commander'}
+          {isOutOfStock
+            ? isAr
+              ? 'نفد المخزون'
+              : 'Épuisé'
+            : isAr
+            ? 'اطلب الآن'
+            : 'Commander'}
         </button>
       </div>
     </article>

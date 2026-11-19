@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { AppRoute } from '../types/catalog';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface HeroProps {
   onExplore: () => void;
@@ -8,6 +9,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
+  const { isAr } = useLanguage();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -17,7 +19,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
 
   return (
     <section
-      aria-label="Accueil PARFUMERIE EL KHALIFI"
+      aria-label={isAr ? 'واجهة بارفومري الخليفي' : 'Accueil PARFUMERIE EL KHALIFI'}
       className="relative min-h-[76vh] sm:min-h-[84vh] bg-[#0A0A0A] text-[#FAF8F5] overflow-hidden flex items-center"
     >
       {/* Full-bleed responsive perfume & cosmetics photography */}
@@ -28,17 +30,25 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
         />
         <img
           src="/assets/hero/hero-mobile.webp"
-          alt="Parfums d'exception et soins cosmétiques PARFUMERIE EL KHALIFI"
+          alt={
+            isAr
+              ? 'عطور فاخرة ومستحضرات تجميل أصلية — بارفومري الخليفي'
+              : "Parfums d'exception et soins cosmétiques PARFUMERIE EL KHALIFI"
+          }
           className="w-full h-full object-cover object-center sm:object-right opacity-85"
           fetchPriority="high"
           decoding="async"
         />
       </picture>
 
-      {/* Directional dark editorial scrim for crisp contrast on left text while preserving product highlights */}
+      {/* Directional dark editorial scrim for crisp contrast while preserving product highlights */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/55 to-[#0A0A0A]/35 md:bg-gradient-to-r md:from-[#0A0A0A]/95 md:via-[#0A0A0A]/60 md:to-transparent pointer-events-none"
+        className={`absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/55 to-[#0A0A0A]/35 ${
+          isAr
+            ? 'md:bg-gradient-to-l md:from-[#0A0A0A]/95 md:via-[#0A0A0A]/60 md:to-transparent'
+            : 'md:bg-gradient-to-r md:from-[#0A0A0A]/95 md:via-[#0A0A0A]/60 md:to-transparent'
+        } pointer-events-none`}
       />
       {/* 4% SVG Fractal-Noise Grain strictly on Hero */}
       <div aria-hidden="true" className="absolute inset-0 hero-grain pointer-events-none" />
@@ -52,37 +62,44 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
         >
           <div className="flex items-center gap-3 mb-5">
             <span className="h-px w-8 bg-[#C5A059]" aria-hidden="true" />
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[#DFC48B]">
-              Parfums &amp; Cosmétiques · Tanger
+            <p className={`text-[11px] text-[#DFC48B] ${isAr ? 'font-medium' : 'uppercase tracking-[0.22em]'}`}>
+              {isAr ? 'عطور ومستحضرات تجميل · طنجة' : 'Parfums & Cosmétiques · Tanger'}
             </p>
           </div>
 
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-[58px] leading-[1.08] font-semibold tracking-[-0.02em] text-[#FAF8F5] [text-wrap:balance]">
-            Parfums rares &amp; cosmétiques d&apos;exception
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-[58px] leading-[1.12] font-semibold tracking-[-0.02em] text-[#FAF8F5] [text-wrap:balance]">
+            {isAr
+              ? 'عطور راقية ومستحضرات تجميل استثنائية'
+              : "Haute parfumerie & cosmétiques d'exception"}
           </h1>
 
           <p className="mt-5 text-sm sm:text-base text-[#FAF8F5]/75 leading-relaxed max-w-md">
-            Flacons scellés, décants de précision et soins cosmétiques authentiques pour le visage,
-            le corps et votre rituel beauté — livrés partout au Maroc.
+            {isAr
+              ? 'عطور أصلية في قنينات مختومة ومستحضرات عناية أصلية للوجه والجسم ولروتين جمالك — مع التوصيل لجميع مدن المغرب.'
+              : 'Parfums originaux en flacons scellés et soins cosmétiques authentiques pour le visage, le corps et votre rituel beauté — livrés partout au Maroc.'}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3.5">
             <button
               type="button"
               onClick={onExplore}
-              className="group btn-gold-luminous inline-flex items-center gap-3 px-7 py-4 text-xs uppercase tracking-[0.16em] font-semibold min-h-[48px] whitespace-nowrap"
+              className={`group btn-gold-luminous inline-flex items-center gap-3 px-7 py-4 text-xs font-semibold min-h-[48px] whitespace-nowrap ${
+                isAr ? '' : 'uppercase tracking-[0.16em]'
+              }`}
             >
-              <span>Découvrir la Collection</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+              <span>{isAr ? 'اكتشف التشكيلة' : 'Découvrir la Collection'}</span>
+              <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
             </button>
 
             {onNavigate && (
               <button
                 type="button"
                 onClick={() => onNavigate('packs-women')}
-                className="btn-outline-luminous inline-flex items-center gap-2 px-6 py-4 text-xs uppercase tracking-[0.16em] font-medium min-h-[48px] whitespace-nowrap"
+                className={`btn-outline-luminous inline-flex items-center gap-2 px-6 py-4 text-xs font-medium min-h-[48px] whitespace-nowrap ${
+                  isAr ? '' : 'uppercase tracking-[0.16em]'
+                }`}
               >
-                <span>Nos Packs</span>
+                <span>{isAr ? 'باقاتنا المختارة' : 'Nos Packs'}</span>
               </button>
             )}
           </div>

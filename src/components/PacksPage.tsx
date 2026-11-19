@@ -1,6 +1,8 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { AppRoute, Pack } from '../types/catalog';
+import { useLanguage } from '../contexts/LanguageContext';
+import { LatinNumber } from './LatinDigits';
 import { PackCard } from './PackCard';
 
 interface PacksPageProps {
@@ -18,6 +20,7 @@ export const PacksPage: React.FC<PacksPageProps> = ({
   onOrderPack,
   onNavigate,
 }) => {
+  const { isAr } = useLanguage();
   const activePacks = packs.filter((p) => p.active && p.category === category);
   const isWomen = category === 'women';
 
@@ -27,15 +30,36 @@ export const PacksPage: React.FC<PacksPageProps> = ({
         {/* Title bar with corner X returning home */}
         <div className="flex items-start justify-between gap-4 pb-6 mb-8 border-b border-[#E5DFD5]">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.18em] text-[#8A6D3B] mb-2">
-              {isWomen ? '1. Sélection Femme' : '2. Sélection Homme'}
+            <p
+              className={`text-[11px] text-[#8A6D3B] mb-2 ${
+                isAr ? 'font-medium' : 'uppercase tracking-[0.18em]'
+              }`}
+            >
+              <LatinNumber value={isWomen ? '1' : '2'} />.{' '}
+              {isWomen
+                ? isAr
+                  ? 'تشكيلة النساء'
+                  : 'Sélection Femme'
+                : isAr
+                ? 'تشكيلة الرجال'
+                : 'Sélection Homme'}
             </p>
             <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-[0.04em] text-[#111111]">
-              {isWomen ? 'Nos Packs Femme' : 'Nos Packs Homme'}
+              {isWomen
+                ? isAr
+                  ? 'باقات النساء'
+                  : 'Nos Packs Femme'
+                : isAr
+                ? 'باقات الرجال'
+                : 'Nos Packs Homme'}
             </h1>
             <p className="mt-1.5 text-sm text-[#6B655E]">
               {isWomen
-                ? 'Assortiments élégants de parfums, soins visage et essentiels cosmétiques pour femme.'
+                ? isAr
+                  ? 'تشكيلات أنيقة تجمع بين العطور الفاخرة ومستحضرات العناية والجمال للنساء.'
+                  : 'Assortiments élégants de parfums, soins visage et essentiels cosmétiques pour femme.'
+                : isAr
+                ? 'باقات عطور خشبية وشرقية ومستحضرات عناية يومية مختارة للرجال.'
                 : 'Compositions boisées, soins visage et rituels quotidiens sélectionnés pour homme.'}
             </p>
           </div>
@@ -43,7 +67,7 @@ export const PacksPage: React.FC<PacksPageProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('home')}
-            aria-label="Fermer et retourner à l'accueil"
+            aria-label={isAr ? 'إغلاق والعودة للرئيسية' : "Fermer et retourner à l'accueil"}
             className="w-11 h-11 flex items-center justify-center border border-[#E5DFD5] bg-white text-[#111111] hover:border-[#111111] hover:bg-[#111111] hover:text-[#FAF8F5] transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
@@ -55,24 +79,28 @@ export const PacksPage: React.FC<PacksPageProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('packs-women')}
-            className={`px-5 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold min-h-[44px] whitespace-nowrap transition-all duration-150 active:scale-95 ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] whitespace-nowrap transition-all duration-150 active:scale-95 ${
+              isAr ? '' : 'uppercase tracking-[0.12em]'
+            } ${
               isWomen
                 ? 'btn-noir-luminous shadow-[0_8px_22px_-6px_rgba(197,160,89,0.5)]'
                 : 'btn-secondary-invert'
             }`}
           >
-            Packs Femme
+            {isAr ? 'باقات النساء' : 'Packs Femme'}
           </button>
           <button
             type="button"
             onClick={() => onNavigate('packs-men')}
-            className={`px-5 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold min-h-[44px] whitespace-nowrap transition-all duration-150 active:scale-95 ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] whitespace-nowrap transition-all duration-150 active:scale-95 ${
+              isAr ? '' : 'uppercase tracking-[0.12em]'
+            } ${
               !isWomen
                 ? 'btn-noir-luminous shadow-[0_8px_22px_-6px_rgba(197,160,89,0.5)]'
                 : 'btn-secondary-invert'
             }`}
           >
-            Packs Homme
+            {isAr ? 'باقات الرجال' : 'Packs Homme'}
           </button>
         </div>
 
@@ -94,18 +122,19 @@ export const PacksPage: React.FC<PacksPageProps> = ({
               ◆
             </span>
             <h2 className="font-display text-2xl sm:text-3xl text-[#111111] mb-3">
-              Nouvelle sélection bientôt disponible
+              {isAr ? 'تشكيلة جديدة قريباً' : 'Nouvelle sélection bientôt disponible'}
             </h2>
             <p className="text-sm text-[#6B655E] mb-6">
-              Aucun pack actif dans cette sélection pour le moment. Découvrez nos parfums et soins
-              cosmétiques à l&apos;unité dans la boutique.
+              {isAr
+                ? 'لا توجد باقات نشطة في هذه الفئة حالياً. اكتشفوا عطورنا ومستحضرات التجميل في المتجر.'
+                : "Aucun pack actif dans cette sélection pour le moment. Découvrez nos parfums et soins cosmétiques à l'unité dans la boutique."}
             </p>
             <button
               type="button"
               onClick={() => onNavigate('shop')}
               className="btn-primary-wipe px-7 py-3 text-xs uppercase tracking-[0.14em] min-h-[44px]"
             >
-              Découvrir la Boutique
+              {isAr ? 'تصفح المتجر' : 'Découvrir la Boutique'}
             </button>
           </div>
         ) : (

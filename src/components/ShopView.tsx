@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Product } from '../types/catalog';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getProductTitle } from '../utils/i18n';
 import { ProductGridSection } from './ProductGridSection';
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'name-asc';
@@ -34,6 +36,7 @@ export const ShopView: React.FC<ShopViewProps> = ({
   onOrderNow,
   onBackHome,
 }) => {
+  const { lang, isAr } = useLanguage();
   const [sortBy, setSortBy] = useState<SortOption>('newest');
 
   const sortedProducts = useMemo(() => {
@@ -51,7 +54,9 @@ export const ShopView: React.FC<ShopViewProps> = ({
         copy.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
         break;
       case 'name-asc':
-        copy.sort((a, b) => (a.name?.fr || '').localeCompare(b.name?.fr || '', 'fr'));
+        copy.sort((a, b) =>
+          getProductTitle(a, lang).localeCompare(getProductTitle(b, lang), lang === 'ar' ? 'ar' : 'fr')
+        );
         break;
       case 'newest':
       default:
@@ -59,7 +64,7 @@ export const ShopView: React.FC<ShopViewProps> = ({
         break;
     }
     return copy;
-  }, [products, sortBy]);
+  }, [products, sortBy, lang]);
 
   return (
     <div className="min-h-[75vh] bg-[#FAF8F5] pt-6 pb-16">
@@ -67,17 +72,23 @@ export const ShopView: React.FC<ShopViewProps> = ({
         <button
           type="button"
           onClick={onBackHome}
-          className="inline-flex items-center gap-2 px-3 rounded-xl text-xs uppercase tracking-[0.14em] text-[#6B655E] hover:text-[#111111] hover:bg-white hover:shadow-sm active:scale-95 transition-all py-2 min-h-[44px]"
+          className={`inline-flex items-center gap-2 px-3 rounded-xl text-xs text-[#6B655E] hover:text-[#111111] hover:bg-white hover:shadow-sm active:scale-95 transition-all py-2 min-h-[44px] ${
+            isAr ? 'font-medium' : 'uppercase tracking-[0.14em]'
+          }`}
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Retour à l&apos;accueil</span>
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+          <span>{isAr ? 'العودة إلى الرئيسية' : "Retour à l'accueil"}</span>
         </button>
       </div>
 
       <ProductGridSection
         id="shop-catalog"
-        title="Boutique Complète"
-        subtitle="Explorez nos parfums français, orientaux, de niche, décants et notre gamme de cosmétiques & soins"
+        title={isAr ? 'المتجر الكامل' : 'Boutique Complète'}
+        subtitle={
+          isAr
+            ? 'اكتشفوا تشكيلة العطور الفرنسية والشرقية وعطور النيش، بالإضافة إلى مستحضرات التجميل والعناية بالبشرة'
+            : 'Explorez nos parfums français, orientaux et de niche ainsi que notre gamme de cosmétiques & soins'
+        }
         products={sortedProducts}
         customCategories={customCategories}
         selectedCategory={selectedCategory}
@@ -93,18 +104,20 @@ export const ShopView: React.FC<ShopViewProps> = ({
         sortControl={
           <div className="shrink-0">
             <label htmlFor="shop-sort" className="sr-only">
-              Trier les produits
+              {isAr ? 'ترتيب المنتجات' : 'Trier les produits'}
             </label>
             <select
               id="shop-sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="w-full sm:w-auto min-h-[44px] px-3.5 rounded-xl bg-white border border-[#E5DFD5] text-xs uppercase tracking-[0.08em] text-[#111111] focus:border-[#C5A059] focus:outline-none transition-colors"
+              className={`w-full sm:w-auto min-h-[44px] px-3.5 rounded-xl bg-white border border-[#E5DFD5] text-xs text-[#111111] focus:border-[#C5A059] focus:outline-none transition-colors ${
+                isAr ? 'font-medium' : 'uppercase tracking-[0.08em]'
+              }`}
             >
-              <option value="newest">Nouveautés d&apos;abord</option>
-              <option value="price-asc">Prix : Croissant</option>
-              <option value="price-desc">Prix : Décroissant</option>
-              <option value="name-asc">Nom (A à Z)</option>
+              <option value="newest">{isAr ? 'الأحدث أولاً' : "Nouveautés d'abord"}</option>
+              <option value="price-asc">{isAr ? 'السعر: من الأقل إلى الأعلى' : 'Prix : Croissant'}</option>
+              <option value="price-desc">{isAr ? 'السعر: من الأعلى إلى الأقل' : 'Prix : Décroissant'}</option>
+              <option value="name-asc">{isAr ? 'الاسم (أ إلى ي)' : 'Nom (A à Z)'}</option>
             </select>
           </div>
         }

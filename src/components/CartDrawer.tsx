@@ -3,11 +3,13 @@ import { ArrowLeft, MessageCircle, Minus, Plus, ShoppingBag, Trash2, X } from 'l
 import { CartItem, MOROCCAN_CITIES } from '../types/catalog';
 import {
   buildWhatsAppOrderUrl,
-  formatMAD,
   getDeliveryFee,
   isTangierCity,
   isValidMoroccanPhone,
 } from '../utils/format';
+import { useLanguage } from '../contexts/LanguageContext';
+import { CITY_AR_TO_FR } from '../utils/i18n';
+import { LatinNumber, LatinPrice } from './LatinDigits';
 
 interface CartDrawerProps {
   open: boolean;
@@ -32,6 +34,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onClearCart,
 }) => {
+  const { lang, isAr } = useLanguage();
   const [step, setStep] = useState<'cart' | 'checkout'>('cart');
   const [customerName, setCustomerName] = useState('');
   const [city, setCity] = useState('');
@@ -70,23 +73,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     setError(null);
 
     if (items.length === 0) {
-      setError('Votre panier est vide.');
+      setError(isAr ? 'سلة التسوق فارغة.' : 'Votre panier est vide.');
       return;
     }
     if (!customerName.trim()) {
-      setError('Veuillez saisir votre nom complet.');
+      setError(isAr ? 'يرجى إدخال اسمك الكامل.' : 'Veuillez saisir votre nom complet.');
       return;
     }
     if (!city.trim()) {
-      setError('Veuillez indiquer votre ville.');
+      setError(isAr ? 'يرجى تحديد مدينتك.' : 'Veuillez indiquer votre ville.');
       return;
     }
     if (!address.trim()) {
-      setError('Veuillez renseigner votre adresse complète.');
+      setError(isAr ? 'يرجى إدخال عنوانك الكامل.' : 'Veuillez renseigner votre adresse complète.');
       return;
     }
     if (!isValidMoroccanPhone(phone)) {
-      setError('Numéro marocain invalide (ex. 06 10 64 06 66 ou +212610640666).');
+      setError(
+        isAr
+          ? 'رقم الهاتف المغربي غير صحيح (مثال: 06 10 64 06 66 أو +212610640666).'
+          : 'Numéro marocain invalide (ex. 06 10 64 06 66 ou +212610640666).'
+      );
       return;
     }
 
@@ -99,6 +106,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       items,
       deliveryFeeLocal,
       deliveryFeeNational,
+      lang,
     });
 
     setGeneratedUrl(url);
@@ -115,13 +123,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Votre panier"
+      aria-label={isAr ? 'سلة التسوق' : 'Votre panier'}
       className="fixed inset-0 z-50 flex justify-end bg-[#0B0A08]/75 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md h-full bg-[#FDFCFA] text-[#0B0A08] border-l border-[#DDD3BE] flex flex-col"
+        className="w-full max-w-md h-full bg-[#FDFCFA] text-[#0B0A08] border-s border-[#DDD3BE] flex flex-col"
       >
         {/* Drawer Header */}
         <div className="px-5 py-4 border-b border-[#DDD3BE] flex items-center justify-between bg-[#0B0A08] text-[#F6F1E7]">
@@ -130,21 +138,31 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 type="button"
                 onClick={() => setStep('cart')}
-                aria-label="Retour au panier"
+                aria-label={isAr ? 'العودة إلى السلة' : 'Retour au panier'}
                 className="w-9 h-9 flex items-center justify-center text-[#E8D08C] hover:text-white"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               </button>
             )}
-            <h2 className="font-brand text-sm tracking-[0.14em] text-[#E8D08C]">
-              {step === 'cart' ? 'Votre Commande' : 'Coordonnées de Livraison'}
+            <h2
+              className={`font-brand text-sm text-[#E8D08C] ${
+                isAr ? '' : 'tracking-[0.14em]'
+              }`}
+            >
+              {step === 'cart'
+                ? isAr
+                  ? 'طلبك'
+                  : 'Votre Commande'
+                : isAr
+                ? 'بيانات التوصيل'
+                : 'Coordonnées de Livraison'}
             </h2>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer le panier"
+            aria-label={isAr ? 'إغلاق السلة' : 'Fermer le panier'}
             className="w-10 h-10 flex items-center justify-center text-[#F6F1E7] hover:text-[#C9A24D]"
           >
             <X className="w-5 h-5" />
@@ -156,17 +174,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <ShoppingBag className="w-10 h-10 text-[#C9A24D] mb-4" strokeWidth={1.3} />
             <h3 className="font-display text-2xl text-[#0B0A08] mb-2">
-              Votre panier est vide
+              {isAr ? 'سلة التسوق فارغة' : 'Votre panier est vide'}
             </h3>
             <p className="text-sm text-[#8C857B] mb-6">
-              Ajoutez vos parfums ou soins cosmétiques favoris pour préparer votre commande WhatsApp.
+              {isAr
+                ? 'أضف عطرك أو مستحضر التجميل المفضل لتحضير طلبك عبر واتساب.'
+                : 'Ajoutez vos parfums ou soins cosmétiques favoris pour préparer votre commande WhatsApp.'}
             </p>
             <button
               type="button"
               onClick={onClose}
               className="btn-primary-wipe px-6 py-3 text-xs uppercase tracking-[0.14em] min-h-[44px]"
             >
-              Découvrir la Collection
+              {isAr ? 'تصفح التشكيلة' : 'Découvrir la Collection'}
             </button>
           </div>
         ) : step === 'cart' ? (
@@ -191,9 +211,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <p className="font-display text-base font-semibold text-[#0B0A08] truncate">
                         {item.title}
                       </p>
-                      <p className="text-xs text-[#8C857B] mt-0.5">{item.sizeLabel}</p>
-                      <p className="text-xs font-semibold text-[#8F6E2E] mt-1 tabular-nums">
-                        {formatMAD(item.unitPrice * item.quantity)}
+                      <p translate="no" className="notranslate text-xs text-[#8C857B] mt-0.5">
+                        {item.sizeLabel}
+                      </p>
+                      <p className="text-xs font-semibold text-[#8F6E2E] mt-1">
+                        <LatinPrice amount={item.unitPrice * item.quantity} />
                       </p>
                     </div>
                   </div>
@@ -202,7 +224,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <button
                       type="button"
                       onClick={() => onRemoveItem(item.key)}
-                      aria-label={`Supprimer ${item.title}`}
+                      aria-label={isAr ? `حذف ${item.title}` : `Supprimer ${item.title}`}
                       className="text-[#8C857B] hover:text-red-700 p-1"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -211,18 +233,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <button
                         type="button"
                         onClick={() => onUpdateQuantity(item.key, -1)}
-                        aria-label="Diminuer"
+                        aria-label={isAr ? 'إنقاص' : 'Diminuer'}
                         className="w-8 h-8 flex items-center justify-center hover:bg-[#EAE4DC]"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="w-7 text-center text-xs font-semibold tabular-nums">
-                        {item.quantity}
+                      <span className="w-7 text-center text-xs font-semibold">
+                        <LatinNumber value={item.quantity} />
                       </span>
                       <button
                         type="button"
                         onClick={() => onUpdateQuantity(item.key, 1)}
-                        aria-label="Augmenter"
+                        aria-label={isAr ? 'زيادة' : 'Augmenter'}
                         className="w-8 h-8 flex items-center justify-center hover:bg-[#EAE4DC]"
                       >
                         <Plus className="w-3 h-3" />
@@ -238,34 +260,38 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
             >
               <div className="flex items-center justify-between text-sm mb-4">
-                <span className="text-[#8C857B]">Sous-total</span>
-                <span className="text-lg font-semibold text-[#0B0A08] tabular-nums">
-                  {formatMAD(subtotal)}
+                <span className="text-[#8C857B]">{isAr ? 'المجموع الفرعي' : 'Sous-total'}</span>
+                <span className="text-lg font-semibold text-[#0B0A08]">
+                  <LatinPrice amount={subtotal} />
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setStep('checkout')}
-                className="btn-noir-luminous w-full min-h-[48px] text-xs uppercase tracking-[0.14em] font-semibold whitespace-nowrap"
+                className={`btn-noir-luminous w-full min-h-[48px] text-xs font-semibold whitespace-nowrap ${
+                  isAr ? '' : 'uppercase tracking-[0.14em]'
+                }`}
               >
-                Passer la commande
+                {isAr ? 'إتمام الطلب' : 'Passer la commande'}
               </button>
               <button
                 type="button"
                 onClick={onClearCart}
-                className="w-full mt-2 py-2 text-[11px] uppercase tracking-[0.12em] text-[#8C857B] hover:text-[#0B0A08]"
+                className={`w-full mt-2 py-2 text-[11px] text-[#8C857B] hover:text-[#0B0A08] ${
+                  isAr ? '' : 'uppercase tracking-[0.12em]'
+                }`}
               >
-                Vider le panier
+                {isAr ? 'إفراغ السلة' : 'Vider le panier'}
               </button>
             </div>
           </>
         ) : (
           <form onSubmit={handleCheckoutSubmit} className="flex-1 overflow-y-auto p-5 flex flex-col justify-between gap-5">
             <div className="space-y-4">
-              {/* 1. Nom complet * */}
+              {/* 1. Full Name */}
               <div>
                 <label htmlFor="cart-fullname" className="block text-xs font-medium text-[#0B0A08] mb-1.5">
-                  1. Nom complet *
+                  <LatinNumber value="1" />. {isAr ? 'الاسم الكامل *' : 'Nom complet *'}
                 </label>
                 <input
                   id="cart-fullname"
@@ -273,22 +299,30 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Ex. Salma Bennani"
+                  placeholder={isAr ? 'مثال: سلمى بناني' : 'Ex. Salma Bennani'}
                   className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
                 />
               </div>
 
-              {/* 2. Ville * */}
+              {/* 2. City */}
               <div>
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <label htmlFor="cart-city" className="block text-xs font-medium text-[#0B0A08]">
-                    2. Ville *
+                    <LatinNumber value="2" />. {isAr ? 'المدينة *' : 'Ville *'}
                   </label>
                   {city.trim() && (
-                    <span className="text-[11px] font-medium text-[#8F6E2E] tabular-nums">
-                      {isTangierCity(city)
-                        ? `Livraison Tanger : ${formatMAD(deliveryFeeLocal)}`
-                        : `Livraison Maroc : ${formatMAD(deliveryFeeNational)}`}
+                    <span className="text-[11px] font-medium text-[#8F6E2E]">
+                      {isTangierCity(city) ? (
+                        <>
+                          {isAr ? 'التوصيل بطنجة:' : 'Livraison Tanger :'}{' '}
+                          <LatinPrice amount={deliveryFeeLocal} />
+                        </>
+                      ) : (
+                        <>
+                          {isAr ? 'التوصيل بالمغرب:' : 'Livraison Maroc :'}{' '}
+                          <LatinPrice amount={deliveryFeeNational} />
+                        </>
+                      )}
                     </span>
                   )}
                 </div>
@@ -299,20 +333,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   list="moroccan-cities-cart"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="Choisissez votre ville"
+                  placeholder={isAr ? 'اختر مدينتك' : 'Choisissez votre ville'}
                   className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
                 />
                 <datalist id="moroccan-cities-cart">
                   {MOROCCAN_CITIES.map((c) => (
-                    <option key={c} value={c} />
+                    <option key={c} value={isAr ? CITY_AR_TO_FR[c] || c : c} />
                   ))}
                 </datalist>
               </div>
 
-              {/* 3. Adresse complète * */}
+              {/* 3. Address */}
               <div>
                 <label htmlFor="cart-address" className="block text-xs font-medium text-[#0B0A08] mb-1.5">
-                  3. Adresse complète *
+                  <LatinNumber value="3" />. {isAr ? 'العنوان الكامل *' : 'Adresse complète *'}
                 </label>
                 <input
                   id="cart-address"
@@ -320,40 +354,49 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   required
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Quartier, rue, numéro..."
+                  placeholder={isAr ? 'الحي، الشارع، رقم الإقامة...' : 'Quartier, rue, numéro...'}
                   className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
                 />
               </div>
 
-              {/* 4. Numéro de téléphone * */}
+              {/* 4. Phone */}
               <div>
                 <label htmlFor="cart-phone" className="block text-xs font-medium text-[#0B0A08] mb-1.5">
-                  4. Numéro de téléphone *
+                  <LatinNumber value="4" />. {isAr ? 'رقم الهاتف *' : 'Numéro de téléphone *'}
                 </label>
                 <input
                   id="cart-phone"
                   type="tel"
+                  dir="ltr"
+                  lang="en"
+                  translate="no"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="06 10 64 06 66"
-                  className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] tabular-nums focus:border-[#C9A24D] focus:outline-none"
+                  className="notranslate w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] tabular-nums focus:border-[#C9A24D] focus:outline-none"
                 />
               </div>
 
               {/* Breakdown */}
               <div className="pt-4 border-t border-[#DDD3BE] space-y-2 text-sm">
                 <div className="flex justify-between text-[#8C857B]">
-                  <span>Sous-total</span>
-                  <span className="tabular-nums text-[#0B0A08]">{formatMAD(subtotal)}</span>
+                  <span>{isAr ? 'المجموع الفرعي' : 'Sous-total'}</span>
+                  <span className="text-[#0B0A08]">
+                    <LatinPrice amount={subtotal} />
+                  </span>
                 </div>
                 <div className="flex justify-between text-[#8C857B]">
-                  <span>Frais de livraison</span>
-                  <span className="tabular-nums text-[#0B0A08]">{formatMAD(deliveryFee)}</span>
+                  <span>{isAr ? 'رسوم التوصيل' : 'Frais de livraison'}</span>
+                  <span className="text-[#0B0A08]">
+                    <LatinPrice amount={deliveryFee} />
+                  </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-[#DDD3BE] font-semibold text-base">
-                  <span>TOTAL À PAYER</span>
-                  <span className="tabular-nums text-[#0B0A08]">{formatMAD(total)}</span>
+                  <span>{isAr ? 'الإجمالي للدفع' : 'TOTAL À PAYER'}</span>
+                  <span className="text-[#0B0A08]">
+                    <LatinPrice amount={total} />
+                  </span>
                 </div>
               </div>
 
@@ -367,10 +410,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
               <button
                 type="submit"
-                className="btn-whatsapp-luminous w-full min-h-[48px] text-xs uppercase tracking-[0.14em] font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                className={`btn-whatsapp-luminous w-full min-h-[48px] text-xs font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap ${
+                  isAr ? '' : 'uppercase tracking-[0.14em]'
+                }`}
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Confirmer via WhatsApp</span>
+                <span>{isAr ? 'تأكيد الطلب عبر واتساب' : 'Confirmer via WhatsApp'}</span>
               </button>
 
               {generatedUrl && (
@@ -381,7 +426,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     rel="noopener noreferrer"
                     className="text-xs font-semibold uppercase tracking-[0.12em] text-[#8F6E2E] underline"
                   >
-                    Ouvrir votre facture WhatsApp
+                    {isAr ? 'فتح فاتورة واتساب الآن' : 'Ouvrir votre facture WhatsApp'}
                   </a>
                 </div>
               )}
