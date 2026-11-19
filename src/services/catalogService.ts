@@ -220,12 +220,21 @@ export async function subscribePublicCatalog(
     onPacks: (packs: Pack[]) => void;
     onSettings: (settings: StoreSettings) => void;
     onError?: (err: Error) => void;
+    signal?: AbortSignal;
   }
 ): Promise<() => void> {
+  if (callbacks.signal?.aborted) {
+    return () => {};
+  }
+
   const [{ db }, { collection, doc, onSnapshot, orderBy, query }] = await Promise.all([
     import('./firebase'),
     import('firebase/firestore'),
   ]);
+
+  if (callbacks.signal?.aborted) {
+    return () => {};
+  }
 
   let latestSettings: StoreSettings = { ...DEFAULT_STORE_SETTINGS };
   let currentProducts: Product[] = [];

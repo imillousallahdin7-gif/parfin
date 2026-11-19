@@ -22,11 +22,22 @@ function createFirestore(): Firestore {
         localCache: persistentLocalCache({
           tabManager: persistentMultipleTabManager(),
         }),
+        experimentalForceLongPolling: true,
       },
       firebaseConfig.firestoreDatabaseId
     );
   } catch {
-    return getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    try {
+      return initializeFirestore(
+        app,
+        {
+          experimentalForceLongPolling: true,
+        },
+        firebaseConfig.firestoreDatabaseId
+      );
+    } catch {
+      return getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    }
   }
 }
 
@@ -115,15 +126,23 @@ export async function testConnection(): Promise<{ ok: boolean; latencyMs: number
     };
   } catch (error) {
     const latencyMs = Math.round(performance.now() - start);
+    const code = (error as { code?: string })?.code || '';
     const msg = error instanceof Error ? error.message : String(error);
-    if (msg.includes('the client is offline')) {
+    const lower = msg.toLowerCase();
+    if (
+      code === 'unavailable' ||
+      lower.includes('the client is offline') ||
+      lower.includes('unavailable') ||
+      lower.includes('could not reach') ||
+      lower.includes('failed to get document')
+    ) {
       return {
         ok: false,
         latencyMs,
-        message: 'العميل غير متصل بالإنترنت: يرجى التحقق من إعدادات Firebase.',
+        message: 'تعذر الوصول إلى خادم Firestore: يرجى التحقق من الاتصال أو إعدادات Firebase.',
       };
     }
-    if (msg.includes('permission-denied')) {
+    if (code === 'permission-denied' || lower.includes('permission-denied') || lower.includes('insufficient permissions')) {
       return {
         ok: false,
         latencyMs,
@@ -131,9 +150,11 @@ export async function testConnection(): Promise<{ ok: boolean; latencyMs: number
       };
     }
     return {
-      ok: true,
+      ok: false,
       latencyMs,
-      message: `خادم Firestore متصل (${latencyMs} ms).`,
+      message: `تعذر التحقق من اتصال Firestore (${msg}).`,
     };
   }
 }
+
+void testConnection().catch(() => {});

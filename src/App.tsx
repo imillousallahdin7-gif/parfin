@@ -125,12 +125,14 @@ export default function App() {
     if (!isPublicView) return;
     let active = true;
     let unsubscribe: (() => void) | undefined;
+    const controller = new AbortController();
 
     const safetyTimer = window.setTimeout(() => {
       if (active) setLoading(false);
     }, 6000);
 
     subscribePublicCatalog({
+      signal: controller.signal,
       onProducts: (liveProducts) => {
         if (!active) return;
         window.clearTimeout(safetyTimer);
@@ -172,6 +174,7 @@ export default function App() {
 
     return () => {
       active = false;
+      controller.abort();
       window.clearTimeout(safetyTimer);
       if (unsubscribe) unsubscribe();
     };
