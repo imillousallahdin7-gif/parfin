@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
           •
         </span>
         <span className="hidden sm:inline shrink-0">
-          {isAr ? 'التوصيل لجميع مدن المغرب' : 'Livraison dans tout le Maroc'}
+          {isAr ? 'التوصيل لجميع أنحاء المغرب فقط' : 'Livraison au Maroc uniquement'}
         </span>
         <span className="text-[#C5A059] hidden md:inline" aria-hidden="true">
           •

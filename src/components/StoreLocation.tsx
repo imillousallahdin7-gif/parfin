@@ -55,8 +55,8 @@ export const StoreLocation: React.FC<StoreLocationProps> = ({ whatsappNumber }) 
         </h2>
         <p className="mt-1.5 text-sm text-[#6B655E]">
           {isAr
-            ? 'عطور أصلية، مستحضرات عناية وتجميل وطقوس جمال متكاملة في قلب طنجة.'
-            : 'Parfums originaux, soins cosmétiques et rituels beauté réunis au cœur de Tanger.'}
+            ? 'عطور عربية وفرنسية أصلية 100% ومنتجات عناية فاخرة للوجه والجسم في قلب طنجة — خدمة وتوصيل داخل المغرب فقط.'
+            : 'Parfums arabes et français 100 % authentiques et soins de luxe pour le visage et le corps au cœur de Tanger — service et livraison au Maroc uniquement.'}
         </p>
       </div>
 

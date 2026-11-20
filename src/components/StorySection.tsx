@@ -39,14 +39,13 @@ export const StorySection: React.FC = () => {
                     <LatinNumber value="2" /> شارع فلورنسيا، طنجة <LatinNumber value="90060" />، المغرب
                   </span>
                   ، تجمع <strong className="text-[#FAF8F5] font-medium">{STORE_IDENTITY.brand}</strong>{' '}
-                  في مكان واحد أرقى العطور الأصلية (قنينات أصلية مختومة من العطور الفرنسية والشرقية
-                  وعطور النيش) إلى جانب تشكيلة مختارة من مستحضرات التجميل: السيرومات المركّزة، منتجات
-                  العناية بالوجه والجسم، والمكياج الفاخر.
+                  في مكان واحد عطور عربية وفرنسية أصلية <LatinNumber value="100%" /> ومنتجات عناية
+                  فاخرة للوجه والجسم، إلى جانب تشكيلة راقية من المكياج والسيرومات المختارة بعناية.
                 </p>
                 <p>
-                  سواء في عالم العطور أو العناية والتجميل، يرافقكم فريقنا بالاستشارة الشخصية عبر
-                  واتساب وفي المتجر لاختيار العطر المميّز أو بناء روتين الجمال المناسب لكم، مع توصيل
-                  سريع خلال <LatinNumber value="24" /> إلى <LatinNumber value="48" /> ساعة إلى جميع مدن
+                  نعمل داخل دولة المغرب فقط، حيث يرافقكم فريقنا بالاستشارة الشخصية عبر واتساب وفي
+                  المتجر لاختيار العطر المميّز أو روتين العناية المناسب لكم، مع توصيل سريع خلال{' '}
+                  <LatinNumber value="24" /> إلى <LatinNumber value="48" /> ساعة إلى جميع أنحاء
                   المغرب.
                 </p>
               </>
@@ -58,14 +57,13 @@ export const StorySection: React.FC = () => {
                     {STORE_IDENTITY.addressFr}
                   </span>
                   , <strong className="text-[#FAF8F5] font-medium">{STORE_IDENTITY.brand}</strong> réunit
-                  dans un même écrin des parfums authentiques (flacons originaux scellés, fragrances
-                  françaises, orientales et de niche) et une sélection pointue de produits cosmétiques :
-                  sérums ciblés, soins du visage et du corps, et maquillage haut de gamme.
+                  dans un même écrin des parfums arabes et français 100 % authentiques et des soins de
+                  luxe pour le visage et le corps, complétés par une sélection pointue de maquillage.
                 </p>
                 <p>
-                  Côté parfumerie comme côté cosmétique, notre équipe conseille chaque client sur WhatsApp
-                  et en boutique pour choisir le parfum signature idéal ou bâtir un rituel beauté sur
-                  mesure, avec livraison rapide sous <LatinNumber value="24" /> à <LatinNumber value="48" />h
+                  Nous opérons exclusivement au Maroc : notre équipe conseille chaque client sur
+                  WhatsApp et en boutique pour choisir son parfum ou bâtir son rituel beauté, avec
+                  livraison rapide sous <LatinNumber value="24" /> à <LatinNumber value="48" />h
                   partout au Maroc.
                 </p>
               </>
@@ -98,14 +96,14 @@ export const StorySection: React.FC = () => {
               </div>
               <div>
                 <p className="font-display text-2xl sm:text-3xl text-[#DFC48B] tabular-nums">
-                  {isAr ? 'المغرب' : 'Maroc'}
+                  {isAr ? 'المغرب فقط' : 'Maroc'}
                 </p>
                 <p
                   className={`text-[11px] text-[#A8A29A] mt-1 ${
                     isAr ? '' : 'uppercase tracking-[0.12em]'
                   }`}
                 >
-                  {isAr ? 'توصيل سريع' : 'Livraison Rapide'}
+                  {isAr ? 'توصيل لجميع أنحاء المغرب' : 'Livraison Maroc Uniquement'}
                 </p>
               </div>
             </div>

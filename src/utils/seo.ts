@@ -59,8 +59,8 @@ function resolveRouteSeo(
       rawDesc.length >= 40
         ? rawDesc.slice(0, 155)
         : isAr
-        ? `${productName} (${getCategoryLabel(detailProduct.category, lang)}) ابتداءً من ${minPrice} درهم مغربي لدى بارفومري الخليفي بطنجة. التوصيل لجميع مدن المغرب.`
-        : `${productName} (${detailProduct.category}) à partir de ${minPrice} MAD chez PARFUMERIE EL KHALIFI à Tanger. Livraison dans tout le Maroc.`;
+        ? `${productName} (${getCategoryLabel(detailProduct.category, lang)}) ابتداءً من ${minPrice} درهم مغربي لدى بارفومري الخليفي بطنجة. التوصيل لجميع أنحاء المغرب فقط.`
+        : `${productName} (${detailProduct.category}) à partir de ${minPrice} MAD chez PARFUMERIE EL KHALIFI à Tanger. Livraison au Maroc uniquement.`;
 
     return {
       title: isAr
@@ -88,8 +88,8 @@ function resolveRouteSeo(
         ? `متجر العطور ومستحضرات التجميل${catSuffix} — بارفومري الخليفي`
         : `Boutique Parfums & Cosmétiques${catSuffix} — PARFUMERIE EL KHALIFI`,
       description: isAr
-        ? `اكتشفوا مجموعتنا الكاملة من العطور الأصلية في قنينات مختومة ومستحضرات العناية والمكياج${catSuffix} في طنجة. طلب عبر واتساب وتوصيل لجميع مدن المغرب.`
-        : `Explorez notre catalogue complet de parfums originaux en flacons scellés, soins visage et maquillage${catSuffix} à Tanger. Commande WhatsApp & livraison partout au Maroc.`,
+        ? `اكتشفوا مجموعتنا من العطور العربية والفرنسية الأصلية 100% ومنتجات العناية الفاخرة للوجه والجسم${catSuffix} في طنجة مع توصيل لجميع أنحاء المغرب فقط.`
+        : `Explorez notre catalogue de parfums arabes et français 100 % authentiques et soins de luxe visage et corps${catSuffix} à Tanger. Livraison au Maroc uniquement.`,
       url:
         selectedCategory && selectedCategory !== 'Tout'
           ? `${origin}/shop?category=${encodeURIComponent(selectedCategory)}`
@@ -108,8 +108,8 @@ function resolveRouteSeo(
         ? 'باقات النساء: عطور ومستحضرات تجميل — بارفومري الخليفي'
         : 'Packs Femme Parfums & Cosmétiques — PARFUMERIE EL KHALIFI',
       description: isAr
-        ? 'اكتشفوا باقات النساء التي تجمع بين أرقى العطور ومستحضرات العناية والجمال في طنجة مع التوصيل لجميع مدن المغرب.'
-        : 'Découvrez nos Packs Femme alliant parfums de prestige et soins beauté à Tanger. Idéal pour offrir ou se faire plaisir, livré partout au Maroc.',
+        ? 'اكتشفوا باقات النساء من العطور العربية والفرنسية الأصلية 100% ومنتجات العناية الفاخرة للوجه والجسم في طنجة مع توصيل لجميع أنحاء المغرب فقط.'
+        : 'Découvrez nos Packs Femme alliant parfums arabes et français 100 % authentiques et soins de luxe visage et corps à Tanger. Livraison au Maroc uniquement.',
       url: `${origin}/packs-women`,
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       breadcrumbs: [
@@ -125,8 +125,8 @@ function resolveRouteSeo(
         ? 'باقات الرجال: عطور وعناية — بارفومري الخليفي'
         : 'Packs Homme Parfums & Soins — PARFUMERIE EL KHALIFI',
       description: isAr
-        ? 'اكتشفوا باقات الرجال التي تجمع بين العطور الخشبية والشرقية ومنتجات العناية الأساسية في طنجة مع توصيل سريع لكل المغرب.'
-        : 'Découvrez nos Packs Homme mêlant parfums boisés, orientaux et soins essentiels à Tanger. Livraison rapide dans tout le Maroc.',
+        ? 'اكتشفوا باقات الرجال من العطور الأصلية ومنتجات العناية الفاخرة للوجه والجسم في طنجة مع توصيل لجميع أنحاء المغرب فقط.'
+        : 'Découvrez nos Packs Homme mêlant parfums arabes et français authentiques et soins de luxe à Tanger. Livraison rapide au Maroc uniquement.',
       url: `${origin}/packs-men`,
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       breadcrumbs: [
@@ -145,8 +145,8 @@ function resolveRouteSeo(
       ? `بارفومري الخليفي — عطور ومستحضرات تجميل طنجة${catLabel}`
       : `PARFUMERIE EL KHALIFI — Parfums & Cosmétiques Tanger${catLabel}`,
     description: isAr
-      ? 'بارفومري الخليفي بطنجة: عطور فرنسية وعربية وعطور نيش أصلية في قنينات مختومة، عناية بالبشرة ومكياج مع التوصيل لجميع مدن المغرب.'
-      : 'PARFUMERIE EL KHALIFI à Tanger : parfums français, arabes et de niche en flacons originaux, soins visage et maquillage livrés partout au Maroc.',
+      ? 'عطور عربية وفرنسية أصلية 100% ومنتجات عناية فاخرة للوجه والجسم مع توصيل لجميع أنحاء المغرب فقط.'
+      : 'Parfums arabes et français 100 % authentiques et soins de luxe pour le visage et le corps, avec livraison partout au Maroc uniquement.',
     url:
       selectedCategory && selectedCategory !== 'Tout'
         ? `${origin}/?category=${encodeURIComponent(selectedCategory)}`

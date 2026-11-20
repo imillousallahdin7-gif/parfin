@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { AppRoute } from '../types/catalog';
 import { useLanguage } from '../contexts/LanguageContext';
+import { LatinNumber } from './LatinDigits';
 
 interface HeroProps {
   onExplore: () => void;
@@ -32,8 +33,8 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
           src="/assets/hero/hero-mobile.webp"
           alt={
             isAr
-              ? 'عطور فاخرة ومستحضرات تجميل أصلية — بارفومري الخليفي'
-              : "Parfums d'exception et soins cosmétiques PARFUMERIE EL KHALIFI"
+              ? 'عطور عربية وفرنسية أصلية ومنتجات عناية فاخرة — بارفومري الخليفي'
+              : "Parfums arabes et français authentiques et soins de luxe PARFUMERIE EL KHALIFI"
           }
           className="w-full h-full object-cover object-center sm:object-right opacity-85"
           fetchPriority="high"
@@ -63,7 +64,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
           <div className="flex items-center gap-3 mb-5">
             <span className="h-px w-8 bg-[#C5A059]" aria-hidden="true" />
             <p className={`text-[11px] text-[#DFC48B] ${isAr ? 'font-medium' : 'uppercase tracking-[0.22em]'}`}>
-              {isAr ? 'عطور ومستحضرات تجميل · طنجة' : 'Parfums & Cosmétiques · Tanger'}
+              {isAr ? 'عطور ومستحضرات تجميل · المغرب فقط' : 'Parfums & Cosmétiques · Maroc Uniquement'}
             </p>
           </div>
 
@@ -74,9 +75,14 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onNavigate }) => {
           </h1>
 
           <p className="mt-5 text-sm sm:text-base text-[#FAF8F5]/75 leading-relaxed max-w-md">
-            {isAr
-              ? 'عطور أصلية في قنينات مختومة ومستحضرات عناية أصلية للوجه والجسم ولروتين جمالك — مع التوصيل لجميع مدن المغرب.'
-              : 'Parfums originaux en flacons scellés et soins cosmétiques authentiques pour le visage, le corps et votre rituel beauté — livrés partout au Maroc.'}
+            {isAr ? (
+              <>
+                عطور عربية وفرنسية أصلية <LatinNumber value="100%" /> ومنتجات عناية فاخرة للوجه
+                والجسم مع توصيل لجميع أنحاء المغرب.
+              </>
+            ) : (
+              'Parfums arabes et français 100 % authentiques et soins de luxe pour le visage et le corps, avec livraison partout au Maroc.'
+            )}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3.5">

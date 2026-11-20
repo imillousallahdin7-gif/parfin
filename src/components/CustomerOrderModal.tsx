@@ -202,7 +202,8 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
           <div>
             <div className="flex items-center justify-between gap-2 mb-1.5">
               <label htmlFor="modal-city" className="block text-xs font-medium text-[#0B0A08]">
-                <LatinNumber value="2" />. {isAr ? 'المدينة *' : 'Ville *'}
+                <LatinNumber value="2" />.{' '}
+                {isAr ? 'المدينة (داخل المغرب فقط) *' : 'Ville (Maroc uniquement) *'}
               </label>
               {city.trim() && (
                 <span className="text-[11px] font-medium text-[#8F6E2E]">
@@ -213,7 +214,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
                     </>
                   ) : (
                     <>
-                      {isAr ? 'التوصيل بالمغرب:' : 'Livraison Maroc :'}{' '}
+                      {isAr ? 'التوصيل لباقي أنحاء المغرب:' : 'Livraison Maroc :'}{' '}
                       <LatinPrice amount={deliveryFeeNational} />
                     </>
                   )}
@@ -227,7 +228,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
               list="moroccan-cities-modal"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder={isAr ? 'اختر أو اكتب مدينتك' : 'Sélectionnez ou saisissez votre ville'}
+              placeholder={isAr ? 'اختر أو اكتب مدينتك في المغرب' : 'Sélectionnez votre ville au Maroc'}
               className="w-full min-h-[44px] px-3.5 bg-[#FDFCFA] border border-[#DDD3BE] text-sm text-[#0B0A08] focus:border-[#C9A24D] focus:outline-none"
             />
             <datalist id="moroccan-cities-modal">
@@ -287,7 +288,7 @@ export const CustomerOrderModal: React.FC<CustomerOrderModalProps> = ({
               </span>
             </div>
             <div className="flex justify-between pt-2 border-t border-[#DDD3BE] font-semibold text-base">
-              <span>{isAr ? 'الإجمالي للدفع' : 'TOTAL À PAYER'}</span>
+              <span>{isAr ? 'المجموع' : 'Total à payer'}</span>
               <span className="text-[#0B0A08]">
                 <LatinPrice amount={total} />
               </span>

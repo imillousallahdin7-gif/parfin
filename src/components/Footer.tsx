@@ -113,8 +113,8 @@ export const Footer: React.FC<FooterProps> = ({
             </h3>
             <p className="text-[#FAF8F5]/75 leading-relaxed mb-3">
               {isAr
-                ? 'دار متخصصة في العطور ومستحضرات التجميل بطنجة: عطور أصلية في قنينات مختومة، منتجات العناية بالجمال والمكياج الفاخر مع التوصيل لجميع مدن المغرب.'
-                : 'Maison de parfumerie et cosmétiques à Tanger : parfums authentiques en flacons originaux, soins beauté et maquillage de prestige livrés au Maroc.'}
+                ? 'دار متخصصة في العطور ومستحضرات التجميل بطنجة: عطور عربية وفرنسية أصلية 100% ومنتجات عناية فاخرة للوجه والجسم، مع توصيل حصري لجميع أنحاء المغرب.'
+                : 'Maison de parfumerie et cosmétiques à Tanger : parfums arabes et français 100 % authentiques et soins de luxe pour le visage et le corps, livrés exclusivement partout au Maroc.'}
             </p>
             {isAr ? (
               <>
@@ -248,12 +248,13 @@ export const Footer: React.FC<FooterProps> = ({
               <li className="text-xs text-[#A8A29A]">
                 {isAr ? (
                   <>
-                    التوصيل بطنجة: <LatinPrice amount={deliveryFeeLocal} /> · باقي المدن:{' '}
-                    <LatinPrice amount={deliveryFeeNational} />
+                    التوصيل داخل المغرب فقط — طنجة: <LatinPrice amount={deliveryFeeLocal} /> · باقي
+                    المدن: <LatinPrice amount={deliveryFeeNational} />
                   </>
                 ) : (
                   <>
-                    Livraison Tanger : <LatinPrice amount={deliveryFeeLocal} /> · Tout le Maroc :{' '}
+                    Livraison au Maroc uniquement — Tanger :{' '}
+                    <LatinPrice amount={deliveryFeeLocal} /> · Partout au Maroc :{' '}
                     <LatinPrice amount={deliveryFeeNational} />
                   </>
                 )}

@@ -51,8 +51,8 @@ export const ProductGridSection: React.FC<ProductGridSectionProps> = ({
   const sectionSubtitle =
     subtitle ??
     (isAr
-      ? 'عطور أصلية في قنينات مختومة ومستحضرات تجميل وعناية أصلية'
-      : 'Parfums originaux en flacons scellés et soins cosmétiques authentiques');
+      ? 'عطور عربية وفرنسية أصلية 100% ومنتجات عناية فاخرة للوجه والجسم مع توصيل لجميع أنحاء المغرب'
+      : 'Parfums arabes et français 100 % authentiques et soins de luxe pour le visage et le corps, avec livraison partout au Maroc');
 
   const categories = useMemo(() => {
     const merged: string[] = [...BASE_CATEGORIES];

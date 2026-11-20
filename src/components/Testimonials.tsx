@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const TESTIMONIALS_FR = [
   {
     quote:
-      "J'ai commandé un sérum éclat visage et une eau de parfum pour mon mariage. Produits 100 % authentiques en flacon scellé, emballage soigné et tenue irréprochable.",
+      "J'ai commandé un sérum éclat visage et une eau de parfum pour mon mariage. Produits 100 % authentiques, emballage soigné et tenue irréprochable.",
     author: 'Yasmine B.',
     city: 'Casablanca',
   },
@@ -43,7 +43,7 @@ const TESTIMONIALS_FR = [
 const TESTIMONIALS_AR = [
   {
     quote:
-      'طلبتُ سيروماً لإشراقة الوجه وعطراً أصلياً لحفل زفافي. منتجات أصلية في قنينات مختومة، تغليف أنيق وثبات ممتاز طوال اليوم.',
+      'طلبتُ سيروماً لإشراقة الوجه وعطراً أصلياً لحفل زفافي. منتجات أصلية 100%، تغليف أنيق وثبات ممتاز طوال اليوم.',
     author: 'ياسمين ب.',
     city: 'الدار البيضاء',
   },
